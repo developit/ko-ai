@@ -1,0 +1,28 @@
+{
+  "name": "koai",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/ai.js",
+  "types": "./dist/ai.d.ts",
+  "exports": {
+    "types": "./dist/ai.d.ts",
+    "import": "./dist/ai.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup --clean",
+    "dev": "tsup --watch",
+    "test": "node --test *.test.ts",
+    "test:watch": "node --test --watch *.test.ts",
+    "pretest": "pnpm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "mock-openai-api": "^1.0.3",
+    "nock": "^14.0.10",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  }
+}
