@@ -1,22 +1,28 @@
-import ai from './dist/ai.js';
+import ai from './ai.ts';
 
 const config = {
-  apiKey: '1',
-  baseURL: 'https://proxy-shopify-ai.local.shop.dev/v1',
-  model: 'gpt-4o-mini',
+  apiKey: process.env.OPENROUTER_API_KEY || '',
+  // baseURL: 'https://proxy-shopify-ai.local.shop.dev/v1',
+  baseURL: 'https://openrouter.ai/api/v1',
+  model: 'openai/gpt-5-nano',
 };
 
 // Basic streaming
 async function streamingDemo() {
   let text = '';
+  let lastId = '';
   for await (const chunk of ai({
     ...config,
     input: 'Count from 1 to 5',
-    max_output_tokens: 50,
   })) {
-    if (chunk.type === 'text') text += chunk.text;
+    if ('text' in chunk) {
+      if (chunk.item_id !== lastId) {
+        lastId = chunk.item_id;
+        process.stdout.write('\n\n' + chunk.type + ': \n');
+      }
+      process.stdout.write(chunk.text);
+    }
   }
-  console.log('Streaming:', text);
 }
 
 // Tool calling with inline handlers
@@ -35,11 +41,22 @@ async function toolDemo() {
     },
   ];
 
-  let text = '';
+  let lastId = '';
   for await (const chunk of ai({...config, input: 'Weather in Tokyo?', tools})) {
-    if (chunk.type === 'text') text += chunk.text;
+    if ('text' in chunk) {
+      if (chunk.item_id !== lastId) {
+        lastId = chunk.item_id;
+        process.stdout.write('\n\n' + chunk.type + ': \n');
+      }
+      process.stdout.write(chunk.text);
+    }
+    if (chunk.type === 'tool_call') {
+      process.stdout.write('\n\nTool call: ' + chunk.function.name + '(' + chunk.function.arguments + ')');
+    }
+    if (chunk.type === 'tool_result') {
+      process.stdout.write('\n\nTool result: ' + JSON.stringify(chunk.result));
+    }
   }
-  console.log('Tool call:', text);
 }
 
 await streamingDemo();

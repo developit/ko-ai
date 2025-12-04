@@ -10,6 +10,7 @@ const LIVE_API_KEY = process.env.OPENROUTER_API_KEY;
 const LIVE_BASE_URL = 'https://openrouter.ai/api/v1';
 const TEST_BASE_URL = LIVE_API_KEY ? LIVE_BASE_URL : 'https://api.openai.com/v1';
 const TEST_API_KEY = LIVE_API_KEY || 'mock-api-key';
+const TEST_MODEL = 'openai/gpt-5-nano'; // Cheap model supporting both modes
 
 const FIXTURES_PATH = './.nock-fixtures.json';
 
@@ -49,16 +50,16 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'Reply with "Responses mode works" and nothing else',
         max_output_tokens: 50,
         temperature: 0,
       }));
 
       const result = chunks.at(-1)!;
-      const content = chunks.filter(c => c.type === 'text').map(c => c.text).join('');
+      const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
       assert.ok(content);
-      console.log('Responses mode result:', content, '| final chunk:', result.type);
+      console.log('Responses mode result:', content.slice(0, 100), '| final chunk:', result.type);
     });
 
     test('should generate text in completions mode', async () => {
@@ -66,23 +67,23 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'completions',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'Reply with "Completions mode works" and nothing else',
         max_output_tokens: 50,
         temperature: 0,
       }));
 
       const result = chunks.at(-1)!;
-      const content = chunks.filter(c => c.type === 'text').map(c => c.text).join('');
+      const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
       assert.ok(content);
-      console.log('Completions mode result:', content, '| final chunk:', result.type);
+      console.log('Completions mode result:', content.slice(0, 100), '| final chunk:', result.type);
     });
 
     test('should handle system messages', async () => {
       const chunks = await Array.fromAsync(ai({
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         instructions: 'You are a helpful assistant that speaks like a pirate.',
         input: 'Say hello',
         max_output_tokens: 50,
@@ -90,29 +91,26 @@ describe('AI Client Tests', () => {
       }));
 
       const result = chunks.at(-1)!;
-      const content = chunks.filter(c => c.type === 'text').map(c => c.text).join('');
+      const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
       assert.ok(content);
-      console.log('System message result:', content, '| final chunk:', result.type);
+      console.log('System message result:', content.slice(0, 100), '| final chunk:', result.type);
     });
 
     test('should stream in both modes', async () => {
       for (const mode of ['responses', 'completions'] as const) {
-        const chunks = [];
-        for await (const chunk of ai({
+        const chunks = await Array.fromAsync(ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode,
-          model: 'gpt-4o-mini',
+          model: TEST_MODEL,
           input: `Say "Mode ${mode} streaming works"`,
           max_output_tokens: 50,
           temperature: 0,
-        })) {
-          chunks.push(chunk);
-        }
+        }));
 
         assert.ok(chunks.length > 0, `No chunks received in ${mode} mode`);
-        const hasText = chunks.some((c) => c.type === 'text');
-        assert.ok(hasText, `No text chunks in ${mode} mode`);
+        const hasContent = chunks.some((c) => c.type === 'text' || c.type === 'reasoning');
+        assert.ok(hasContent, `No text/reasoning chunks in ${mode} mode`);
         console.log(`${mode} mode streamed ${chunks.length} chunks`);
       }
     });
@@ -142,7 +140,7 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'What is the weather in Paris? Use the get_current_weather tool.',
         tools,
         max_output_tokens: 150,
@@ -152,11 +150,11 @@ describe('AI Client Tests', () => {
 
       const hasToolCall = chunks.some(c => c.type === 'tool_call');
       const hasToolResult = chunks.some(c => c.type === 'tool_result');
-      const hasText = chunks.some(c => c.type === 'text');
+      const hasContent = chunks.some(c => c.type === 'text' || c.type === 'reasoning');
 
       assert.ok(hasToolCall, 'Should have tool_call chunk');
       assert.ok(hasToolResult, 'Should have tool_result chunk');
-      assert.ok(hasText, 'Should have text chunk');
+      assert.ok(hasContent, 'Should have text/reasoning chunk');
       console.log('Tool calling test (responses) passed with', chunks.length, 'chunks');
     });
 
@@ -181,7 +179,7 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'completions',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'Calculate 5 + 3 using the add tool',
         tools,
         max_output_tokens: 150,
@@ -238,7 +236,7 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'Get temperature for Tokyo and Paris, then tell me which is warmer',
         tools,
         max_output_tokens: 200,
@@ -291,7 +289,7 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'completions',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'Use get_number to get two numbers, then multiply them together',
         tools,
         max_output_tokens: 200,
@@ -331,7 +329,7 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'completions',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'Call the unhandled_tool function',
         tools,
         max_output_tokens: 100,
@@ -361,7 +359,7 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'Call the failing_tool function',
         tools,
         max_output_tokens: 100,
@@ -379,15 +377,15 @@ describe('AI Client Tests', () => {
       const chunks = await Array.fromAsync(ai({
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'Say "default mode"',
         max_output_tokens: 30,
       }));
 
-      const content = chunks.filter(c => c.type === 'text').map(c => c.text).join('');
+      const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
       assert.ok(content, 'Should receive text content');
       assert.ok(chunks.at(-1)?.type === 'done', 'Should end with done chunk');
-      console.log('Default mode test passed:', content);
+      console.log('Default mode test passed:', content.slice(0, 100));
     });
 
     test('should handle custom headers', async () => {
@@ -395,7 +393,7 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'Say "headers work"',
         max_output_tokens: 30,
         headers: {
@@ -404,9 +402,9 @@ describe('AI Client Tests', () => {
         },
       }));
 
-      const content = chunks.filter(c => c.type === 'text').map(c => c.text).join('');
+      const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
       assert.ok(content, 'Should receive text content with custom headers');
-      console.log('Custom headers test passed:', content);
+      console.log('Custom headers test passed:', content.slice(0, 100));
     });
 
     test('should handle completions mode with instructions only (no user input)', async () => {
@@ -414,15 +412,15 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'completions',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         instructions: 'You always respond with exactly: "Hello from instructions"',
         input: 'Hi',
         max_output_tokens: 30,
       }));
 
-      const content = chunks.filter(c => c.type === 'text').map(c => c.text).join('');
+      const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
       assert.ok(content, 'Should receive text content');
-      console.log('Instructions test passed:', content);
+      console.log('Instructions test passed:', content.slice(0, 100));
     });
 
     test('should handle completions mode without tools (text only)', async () => {
@@ -430,19 +428,19 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'completions',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'What is 2+2? Reply with just the number.',
         max_output_tokens: 20,
         temperature: 0,
       }));
 
-      const textChunks = chunks.filter(c => c.type === 'text');
+      const textChunks = chunks.filter(c => c.type === 'text' || c.type === 'reasoning');
       const doneChunk = chunks.find(c => c.type === 'done');
 
-      assert.ok(textChunks.length > 0, 'Should have text chunks');
+      assert.ok(textChunks.length > 0, 'Should have text/reasoning chunks');
       assert.ok(doneChunk, 'Should have done chunk');
       assert.ok(!chunks.some(c => c.type === 'tool_call'), 'Should not have tool calls');
-      console.log('Completions text-only test passed with', textChunks.length, 'text chunks');
+      console.log('Completions text-only test passed with', textChunks.length, 'text/reasoning chunks');
     });
 
     test('should handle responses mode without tools (text only)', async () => {
@@ -450,19 +448,19 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'What is 3+3? Reply with just the number.',
         max_output_tokens: 20,
         temperature: 0,
       }));
 
-      const textChunks = chunks.filter(c => c.type === 'text');
+      const textChunks = chunks.filter(c => c.type === 'text' || c.type === 'reasoning');
       const doneChunk = chunks.find(c => c.type === 'done');
 
-      assert.ok(textChunks.length > 0, 'Should have text chunks');
+      assert.ok(textChunks.length > 0, 'Should have text/reasoning chunks');
       assert.ok(doneChunk, 'Should have done chunk');
       assert.ok(!chunks.some(c => c.type === 'tool_call'), 'Should not have tool calls');
-      console.log('Responses text-only test passed with', textChunks.length, 'text chunks');
+      console.log('Responses text-only test passed with', textChunks.length, 'text/reasoning chunks');
     });
 
     test('should handle tool with synchronous call function', async () => {
@@ -487,7 +485,7 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
-        model: 'gpt-4o-mini',
+        model: TEST_MODEL,
         input: 'Call the sync_tool function',
         tools,
         max_output_tokens: 100,

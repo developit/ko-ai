@@ -101,6 +101,20 @@ type StreamChunk =
 | Minified    | 2.5 KB      |
 | **Gzipped** | **1.26 KB** |
 
+## Testing
+
+Tests use [nock](https://github.com/nock/nock) for record/replay of HTTP fixtures:
+
+```bash
+# Run tests with recorded fixtures (no API calls)
+npm test
+
+# Record new fixtures (requires OpenRouter API key)
+OPENROUTER_API_KEY=your-key npm test
+```
+
+Fixtures are stored in `.nock-fixtures.json` and committed to the repo so tests work offline.
+
 ## License
 
 MIT

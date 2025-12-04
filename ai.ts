@@ -21,6 +21,7 @@ export type ToolCall = {
 
 export type StreamChunk =
   | {type: 'text'; text: string}
+  | {type: 'reasoning'; text: string}
   | ({type: 'tool_call'} & ToolCall)
   | ({type: 'tool_result'; result: unknown} & ToolCall)
   | {type: 'done'};
@@ -161,6 +162,8 @@ export default async function* ai(
               const delta = choice.delta;
               if (delta?.content) {
                 chunk = {type: 'text', text: delta.content};
+              } else if (delta?.reasoning) {
+                chunk = {type: 'reasoning', text: delta.reasoning};
               } else if (delta?.tool_calls) {
                 for (const tc of delta.tool_calls) {
                   const idx = tc.index ?? 0;
@@ -178,17 +181,24 @@ export default async function* ai(
               // finish_reason signals end of content - [DONE] will handle cleanup
             } else if (data.delta) {
               // Responses API text delta
-              chunk = {type: 'text', text: data.delta};
+              chunk = {...data, type: data.type.includes('reasoning') ? 'reasoning' : 'text', text: data.delta};
             } else if (data.item?.type === 'function_call') {
               // Responses API tool call
-              chunk = {
-                type: 'tool_call',
-                id: data.item.call_id || data.item.id || '',
-                function: {
-                  name: data.item.name || '',
-                  arguments: data.item.arguments || '{}',
-                },
-              };
+              const id = data.item.call_id || data.item.id || '';
+              const pending = toolCallMap[id];
+              if (pending) {
+                pending.function.arguments += data.item.arguments;
+              } else {
+                chunk = {
+                  type: 'tool_call',
+                  id,
+                  function: {
+                    name: data.item.name || '',
+                    arguments: data.item.arguments || '',
+                  },
+                };
+                toolCallMap[id] = chunk;
+              }
             } else if (data.response?.status === 'completed') {
               // Responses API completed
               if (data.response.output)
@@ -203,7 +213,7 @@ export default async function* ai(
 
           if (chunk) {
             if (chunk.type === 'text') assistantContent += chunk.text;
-            else if (!c) pendingCalls.push(chunk);
+            else if (chunk.type === 'tool_call' && !c) pendingCalls.push(chunk);
             yield chunk;
           }
         }
@@ -215,7 +225,7 @@ export default async function* ai(
     if (!pendingCalls.length) return;
     const results = await Promise.all(
       pendingCalls.map(async (tc) => {
-        const args = JSON.parse(tc.function.arguments);
+        const args = JSON.parse(tc.function.arguments || '{}');
         const result = await callTool(tc.function.name, args);
         return {...tc, type: 'tool_result' as const, result};
       }),
