@@ -9,16 +9,16 @@ const config = {
 
 // Basic streaming
 async function streamingDemo() {
-  let text = '';
   let lastId = '';
   for await (const chunk of ai({
     ...config,
     input: 'Count from 1 to 5',
+    reasoning: {effort: 'minimal'},
   })) {
     if ('text' in chunk) {
       if (chunk.item_id !== lastId) {
         lastId = chunk.item_id;
-        process.stdout.write('\n\n' + chunk.type + ': \n');
+        process.stdout.write('\n' + chunk.type.toUpperCase() + ': \n');
       }
       process.stdout.write(chunk.text);
     }
@@ -42,22 +42,29 @@ async function toolDemo() {
   ];
 
   let lastId = '';
-  for await (const chunk of ai({...config, input: 'Weather in Tokyo?', tools})) {
+  for await (const chunk of ai({...config, input: 'Weather in Tokyo?', reasoning: {effort: 'minimal'}, tools})) {
     if ('text' in chunk) {
       if (chunk.item_id !== lastId) {
         lastId = chunk.item_id;
-        process.stdout.write('\n\n' + chunk.type + ': \n');
+        process.stdout.write('\n' + chunk.type.toUpperCase() + ': \n');
       }
       process.stdout.write(chunk.text);
     }
     if (chunk.type === 'tool_call') {
-      process.stdout.write('\n\nTool call: ' + chunk.function.name + '(' + chunk.function.arguments + ')');
+      if (chunk.streaming) continue;
+      // console.log(chunk);
+      process.stdout.write('\n\n > call: ' + chunk.function.name + '(' + chunk.function.arguments + ')');
     }
     if (chunk.type === 'tool_result') {
-      process.stdout.write('\n\nTool result: ' + JSON.stringify(chunk.result));
+      // console.log(chunk);
+      process.stdout.write('\n > result: ' + JSON.stringify(chunk.result) + '\n');
     }
   }
 }
 
+console.log('STREAMING DEMO');
 await streamingDemo();
+
+console.log('\n\nTOOL DEMO');
 await toolDemo();
+console.log('\n\ndone.');

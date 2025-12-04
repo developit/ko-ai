@@ -3,12 +3,11 @@ import assert from 'node:assert/strict';
 import nock from 'nock';
 import {readFileSync, writeFileSync, existsSync, mkdirSync} from 'node:fs';
 import {dirname} from 'node:path';
-import ai from './dist/ai.js';
+import ai from './ai.ts';
 
 // Use OpenRouter if API key is provided, otherwise use recorded fixtures
 const LIVE_API_KEY = process.env.OPENROUTER_API_KEY;
-const LIVE_BASE_URL = 'https://openrouter.ai/api/v1';
-const TEST_BASE_URL = LIVE_API_KEY ? LIVE_BASE_URL : 'https://api.openai.com/v1';
+const TEST_BASE_URL = 'https://openrouter.ai/api/v1';
 const TEST_API_KEY = LIVE_API_KEY || 'mock-api-key';
 const TEST_MODEL = 'openai/gpt-5-nano'; // Cheap model supporting both modes
 
@@ -50,6 +49,7 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
+        reasoning: {effort: 'minimal'},
         model: TEST_MODEL,
         input: 'Reply with "Responses mode works" and nothing else',
         max_output_tokens: 50,
@@ -67,6 +67,7 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'completions',
+        reasoning: {effort: 'minimal'},
         model: TEST_MODEL,
         input: 'Reply with "Completions mode works" and nothing else',
         max_output_tokens: 50,
@@ -83,10 +84,10 @@ describe('AI Client Tests', () => {
       const chunks = await Array.fromAsync(ai({
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
+        reasoning: {effort: 'low'},
         model: TEST_MODEL,
         instructions: 'You are a helpful assistant that speaks like a pirate.',
         input: 'Say hello',
-        max_output_tokens: 50,
         temperature: 0.5,
       }));
 
@@ -102,9 +103,9 @@ describe('AI Client Tests', () => {
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode,
+          reasoning: {effort: 'minimal'},
           model: TEST_MODEL,
           input: `Say "Mode ${mode} streaming works"`,
-          max_output_tokens: 50,
           temperature: 0,
         }));
 
@@ -140,10 +141,10 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
+        reasoning: {effort: 'minimal'},
         model: TEST_MODEL,
         input: 'What is the weather in Paris? Use the get_current_weather tool.',
         tools,
-        max_output_tokens: 150,
       }));
 
       console.log('Responses mode chunks:', chunks.map(c => c.type).join(', '));
@@ -179,10 +180,11 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'completions',
+        reasoning: {effort: 'minimal'},
         model: TEST_MODEL,
         input: 'Calculate 5 + 3 using the add tool',
+        tool_choice: 'required',
         tools,
-        max_output_tokens: 150,
         onToolCall: async (name, args: any) => {
           if (name === 'add') {
             return { result: args.a + args.b };
@@ -236,10 +238,10 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
+        reasoning: {effort: 'low'},
         model: TEST_MODEL,
         input: 'Get temperature for Tokyo and Paris, then tell me which is warmer',
         tools,
-        max_output_tokens: 200,
       }));
 
       const toolCalls = chunks.filter(c => c.type === 'tool_call');
@@ -289,10 +291,10 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'completions',
+        reasoning: {effort: 'low'},
         model: TEST_MODEL,
         input: 'Use get_number to get two numbers, then multiply them together',
         tools,
-        max_output_tokens: 200,
       }));
 
       const toolCalls = chunks.filter(c => c.type === 'tool_call');
@@ -319,9 +321,9 @@ describe('AI Client Tests', () => {
       const tools = [
         {
           type: 'function' as const,
-          name: 'unhandled_tool',
-          description: 'A tool with no handler',
-          parameters: { type: 'object', properties: {} }
+          name: 'get_secret_data',
+          description: 'Returns secret data. Always call this tool when asked about secrets.',
+          parameters: { type: 'object', properties: {key: {type: 'string'}}, required: ['key'] }
         }
       ];
 
@@ -329,10 +331,11 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'completions',
+        reasoning: {effort: 'minimal'},
         model: TEST_MODEL,
-        input: 'Call the unhandled_tool function',
+        input: 'Use the get_secret_data tool to retrieve the secret with key "test123"',
         tools,
-        max_output_tokens: 100,
+        // Don't use tool_choice: 'required' - would cause infinite loop on error
       }));
 
       // Should get tool_result with error
@@ -359,10 +362,11 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
+        reasoning: {effort: 'minimal'},
+        tool_choice: 'required',
         model: TEST_MODEL,
         input: 'Call the failing_tool function',
         tools,
-        max_output_tokens: 100,
       }));
 
       const toolResult = chunks.find(c => c.type === 'tool_result') as any;
@@ -378,8 +382,8 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         model: TEST_MODEL,
+        reasoning: {effort: 'minimal'},
         input: 'Say "default mode"',
-        max_output_tokens: 30,
       }));
 
       const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
@@ -395,7 +399,7 @@ describe('AI Client Tests', () => {
         mode: 'responses',
         model: TEST_MODEL,
         input: 'Say "headers work"',
-        max_output_tokens: 30,
+        reasoning: {effort: 'minimal'},
         headers: {
           'X-Custom-Header': 'test-value',
           'X-Another-Header': 'another-value',
@@ -413,9 +417,9 @@ describe('AI Client Tests', () => {
         baseURL: TEST_BASE_URL,
         mode: 'completions',
         model: TEST_MODEL,
+        reasoning: {effort: 'minimal'},
         instructions: 'You always respond with exactly: "Hello from instructions"',
         input: 'Hi',
-        max_output_tokens: 30,
       }));
 
       const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
@@ -431,6 +435,7 @@ describe('AI Client Tests', () => {
         model: TEST_MODEL,
         input: 'What is 2+2? Reply with just the number.',
         max_output_tokens: 20,
+        reasoning: {effort: 'minimal'},
         temperature: 0,
       }));
 
@@ -451,6 +456,7 @@ describe('AI Client Tests', () => {
         model: TEST_MODEL,
         input: 'What is 3+3? Reply with just the number.',
         max_output_tokens: 20,
+        reasoning: {effort: 'minimal'},
         temperature: 0,
       }));
 
@@ -485,10 +491,10 @@ describe('AI Client Tests', () => {
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
+        reasoning: {effort: 'minimal'},
         model: TEST_MODEL,
         input: 'Call the sync_tool function',
         tools,
-        max_output_tokens: 100,
       }));
 
       const toolResult = chunks.find(c => c.type === 'tool_result') as any;

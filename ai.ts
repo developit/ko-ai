@@ -12,18 +12,22 @@ export type Tool = {
 };
 
 export type ToolCall = {
+  type: 'tool_call';
   id: string;
+  streaming?: boolean;
   function: {
     name: string;
     arguments: string;
   };
 };
 
+export type ToolResult = {type: 'tool_result'; result: unknown} & Omit<ToolCall, 'type'>;
+
 export type StreamChunk =
   | {type: 'text'; text: string}
   | {type: 'reasoning'; text: string}
-  | ({type: 'tool_call'} & ToolCall)
-  | ({type: 'tool_result'; result: unknown} & ToolCall)
+  | ToolCall
+  | ToolResult
   | {type: 'done'};
 
 export type ApiMode = 'completions' | 'responses';
@@ -43,6 +47,8 @@ export interface CompleteOptions {
   ) => unknown | Promise<unknown>;
   temperature?: number;
   max_output_tokens?: number;
+  reasoning?: {effort?: string};
+  tool_choice?: string;
 }
 
 export default async function* ai(
@@ -167,15 +173,21 @@ export default async function* ai(
               } else if (delta?.tool_calls) {
                 for (const tc of delta.tool_calls) {
                   const idx = tc.index ?? 0;
-                  toolCallMap[idx] ||= {
-                    id: '',
-                    function: {name: '', arguments: ''},
-                  };
-                  const call = toolCallMap[idx];
+                  let call = toolCallMap[idx];
+                  if (!call) {
+                    call = toolCallMap[idx] = {
+                      type: 'tool_call',
+                      id: '',
+                      streaming: true,
+                      function: {name: '', arguments: ''},
+                    };
+                    pendingCalls.push(call);
+                  }
                   if (tc.id) call.id = tc.id;
                   if (tc.function?.name) call.function.name += tc.function.name;
                   if (tc.function?.arguments)
                     call.function.arguments += tc.function.arguments;
+                  chunk = call;
                 }
               }
               // finish_reason signals end of content - [DONE] will handle cleanup
@@ -188,15 +200,18 @@ export default async function* ai(
               const pending = toolCallMap[id];
               if (pending) {
                 pending.function.arguments += data.item.arguments;
+                chunk = pending;
               } else {
                 chunk = {
                   type: 'tool_call',
                   id,
+                  streaming: true,
                   function: {
                     name: data.item.name || '',
                     arguments: data.item.arguments || '',
                   },
                 };
+                pendingCalls.push(chunk);
                 toolCallMap[id] = chunk;
               }
             } else if (data.response?.status === 'completed') {
@@ -213,7 +228,7 @@ export default async function* ai(
 
           if (chunk) {
             if (chunk.type === 'text') assistantContent += chunk.text;
-            else if (chunk.type === 'tool_call' && !c) pendingCalls.push(chunk);
+            // else if (chunk.type === 'tool_call' && !c) pendingCalls.push(chunk);
             yield chunk;
           }
         }
@@ -223,14 +238,17 @@ export default async function* ai(
     }
 
     if (!pendingCalls.length) return;
+    pendingCalls.map(tc => tc.streaming = false);
+    yield* pendingCalls;
     const results = await Promise.all(
       pendingCalls.map(async (tc) => {
         const args = JSON.parse(tc.function.arguments || '{}');
         const result = await callTool(tc.function.name, args);
-        return {...tc, type: 'tool_result' as const, result};
+        return {...tc, type: 'tool_result', result} satisfies ToolResult;
       }),
     );
     yield* results;
+    body.tool_choice = undefined;
     if (c) {
       body.messages.push(
         {
