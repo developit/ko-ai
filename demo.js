@@ -2,7 +2,6 @@ import ai from './ai.ts';
 
 const config = {
   apiKey: process.env.OPENROUTER_API_KEY || '',
-  // baseURL: 'https://proxy-shopify-ai.local.shop.dev/v1',
   baseURL: 'https://openrouter.ai/api/v1',
   model: 'openai/gpt-5-nano',
 };
@@ -67,4 +66,5 @@ await streamingDemo();
 
 console.log('\n\nTOOL DEMO');
 await toolDemo();
+
 console.log('\n\ndone.');

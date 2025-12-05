@@ -166,10 +166,10 @@ export default async function* ai(
             if (choice) {
               // Completions API
               const delta = choice.delta;
-              if (delta?.content) {
-                chunk = {type: 'text', text: delta.content};
-              } else if (delta?.reasoning) {
+              if (delta?.reasoning) {
                 chunk = {type: 'reasoning', text: delta.reasoning};
+              } else if (delta?.content) {
+                chunk = {type: 'text', text: delta.content};
               } else if (delta?.tool_calls) {
                 for (const tc of delta.tool_calls) {
                   const idx = tc.index ?? 0;
@@ -193,7 +193,7 @@ export default async function* ai(
               // finish_reason signals end of content - [DONE] will handle cleanup
             } else if (data.delta) {
               // Responses API text delta
-              chunk = {...data, type: data.type.includes('reasoning') ? 'reasoning' : 'text', text: data.delta};
+              chunk = {type: data.type.includes('reasoning') ? 'reasoning' : 'text', text: data.delta};
             } else if (data.item?.type === 'function_call') {
               // Responses API tool call
               const id = data.item.call_id || data.item.id || '';
@@ -219,7 +219,7 @@ export default async function* ai(
               if (data.response.output)
                 outputItems.push(...data.response.output);
               if (!pendingCalls.length) {
-                yield {type: 'done'};
+                yield {type: 'done', ...data.response};
                 return;
               }
               continue;
