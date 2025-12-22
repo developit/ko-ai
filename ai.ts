@@ -41,6 +41,7 @@ export interface CompleteOptions {
   input: string;
   instructions?: string;
   tools?: Tool[];
+  stream?: boolean;
   onToolCall?: (
     name: string,
     args: Record<string, unknown>,
@@ -61,6 +62,7 @@ export default async function* ai(
     mode = 'responses',
     tools,
     onToolCall,
+    stream = true,
     ...rest
   } = options;
 
@@ -82,9 +84,9 @@ export default async function* ai(
   // Build request once, mutate body for continuations
   const endpoint = baseURL + (c ? '/chat/completions' : '/responses');
   let body: any = {
-    ...rest,
+    stream,
     tools,
-    stream: true,
+    ...rest,
   };
 
   if (c) {
@@ -140,32 +142,37 @@ export default async function* ai(
 
         buffer += decoder.decode(value, {stream: true});
         const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+        buffer = stream && lines.pop() || '';
 
         for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const dataLine = line.slice(6);
-          if (dataLine === '[DONE]') {
-            // Completions: collect accumulated tool calls at stream end
-            if (c)
-              for (const tc of Object.values(toolCallMap)) {
-                pendingCalls.push(tc);
-                yield {...tc, type: 'tool_call' as const};
+          let dataLine = line;
+          if (stream) {
+            if (!dataLine.startsWith('data: ')) continue;
+            dataLine = dataLine.slice(6);
+            if (dataLine === '[DONE]') {
+              // Completions: collect accumulated tool calls at stream end
+              // if (c)
+              //   for (const tc of Object.values(toolCallMap)) {
+              //     pendingCalls.push(tc);
+              //     yield {...tc, type: 'tool_call' as const};
+              //   }
+              if (!pendingCalls.length) {
+                yield {type: 'done'};
+                return;
               }
-            if (!pendingCalls.length) {
-              yield {type: 'done'};
-              return;
+              continue;
             }
-            continue;
           }
 
           let chunk: StreamChunk | null = null;
           try {
+            // console.log(dataLine);
             const data = JSON.parse(dataLine);
             const choice = data.choices?.[0];
+            // console.log(choice);
             if (choice) {
               // Completions API
-              const delta = choice.delta;
+              const delta = choice.delta || choice.message;
               if (delta?.reasoning) {
                 chunk = {type: 'reasoning', text: delta.reasoning};
               } else if (delta?.content) {
@@ -226,8 +233,9 @@ export default async function* ai(
             }
           } catch {}
 
-          if (chunk) {
+          if (chunk && chunk.type !== 'tool_call') {
             if (chunk.type === 'text') assistantContent += chunk.text;
+            // console.log('chunk', chunk);
             // else if (chunk.type === 'tool_call' && !c) pendingCalls.push(chunk);
             yield chunk;
           }

@@ -1,28 +1,22 @@
 import ai from './ai.ts';
 
 const config = {
-  // apiKey: process.env.OPENROUTER_API_KEY || '',
-  // baseURL: 'https://openrouter.ai/api/v1',
-  // model: 'openai/gpt-5-nano',
-  // model: '@preset/free-tool-calling',
-  baseURL: 'http://woody.the-millers.ca:11434/v1',
-  model: 'ministral-3:3b',
-  /** @type {'completions'} */
-  mode: 'completions',
-  // stream: false,
+  baseURL: 'http://localhost:28100/v1',
+  model: process.env.MODEL || 'openai/gpt-5-nano',
 };
 
 // Basic streaming
 async function streamingDemo() {
-  let lastType = '';
+  let lastId = '';
   for await (const chunk of ai({
     ...config,
     input: 'Count from 1 to 5',
-    // reasoning: {effort: 'none'},
+    mode: 'completions',
+    reasoning: {effort: 'minimal'},
   })) {
     if ('text' in chunk) {
-      if (chunk.type !== lastType) {
-        lastType = chunk.type;
+      if (chunk.item_id !== lastId) {
+        lastId = chunk.item_id;
         process.stdout.write('\n' + chunk.type.toUpperCase() + ': \n');
       }
       process.stdout.write(chunk.text);
@@ -46,22 +40,22 @@ async function toolDemo() {
     },
   ];
 
-  let lastType = '';
-  // for await (const chunk of ai({...config, input: 'Weather in Asakusa?', reasoning: {effort: 'minimal'}, tools})) {
-  for await (const chunk of ai({...config, input: 'Weather in Asakusa?', reasoning: {effort: 'none'}, tools})) {
-  // for await (const chunk of ai({...config, input: 'Weather in Asakusa?', tools})) {
+  let lastId = '';
+  for await (const chunk of ai({...config, input: 'Weather in Tokyo?', mode: 'completions', reasoning: {effort: 'minimal'}, tools})) {
     if ('text' in chunk) {
-      if (chunk.type !== lastType) {
-        lastType = chunk.type;
+      if (chunk.item_id !== lastId) {
+        lastId = chunk.item_id;
         process.stdout.write('\n' + chunk.type.toUpperCase() + ': \n');
       }
       process.stdout.write(chunk.text);
     }
     if (chunk.type === 'tool_call') {
       if (chunk.streaming) continue;
+      // console.log(chunk);
       process.stdout.write('\n\n > call: ' + chunk.function.name + '(' + chunk.function.arguments + ')');
     }
     if (chunk.type === 'tool_result') {
+      // console.log(chunk);
       process.stdout.write('\n > result: ' + JSON.stringify(chunk.result) + '\n');
     }
   }
