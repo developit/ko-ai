@@ -4,7 +4,8 @@ A minimalist, zero-dependency OpenAI-compatible streaming client with automatic 
 
 ## Features
 
-- **~1.3KB gzipped** - Zero dependencies
+- **~1.5KB gzipped** - Zero dependencies
+- **Multi-turn conversations** - Stateful chat sessions with persistent history
 - **Dual API support** - Responses (default) and Completions modes
 - **Streaming** - Async generator with typed chunks
 - **Tool calling** - Inline handlers or callback dispatch
@@ -14,13 +15,20 @@ A minimalist, zero-dependency OpenAI-compatible streaming client with automatic 
 ```js
 import ai from 'koai';
 
-// Stream text
-for await (const chunk of ai({
+// Create a chat session
+const chat = ai({
   apiKey: 'sk-...',
   baseURL: 'https://api.openai.com/v1',
   model: 'gpt-4o-mini',
-  input: 'Hello!',
-})) {
+});
+
+// Single turn
+for await (const chunk of chat.send('Hello!')) {
+  if (chunk.type === 'text') console.log(chunk.text);
+}
+
+// Multi-turn conversation
+for await (const chunk of chat.send('What did I just say?')) {
   if (chunk.type === 'text') console.log(chunk.text);
 }
 ```
@@ -30,21 +38,25 @@ for await (const chunk of ai({
 Tools can have inline `call` handlers that run automatically:
 
 ```js
-const tools = [
-  {
-    type: 'function',
-    name: 'get_weather',
-    description: 'Get weather for a city',
-    parameters: {
-      type: 'object',
-      properties: {location: {type: 'string'}},
-      required: ['location'],
+const chat = ai({
+  apiKey: 'sk-...',
+  model: 'gpt-4o-mini',
+  tools: [
+    {
+      type: 'function',
+      name: 'get_weather',
+      description: 'Get weather for a city',
+      parameters: {
+        type: 'object',
+        properties: {location: {type: 'string'}},
+        required: ['location'],
+      },
+      call: ({location}) => ({temp: 72, location}),
     },
-    call: ({location}) => ({temp: 72, location}),
-  },
-];
+  ],
+});
 
-for await (const chunk of ai({...config, input: 'Weather in Tokyo?', tools})) {
+for await (const chunk of chat.send('Weather in Tokyo?')) {
   if (chunk.type === 'text') console.log(chunk.text);
   if (chunk.type === 'tool_result') console.log('Tool returned:', chunk.result);
 }
@@ -53,12 +65,16 @@ for await (const chunk of ai({...config, input: 'Weather in Tokyo?', tools})) {
 Or use `onToolCall` for dynamic dispatch:
 
 ```js
-for await (const chunk of ai({
-  ...config,
-  input: 'Calculate 5 + 3',
+const chat = ai({
+  apiKey: 'sk-...',
+  model: 'gpt-4o-mini',
   tools: [{type: 'function', name: 'calc', description: 'Calculate', parameters: {...}}],
   onToolCall: (name, args) => eval(args.expr),
-})) { ... }
+});
+
+for await (const chunk of chat.send('Calculate 5 + 3')) {
+  // ...
+}
 ```
 
 ### API Modes
@@ -71,35 +87,42 @@ ai({ mode: 'completions', ... }) // Legacy Completions API
 ## API
 
 ```ts
-export default function ai(options: Options): AsyncIterableIterator<StreamChunk>
+export default function ai(config: Config): ChatSession
 
-interface Options {
+interface Config {
   apiKey: string;
   baseURL: string;
-  model?: string;
-  input: string;
+  model: string;
   instructions?: string;        // System prompt
   tools?: Tool[];
   onToolCall?: (name: string, args: object) => unknown;
-  mode?: 'responses' | 'completions';
+  mode?: 'responses' | 'completions';  // default: 'responses'
   temperature?: number;
   max_output_tokens?: number;
+  reasoning?: { effort?: string; enabled?: boolean };
   headers?: Record<string, string>;
+}
+
+interface ChatSession {
+  send(input: string | any[], overrides?: Partial<Config>): AsyncIterableIterator<StreamChunk>;
+  messages: any[];      // Message history (completions mode)
+  conversation: any[];  // Conversation history (responses mode)
 }
 
 type StreamChunk =
   | { type: 'text'; text: string }
-  | { type: 'tool_call'; id: string; function: { name: string; arguments: string } }
+  | { type: 'reasoning'; text: string }
+  | { type: 'tool_call'; id: string; function: { name: string; arguments: string }; streaming: boolean }
   | { type: 'tool_result'; id: string; function: {...}; result: unknown }
   | { type: 'done' };
 ```
 
 ## Size
 
-| Metric      | Size        |
-| ----------- | ----------- |
-| Minified    | 2.5 KB      |
-| **Gzipped** | **1.26 KB** |
+| Metric      | Size       |
+| ----------- | ---------- |
+| Minified    | 3.1 KB     |
+| **Gzipped** | **1.5 KB** |
 
 ## Testing
 
