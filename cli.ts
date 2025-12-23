@@ -333,6 +333,7 @@ async function chat() {
     model: MODEL,
     instructions: 'You are a helpful AI assistant with access to web search, HTTP fetch, shell (bash) commands, and file reading tools. Always think about how you can use these tools to fulfill the user\'s request before attempting to remember something on your own. Use tools as much as and often as you can to produce the best possible answers. Be concise and helpful.',
     tools,
+    mode: 'completions',
     // reasoning: {effort: 'medium'},
     reasoning: {enabled: true},
     stream: true,
@@ -342,11 +343,15 @@ async function chat() {
   const handleMessage = async (input: string) => {
     // Start assistant response
     process.stdout.write(`${colors.blue}Assistant: ${colors.reset}`);
+    let lastType;
 
     try {
       let currentToolCall: string | null = null;
 
       for await (const chunk of session.send(input)) {
+        if (lastType && chunk.type !== lastType) process.stdout.write('\n');
+        lastType = chunk.type;
+
         switch (chunk.type) {
           case 'text':
             process.stdout.write(chunk.text);
@@ -363,7 +368,7 @@ async function chat() {
             if (!chunk.streaming) {
               // Tool call complete, show what we're calling
               const args = JSON.parse(chunk.function.arguments || '{}');
-              console.log(`\n${colors.yellow}🔧 ${chunk.function.name}(${JSON.stringify(args, null, 2)})${colors.reset}`);
+              console.log(`${colors.yellow}🔧 ${chunk.function.name}(${JSON.stringify(args, null, 2)})${colors.reset}`);
               // if (verbose) {
               // } else {
               //   console.log(`\n${colors.yellow}🔧 ${chunk.function.name}()${colors.reset}`);

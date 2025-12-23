@@ -121,6 +121,9 @@ export default function ai(
           type,
           function: fn,
         }));
+    } else if (!c && body.input) {
+      // For responses mode: append user message to conversation once before loop
+      conversation.push({role: 'user', content: body.input});
     }
 
   // Outer loop for tool continuation
@@ -131,15 +134,12 @@ export default function ai(
     let assistantContent = '';
     let reasoningContent = '';
 
-    // For responses mode: build simple conversation history
-    if (!c) {
-      if (body.input) {
-        conversation.push({role: 'user', content: body.input});
-        body.input = conversation;
-      } else if (conversation.length) {
-        body.input = conversation;
-      }
+    // For responses mode: use conversation array if available
+    if (!c && conversation.length) {
+      body.input = conversation;
     }
+
+    // for (const i of body.input) console.log(i);
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -248,7 +248,7 @@ export default function ai(
               if (data.response.output)
                 outputItems.push(...data.response.output);
               if (!pendingCalls.length) {
-                yield {type: 'done', ...data.response};
+                yield {type: 'done'};
                 return;
               }
               continue;
@@ -275,8 +275,8 @@ export default function ai(
         if (assistantContent) msg.content = assistantContent;
         if (reasoningContent) msg.reasoning_content = reasoningContent;
         messages.push(msg);
-      } else if (!c && assistantContent) {
-        conversation.push({role: 'assistant', content: assistantContent});
+      } else if (!c && outputItems.length) {
+        conversation.push(...outputItems);
       }
       return;
     }
@@ -308,11 +308,15 @@ export default function ai(
         })),
       );
     } else {
-      // For responses mode: use simple format
-      if (assistantContent) {
-        conversation.push({role: 'assistant', content: assistantContent});
-      }
-      conversation.push(...results.map(r => ({role: 'tool', content: JSON.stringify(r.result)})));
+      // For responses mode: append output items and function results
+      if (outputItems.length) conversation.push(...outputItems);
+      conversation.push(
+        ...pendingCalls.map((tc, i) => ({
+          type: 'function_call_output',
+          call_id: tc.id,
+          output: JSON.stringify(results[i].result),
+        })),
+      );
     }
   }
   }
