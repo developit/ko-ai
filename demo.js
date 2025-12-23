@@ -1,7 +1,7 @@
 import ai from './ai.ts';
 
 const config = {
-  // apiKey: process.env.OPENROUTER_API_KEY || '',
+  apiKey: process.env.OPENROUTER_API_KEY || process.env.API_KEY || 'sk-fake',
   // baseURL: 'https://openrouter.ai/api/v1',
   // model: 'openai/gpt-5-nano',
   // model: '@preset/free-tool-calling',
@@ -14,12 +14,13 @@ const config = {
 
 // Basic streaming
 async function streamingDemo() {
-  let lastType = '';
-  for await (const chunk of ai({
+  const chat = ai({
     ...config,
-    input: 'Count from 1 to 5',
     // reasoning: {effort: 'none'},
-  })) {
+  });
+
+  let lastType = '';
+  for await (const chunk of chat.send('Count from 1 to 5')) {
     if ('text' in chunk) {
       if (chunk.type !== lastType) {
         lastType = chunk.type;
@@ -34,7 +35,7 @@ async function streamingDemo() {
 async function toolDemo() {
   const tools = [
     {
-      type: 'function',
+      type: /** @type {'function'} */ ('function'),
       name: 'get_weather',
       description: 'Get weather for a city',
       parameters: {
@@ -42,14 +43,14 @@ async function toolDemo() {
         properties: {location: {type: 'string'}},
         required: ['location'],
       },
-      call: ({location}) => ({temp: 72, conditions: 'sunny', location}),
+      call: (args) => ({temp: 72, conditions: 'sunny', location: args.location}),
     },
   ];
 
+  const chat = ai({...config, reasoning: {effort: 'none'}, tools});
+
   let lastType = '';
-  // for await (const chunk of ai({...config, input: 'Weather in Asakusa?', reasoning: {effort: 'minimal'}, tools})) {
-  for await (const chunk of ai({...config, input: 'Weather in Asakusa?', reasoning: {effort: 'none'}, tools})) {
-  // for await (const chunk of ai({...config, input: 'Weather in Asakusa?', tools})) {
+  for await (const chunk of chat.send('Weather in Asakusa?')) {
     if ('text' in chunk) {
       if (chunk.type !== lastType) {
         lastType = chunk.type;

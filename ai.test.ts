@@ -45,16 +45,16 @@ after(() => {
 describe('AI Client Tests', () => {
   describe('Dual-mode Client', () => {
     test('should generate text in responses mode', async () => {
-      const chunks = await Array.fromAsync(ai({
+      const chat = ai({
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'responses',
         reasoning: {effort: 'minimal'},
         model: TEST_MODEL,
-        input: 'Reply with "Responses mode works" and nothing else',
         max_output_tokens: 50,
         temperature: 0,
-      }));
+      });
+      const chunks = await Array.fromAsync(chat.send('Reply with "Responses mode works" and nothing else'));
 
       const result = chunks.at(-1)!;
       const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
@@ -63,16 +63,16 @@ describe('AI Client Tests', () => {
     });
 
     test('should generate text in completions mode', async () => {
-      const chunks = await Array.fromAsync(ai({
+      const chat = ai({
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         mode: 'completions',
         reasoning: {effort: 'minimal'},
         model: TEST_MODEL,
-        input: 'Reply with "Completions mode works" and nothing else',
         max_output_tokens: 50,
         temperature: 0,
-      }));
+      });
+      const chunks = await Array.fromAsync(chat.send('Reply with "Completions mode works" and nothing else'));
 
       const result = chunks.at(-1)!;
       const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
@@ -81,15 +81,15 @@ describe('AI Client Tests', () => {
     });
 
     test('should handle system messages', async () => {
-      const chunks = await Array.fromAsync(ai({
+      const chat = ai({
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         reasoning: {effort: 'low'},
         model: TEST_MODEL,
         instructions: 'You are a helpful assistant that speaks like a pirate.',
-        input: 'Say hello',
         temperature: 0.5,
-      }));
+      });
+      const chunks = await Array.fromAsync(chat.send('Say hello'));
 
       const result = chunks.at(-1)!;
       const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
@@ -502,6 +502,72 @@ describe('AI Client Tests', () => {
       assert.ok(syncCalled, 'Sync function should have been called');
       assert.equal(toolResult.result?.success, true, 'Should return sync result');
       console.log('Sync tool test passed:', toolResult.result);
+    });
+  });
+
+  describe('Multi-turn Conversations', () => {
+    test('should maintain message history across multiple turns (completions mode)', async () => {
+      const chat = ai({
+        apiKey: TEST_API_KEY,
+        baseURL: TEST_BASE_URL,
+        mode: 'completions',
+        model: TEST_MODEL,
+        instructions: 'You are a helpful assistant.',
+        temperature: 0,
+      });
+
+      // Initially should have just system message
+      assert.equal(chat.messages.length, 1, 'Should start with system message');
+      assert.equal(chat.messages[0].role, 'system');
+
+      // First turn
+      const chunks1 = await Array.fromAsync(chat.send('Hello'));
+      const content1 = chunks1.filter(c => c.type === 'text').map(c => c.text).join('');
+      assert.ok(content1, 'Should get response');
+
+      // After first turn, should have system + user + assistant
+      assert.ok(chat.messages.length >= 3, `Should have at least 3 messages, got ${chat.messages.length}`);
+      assert.equal(chat.messages[1].role, 'user', 'Second message should be user');
+      assert.equal(chat.messages[1].content, 'Hello', 'User message should match');
+
+      // Second turn
+      const chunks2 = await Array.fromAsync(chat.send('What did I just say?'));
+      const content2 = chunks2.filter(c => c.type === 'text').map(c => c.text).join('');
+      assert.ok(content2, 'Should get second response');
+
+      // Should have more messages now
+      assert.ok(chat.messages.length >= 5, `Should have at least 5 messages, got ${chat.messages.length}`);
+      console.log('Multi-turn completions test passed. Message history:', chat.messages.length);
+    });
+
+    test('should maintain conversation history across multiple turns (responses mode)', async () => {
+      const chat = ai({
+        apiKey: TEST_API_KEY,
+        baseURL: TEST_BASE_URL,
+        mode: 'responses',
+        model: TEST_MODEL,
+        temperature: 0,
+      });
+
+      // Initially should be empty
+      assert.equal(chat.conversation.length, 0, 'Should start with empty conversation');
+
+      // First turn
+      const chunks1 = await Array.fromAsync(chat.send('Count to 3'));
+      const content1 = chunks1.filter(c => c.type === 'text').map(c => c.text).join('');
+      assert.ok(content1, 'Should get response');
+
+      // After first turn, should have messages
+      assert.ok(chat.conversation.length > 0, `Should have conversation history, got ${chat.conversation.length}`);
+
+      // Second turn
+      const chunks2 = await Array.fromAsync(chat.send('Now backwards'));
+      const content2 = chunks2.filter(c => c.type === 'text').map(c => c.text).join('');
+      assert.ok(content2, 'Should get second response');
+
+      // Should have more conversation items now
+      assert.ok(chat.conversation.length > 1, `Should have more conversation items, got ${chat.conversation.length}`);
+      console.log('Multi-turn responses test passed. Conversation history:', chat.conversation.length);
     });
   });
 });

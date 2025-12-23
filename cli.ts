@@ -268,6 +268,17 @@ async function chat() {
   console.log(`${colors.dim}Model: ${MODEL}${colors.reset}`);
   console.log(`${colors.dim}Type 'exit' or 'quit' to end the conversation${colors.reset}\n`);
 
+  // Create chat session with persistent conversation history
+  const session = ai({
+    apiKey: API_KEY,
+    baseURL: BASE_URL,
+    model: MODEL,
+    instructions: 'You are a helpful AI assistant with access to web search, fetch, and shell command tools. Be concise and helpful.',
+    tools,
+    reasoning: {effort: 'medium'},
+    stream: true,
+  });
+
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -295,16 +306,7 @@ async function chat() {
     try {
       let currentToolCall: string | null = null;
 
-      for await (const chunk of ai({
-        apiKey: API_KEY,
-        baseURL: BASE_URL,
-        model: MODEL,
-        input,
-        instructions: 'You are a helpful AI assistant with access to web search, fetch, and shell command tools. Be concise and helpful.',
-        tools,
-        reasoning: {effort: 'medium'},
-        stream: true,
-      })) {
+      for await (const chunk of session.send(input)) {
         switch (chunk.type) {
           case 'text':
             process.stdout.write(chunk.text);

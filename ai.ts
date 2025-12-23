@@ -38,7 +38,7 @@ export interface CompleteOptions {
   headers?: Record<string, string>;
   mode?: ApiMode;
   model?: string;
-  input: string;
+  input?: string | any[];
   instructions?: string;
   tools?: Tool[];
   stream?: boolean;
@@ -52,62 +52,81 @@ export interface CompleteOptions {
   tool_choice?: string;
 }
 
-export default async function* ai(
-  options: CompleteOptions,
-): AsyncIterableIterator<StreamChunk> {
+export default function ai(
+  baseConfig: Omit<CompleteOptions, 'input'>,
+) {
   const {
-    apiKey,
-    baseURL,
-    headers = {},
     mode = 'responses',
-    tools,
-    onToolCall,
-    stream = true,
-    ...rest
-  } = options;
+    instructions,
+    ...restConfig
+  } = baseConfig;
 
   const c = mode === 'completions';
 
-  // Inline tool dispatch with error handling
-  const callTool = async (name: string, args: Record<string, unknown>) => {
-    try {
-      return await (tools?.find((t) => t.name === name)?.call?.(args) ??
-        onToolCall?.(name, args) ??
-        (() => {
-          throw name;
-        })());
-    } catch (e: any) {
-      return {error: e.message ?? e};
+  // Closure state - exposed as properties
+  const messages: any[] = c && instructions
+    ? [{role: 'system', content: instructions}]
+    : [];
+  const conversation: any[] = [];
+
+  // Main streaming method
+  async function* send(input: string | any[], overrides: Partial<CompleteOptions> = {}): AsyncIterableIterator<StreamChunk> {
+    const options: CompleteOptions = {
+      ...restConfig,
+      ...overrides,
+      mode,
+      input,
+      instructions: c ? undefined : instructions,
+    };
+
+    const {
+      apiKey,
+      baseURL,
+      headers = {},
+      tools,
+      onToolCall,
+      stream = true,
+      ...rest
+    } = options;
+
+    // Inline tool dispatch with error handling
+    const callTool = async (name: string, args: Record<string, unknown>) => {
+      try {
+        return await (tools?.find((t: Tool) => t.name === name)?.call?.(args) ??
+          onToolCall?.(name, args) ??
+          (() => {
+            throw name;
+          })());
+      } catch (e: any) {
+        return {error: e.message ?? e};
+      }
+    };
+
+    // Build request once, mutate body for continuations
+    const endpoint = baseURL + (c ? '/chat/completions' : '/responses');
+    let body: any = {
+      stream,
+      tools,
+      ...rest,
+    };
+
+    if (c) {
+      const {max_output_tokens, instructions, input, ...r} = body;
+      // Use closure messages array, add new user input
+      if (input) messages.push({role: 'user', content: input});
+      body = {...r, max_tokens: max_output_tokens, messages};
+      // Wrap tools in {function: {...}} for completions API
+      if (body.tools)
+        body.tools = body.tools.map(({call, type, ...fn}: Tool) => ({
+          type,
+          function: fn,
+        }));
     }
-  };
 
-  // Build request once, mutate body for continuations
-  const endpoint = baseURL + (c ? '/chat/completions' : '/responses');
-  let body: any = {
-    stream,
-    tools,
-    ...rest,
-  };
-
-  if (c) {
-    const {max_output_tokens, instructions, input, ...r} = body;
-    body = {...r, max_tokens: max_output_tokens, messages: []};
-    if (instructions)
-      body.messages.push({role: 'system', content: instructions});
-    if (input) body.messages.push({role: 'user', content: input});
-    // Wrap tools in {function: {...}} for completions API
-    if (body.tools)
-      body.tools = body.tools.map(({call, type, ...fn}: Tool) => ({
-        type,
-        function: fn,
-      }));
-  }
-
-  // Track conversation for responses mode (normalize to array)
-  let conversationInput: any =
-    !c && body.input
-      ? [{type: 'message', role: 'user', content: body.input}]
-      : null;
+    // Track conversation for responses mode (normalize to array)
+    if (!c && body.input) {
+      conversation.push({type: 'message', role: 'user', content: body.input});
+    }
 
   // Outer loop for tool continuation
   while (true) {
@@ -117,7 +136,7 @@ export default async function* ai(
     let assistantContent = '';
 
     // For responses mode continuation, use the built conversation array
-    if (conversationInput) body.input = conversationInput;
+    if (!c && conversation.length > 0) body.input = conversation;
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -258,7 +277,7 @@ export default async function* ai(
     yield* results;
     body.tool_choice = undefined;
     if (c) {
-      body.messages.push(
+      messages.push(
         {
           role: 'assistant',
           content: assistantContent || null,
@@ -271,15 +290,21 @@ export default async function* ai(
         })),
       );
     } else {
-      conversationInput = [
-        ...conversationInput,
+      conversation.push(
         ...outputItems,
         ...pendingCalls.map((tc, i) => ({
           type: 'function_call_output',
           call_id: tc.id,
           output: JSON.stringify(results[i].result),
         })),
-      ];
+      );
     }
   }
+  }
+
+  return {
+    send,
+    messages,
+    conversation,
+  };
 }
