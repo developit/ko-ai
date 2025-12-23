@@ -123,20 +123,23 @@ export default function ai(
         }));
     }
 
-    // Track conversation for responses mode (normalize to array)
-    if (!c && body.input) {
-      conversation.push({type: 'message', role: 'user', content: body.input});
-    }
-
   // Outer loop for tool continuation
   while (true) {
     const pendingCalls: ToolCall[] = [];
     const toolCallMap: Record<number, ToolCall> = {};
     const outputItems: any[] = [];
     let assistantContent = '';
+    let reasoningContent = '';
 
-    // For responses mode continuation, use the built conversation array
-    if (!c && conversation.length > 0) body.input = conversation;
+    // For responses mode: build simple conversation history
+    if (!c) {
+      if (body.input) {
+        conversation.push({role: 'user', content: body.input});
+        body.input = conversation;
+      } else if (conversation.length) {
+        body.input = conversation;
+      }
+    }
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -254,6 +257,7 @@ export default function ai(
 
           if (chunk && chunk.type !== 'tool_call') {
             if (chunk.type === 'text') assistantContent += chunk.text;
+            else if (chunk.type === 'reasoning') reasoningContent += chunk.text;
             // console.log('chunk', chunk);
             // else if (chunk.type === 'tool_call' && !c) pendingCalls.push(chunk);
             yield chunk;
@@ -264,8 +268,20 @@ export default function ai(
       reader.releaseLock();
     }
 
-    if (!pendingCalls.length) return;
+    // If no tool calls, we're done - append to history
+    if (!pendingCalls.length) {
+      if (c && (assistantContent || reasoningContent)) {
+        const msg: any = {role: 'assistant'};
+        if (assistantContent) msg.content = assistantContent;
+        if (reasoningContent) msg.reasoning_content = reasoningContent;
+        messages.push(msg);
+      } else if (!c && assistantContent) {
+        conversation.push({role: 'assistant', content: assistantContent});
+      }
+      return;
+    }
     pendingCalls.map(tc => tc.streaming = false);
+    // console.log(pendingCalls);
     yield* pendingCalls;
     const results = await Promise.all(
       pendingCalls.map(async (tc) => {
@@ -277,12 +293,14 @@ export default function ai(
     yield* results;
     body.tool_choice = undefined;
     if (c) {
+      const msg: any = {
+        role: 'assistant',
+        tool_calls: pendingCalls.map((tc) => ({...tc, type: 'function'})),
+        content: assistantContent || null,
+      };
+      if (reasoningContent) msg.reasoning_content = reasoningContent;
       messages.push(
-        {
-          role: 'assistant',
-          content: assistantContent || null,
-          tool_calls: pendingCalls.map((tc) => ({...tc, type: 'function'})),
-        },
+        msg,
         ...pendingCalls.map((tc, i) => ({
           role: 'tool',
           tool_call_id: tc.id,
@@ -290,14 +308,11 @@ export default function ai(
         })),
       );
     } else {
-      conversation.push(
-        ...outputItems,
-        ...pendingCalls.map((tc, i) => ({
-          type: 'function_call_output',
-          call_id: tc.id,
-          output: JSON.stringify(results[i].result),
-        })),
-      );
+      // For responses mode: use simple format
+      if (assistantContent) {
+        conversation.push({role: 'assistant', content: assistantContent});
+      }
+      conversation.push(...results.map(r => ({role: 'tool', content: JSON.stringify(r.result)})));
     }
   }
   }

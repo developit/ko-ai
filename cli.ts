@@ -3,6 +3,7 @@
 import * as readline from 'node:readline';
 import {exec} from 'node:child_process';
 import {promisify} from 'node:util';
+import {readFile} from 'node:fs/promises';
 import ai, {type Tool, type StreamChunk} from './ai.ts';
 
 const execAsync = promisify(exec);
@@ -13,15 +14,21 @@ function parseArgs() {
   const parsed: {
     command?: string;
     model?: string;
+    prompt?: string;
     help?: boolean;
+    verbose?: boolean;
   } = {};
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--model' && args[i + 1]) {
       parsed.model = args[++i];
+    } else if (arg === '--prompt' && args[i + 1]) {
+      parsed.prompt = args[++i];
     } else if (arg === '--help' || arg === '-h') {
       parsed.help = true;
+    } else if (arg === '--verbose' || arg === '-v') {
+      parsed.verbose = true;
     } else if (!arg.startsWith('-')) {
       parsed.command = arg;
     }
@@ -124,17 +131,18 @@ const tools: Tool[] = [
   {
     type: 'function',
     name: 'shell',
-    description: 'Execute a shell command. Use with caution. Returns stdout, stderr, and exit code.',
+    description: 'Execute a shell (Bash) command. Useful for invoking ls/ps/du/find/grep/awk/ps/npm/pnpm/etc. Returns stdout, stderr, and exit code.',
     parameters: {
       type: 'object',
       properties: {
         command: {
           type: 'string',
-          description: 'The shell command to execute',
+          description: 'The shell command/script to execute',
         },
         timeout: {
           type: 'number',
           description: 'Timeout in milliseconds (default: 30000)',
+          default: 30000,
         },
       },
       required: ['command'],
@@ -161,6 +169,48 @@ const tools: Tool[] = [
           stdout: error.stdout?.slice(0, 5000) || '',
           stderr: error.stderr?.slice(0, 5000) || error.message,
           exitCode: error.code || 1,
+        };
+      }
+    },
+  },
+  {
+    type: 'function',
+    name: 'read_file',
+    description: 'Read the contents of a file from the filesystem. Returns the file content as text.',
+    parameters: {
+      type: 'object',
+      properties: {
+        path: {
+          type: 'string',
+          description: 'The file path to read (relative or absolute)',
+        },
+        encoding: {
+          type: 'string',
+          description: 'File encoding (default: utf8)',
+          enum: ['utf8', 'ascii', 'base64', 'hex'],
+        },
+      },
+      required: ['path'],
+    },
+    async call(args: Record<string, unknown>) {
+      const {path, encoding = 'utf8'} = args as {
+        path: string;
+        encoding?: BufferEncoding;
+      };
+
+      try {
+        const content = await readFile(path, encoding);
+        return {
+          path,
+          encoding,
+          content: content.toString().slice(0, 50000), // Limit to 50KB
+          size: content.length,
+        };
+      } catch (error: any) {
+        return {
+          path,
+          error: error.message,
+          code: error.code,
         };
       }
     },
@@ -193,6 +243,8 @@ ${colors.bright}Commands:${colors.reset}
 
 ${colors.bright}Options:${colors.reset}
   ${colors.green}--model${colors.reset} <name>    Specify model to use
+  ${colors.green}--prompt${colors.reset} <text>   Send an initial prompt immediately
+  ${colors.green}--verbose, -v${colors.reset}     Show reasoning and detailed tool information
   ${colors.green}--help, -h${colors.reset}        Show this help message
 
 ${colors.bright}Environment Variables:${colors.reset}
@@ -203,6 +255,7 @@ ${colors.bright}Environment Variables:${colors.reset}
 ${colors.bright}Examples:${colors.reset}
   cli.ts
   cli.ts --model anthropic/claude-3.5-sonnet
+  cli.ts --prompt "What's the weather like today?"
   cli.ts models
 `);
 }
@@ -264,8 +317,13 @@ async function chat() {
   //   process.exit(1);
   // }
 
+  const verbose = args.verbose || false;
+
   console.log(`${colors.bright}${colors.cyan}🤖 AI Chat CLI${colors.reset}`);
   console.log(`${colors.dim}Model: ${MODEL}${colors.reset}`);
+  if (verbose) {
+    console.log(`${colors.dim}Verbose mode: enabled${colors.reset}`);
+  }
   console.log(`${colors.dim}Type 'exit' or 'quit' to end the conversation${colors.reset}\n`);
 
   // Create chat session with persistent conversation history
@@ -273,11 +331,74 @@ async function chat() {
     apiKey: API_KEY,
     baseURL: BASE_URL,
     model: MODEL,
-    instructions: 'You are a helpful AI assistant with access to web search, fetch, and shell command tools. Be concise and helpful.',
+    instructions: 'You are a helpful AI assistant with access to web search, HTTP fetch, shell (bash) commands, and file reading tools. Always think about how you can use these tools to fulfill the user\'s request before attempting to remember something on your own. Use tools as much as and often as you can to produce the best possible answers. Be concise and helpful.',
     tools,
-    reasoning: {effort: 'medium'},
+    // reasoning: {effort: 'medium'},
+    reasoning: {enabled: true},
     stream: true,
   });
+
+  // Handle a message from the user
+  const handleMessage = async (input: string) => {
+    // Start assistant response
+    process.stdout.write(`${colors.blue}Assistant: ${colors.reset}`);
+
+    try {
+      let currentToolCall: string | null = null;
+
+      for await (const chunk of session.send(input)) {
+        switch (chunk.type) {
+          case 'text':
+            process.stdout.write(chunk.text);
+            break;
+
+          case 'reasoning':
+            process.stdout.write(`${colors.dim}${colors.magenta}${chunk.text}${colors.reset}`);
+            // if (verbose) {
+            //   process.stdout.write(`${colors.dim}${colors.magenta}[reasoning: ${chunk.text}]${colors.reset}`);
+            // }
+            break;
+
+          case 'tool_call':
+            if (!chunk.streaming) {
+              // Tool call complete, show what we're calling
+              const args = JSON.parse(chunk.function.arguments || '{}');
+              console.log(`\n${colors.yellow}🔧 ${chunk.function.name}(${JSON.stringify(args, null, 2)})${colors.reset}`);
+              // if (verbose) {
+              // } else {
+              //   console.log(`\n${colors.yellow}🔧 ${chunk.function.name}()${colors.reset}`);
+              // }
+              currentToolCall = chunk.function.name;
+            }
+            break;
+
+          case 'tool_result':
+            // Show tool result
+            if (currentToolCall) {
+              if (verbose) {
+                console.log(`${colors.dim}✓ ${currentToolCall} → ${JSON.stringify(chunk.result, null, 2)}${colors.reset}`);
+              } else {
+                console.log(`${colors.dim}✓ ${currentToolCall} completed${colors.reset}`);
+              }
+              currentToolCall = null;
+            }
+            break;
+
+          case 'done':
+            console.log('\n');
+            break;
+        }
+      }
+    } catch (error: any) {
+      console.error(`\n${colors.red}Error: ${error.message}${colors.reset}\n`);
+    }
+  };
+
+  // Send initial prompt if provided
+  if (args.prompt) {
+    console.log(`${colors.green}You: ${colors.reset}${args.prompt}\n`);
+    await handleMessage(args.prompt);
+  }
 
   const rl = readline.createInterface({
     input: process.stdin,
@@ -300,49 +421,7 @@ async function chat() {
       process.exit(0);
     }
 
-    // Start assistant response
-    process.stdout.write(`${colors.blue}Assistant: ${colors.reset}`);
-
-    try {
-      let currentToolCall: string | null = null;
-
-      for await (const chunk of session.send(input)) {
-        switch (chunk.type) {
-          case 'text':
-            process.stdout.write(chunk.text);
-            break;
-
-          case 'reasoning':
-            // Optionally show reasoning in dim color
-            // process.stdout.write(`${colors.dim}[thinking: ${chunk.text}]${colors.reset}`);
-            break;
-
-          case 'tool_call':
-            if (!chunk.streaming) {
-              // Tool call complete, show what we're calling
-              const args = JSON.parse(chunk.function.arguments || '{}');
-              console.log(`\n${colors.yellow}🔧 ${chunk.function.name}(${JSON.stringify(args)})${colors.reset}`);
-              currentToolCall = chunk.function.name;
-            }
-            break;
-
-          case 'tool_result':
-            // Show tool result
-            if (currentToolCall) {
-              console.log(`${colors.dim}✓ ${currentToolCall} completed${colors.reset}`);
-              currentToolCall = null;
-            }
-            break;
-
-          case 'done':
-            console.log('\n');
-            break;
-        }
-      }
-    } catch (error: any) {
-      console.error(`\n${colors.red}Error: ${error.message}${colors.reset}\n`);
-    }
-
+    await handleMessage(input);
     rl.prompt();
   }
 }
