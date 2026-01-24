@@ -126,17 +126,54 @@ type StreamChunk =
 
 ## Testing
 
-Tests use [nock](https://github.com/nock/nock) for record/replay of HTTP fixtures:
+Tests use [nock](https://github.com/nock/nock) for record/replay of HTTP fixtures. All fixtures are organized by API mode and committed to git, enabling fast offline testing.
+
+### Running Tests
 
 ```bash
-# Run tests with recorded fixtures (no API calls)
+# Run tests with recorded fixtures (no API calls, works offline)
 npm test
 
-# Record new fixtures (requires OpenRouter API key)
-OPENROUTER_API_KEY=your-key npm test
+# Validate fixture integrity
+npm run test:validate
+
+# Watch mode
+npm run test:watch
 ```
 
-Fixtures are stored in `.nock-fixtures.json` and committed to the repo so tests work offline.
+### Recording Fixtures
+
+```bash
+# Record all fixtures (requires OpenRouter API key)
+KOAI_TEST_MODE=record OPENROUTER_API_KEY=your-key npm test
+
+# Or use the shortcut
+OPENROUTER_API_KEY=your-key npm run test:record
+
+# Re-record specific tests only
+KOAI_UPDATE_FIXTURES="text-generation-responses,streaming-completions" OPENROUTER_API_KEY=your-key npm test
+
+# Auto mode: record missing fixtures, replay existing ones
+KOAI_TEST_MODE=auto OPENROUTER_API_KEY=your-key npm test
+```
+
+### Fixture Organization
+
+Fixtures are organized by API mode in the `fixtures/` directory:
+
+```
+fixtures/
+├── responses-api/        # Responses API mode fixtures
+├── completions-api/      # Completions API mode fixtures
+├── edge-cases/           # Error handling and edge case fixtures
+└── metadata.json         # Fixture metadata (timestamps, checksums)
+```
+
+Each test has its own fixture file, making it easy to:
+- Review API interactions in pull requests
+- Debug specific test failures
+- Update stale fixtures selectively
+- Track when fixtures were last recorded
 
 ## License
 

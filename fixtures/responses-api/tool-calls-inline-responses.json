@@ -1,0 +1,123 @@
+[
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "model": "openai/gpt-5-nano",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "What is the weather in Paris? Use the get_current_weather tool."
+        }
+      ],
+      "tools": [
+        {
+          "type": "function",
+          "name": "get_current_weather",
+          "description": "Get the current weather in a location",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string",
+                "description": "City name"
+              }
+            },
+            "required": [
+              "location"
+            ]
+          }
+        }
+      ],
+      "stream": true
+    },
+    "status": 200,
+    "response": "data: {\"type\":\"response.created\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871081-iKJZS7w8dnSyIseFlw6E\",\"created_at\":1764871081,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"get_current_weather\",\"description\":\"Get the current weather in a location\",\"parameters\":{\"type\":\"object\",\"properties\":{\"location\":{\"type\":\"string\",\"description\":\"City name\"}},\"required\":[\"location\"]}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":0}\n\ndata: {\"type\":\"response.in_progress\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871081-iKJZS7w8dnSyIseFlw6E\",\"created_at\":1764871081,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"get_current_weather\",\"description\":\"Get the current weather in a location\",\"parameters\":{\"type\":\"object\",\"properties\":{\"location\":{\"type\":\"string\",\"description\":\"City name\"}},\"required\":[\"location\"]}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":1}\n\n: OPENROUTER PROCESSING\n\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"type\":\"function_call\",\"call_id\":\"call_L20IBBSGZkLEc577zOiKtRna\",\"name\":\"get_current_weather\",\"arguments\":\"\",\"id\":\"call_L20IBBSGZkLEc577zOiKtRna\"},\"sequence_number\":2}\n\ndata: {\"type\":\"response.function_call_arguments.done\",\"item_id\":\"call_L20IBBSGZkLEc577zOiKtRna\",\"output_index\":0,\"name\":\"get_current_weather\",\"arguments\":\"\",\"sequence_number\":3}\n\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"type\":\"function_call\",\"call_id\":\"call_L20IBBSGZkLEc577zOiKtRna\",\"name\":\"get_current_weather\",\"arguments\":\"\"},\"sequence_number\":4}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871081-iKJZS7w8dnSyIseFlw6E\",\"created_at\":1764871081,\"model\":\"openai/gpt-5-nano\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call_L20IBBSGZkLEc577zOiKtRna\",\"name\":\"get_current_weather\",\"arguments\":\"{\\\"location\\\":\\\"Paris\\\"}\"}],\"output_text\":\"\",\"error\":null,\"incomplete_details\":null,\"usage\":{\"input_tokens\":63,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":21,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":84,\"cost\":0.00001155,\"is_byok\":false,\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_input_cost\":0.00000315,\"upstream_inference_output_cost\":0.0000084}},\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"get_current_weather\",\"description\":\"Get the current weather in a location\",\"parameters\":{\"type\":\"object\",\"properties\":{\"location\":{\"type\":\"string\",\"description\":\"City name\"}},\"required\":[\"location\"]}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":5}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-cache",
+      "cf-ray": "9a8d30802ebceff9-YYZ",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "date": "Thu, 04 Dec 2025 17:58:01 GMT",
+      "permissions-policy": "payment=(self \"https://checkout.stripe.com\" \"https://connect-js.stripe.com\" \"https://js.stripe.com\" \"https://*.js.stripe.com\" \"https://hooks.stripe.com\")",
+      "referrer-policy": "no-referrer, strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff"
+    },
+    "responseIsBinary": false
+  },
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "model": "openai/gpt-5-nano",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "What is the weather in Paris? Use the get_current_weather tool."
+        },
+        {
+          "type": "function_call",
+          "call_id": "call_L20IBBSGZkLEc577zOiKtRna",
+          "name": "get_current_weather",
+          "arguments": "{\"location\":\"Paris\"}"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "call_L20IBBSGZkLEc577zOiKtRna",
+          "output": "{\"temperature\":72,\"conditions\":\"sunny\"}"
+        }
+      ],
+      "tools": [
+        {
+          "type": "function",
+          "name": "get_current_weather",
+          "description": "Get the current weather in a location",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string",
+                "description": "City name"
+              }
+            },
+            "required": [
+              "location"
+            ]
+          }
+        }
+      ],
+      "stream": true
+    },
+    "status": 200,
+    "response": "data: {\"type\":\"response.created\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871081-VYubb1UwJZVdPHpjOvcP\",\"created_at\":1764871081,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"get_current_weather\",\"description\":\"Get the current weather in a location\",\"parameters\":{\"type\":\"object\",\"properties\":{\"location\":{\"type\":\"string\",\"description\":\"City name\"}},\"required\":[\"location\"]}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":0}\n\ndata: {\"type\":\"response.in_progress\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871081-VYubb1UwJZVdPHpjOvcP\",\"created_at\":1764871081,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"get_current_weather\",\"description\":\"Get the current weather in a location\",\"parameters\":{\"type\":\"object\",\"properties\":{\"location\":{\"type\":\"string\",\"description\":\"City name\"}},\"required\":[\"location\"]}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":1}\n\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"type\":\"message\",\"status\":\"in_progress\",\"content\":[],\"id\":\"msg_tmp_nyfusitrqg\",\"role\":\"assistant\"},\"sequence_number\":2}\n\ndata: {\"type\":\"response.content_part.added\",\"item_id\":\"msg_tmp_nyfusitrqg\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"text\":\"\"},\"sequence_number\":3}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\"The\",\"sequence_number\":4}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" weather\",\"sequence_number\":5}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" in\",\"sequence_number\":6}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" Paris\",\"sequence_number\":7}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" right\",\"sequence_number\":8}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" now\",\"sequence_number\":9}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\":\\n\",\"sequence_number\":10}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\"-\",\"sequence_number\":11}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" Temperature\",\"sequence_number\":12}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\":\",\"sequence_number\":13}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" \",\"sequence_number\":14}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\"72\",\"sequence_number\":15}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" (\",\"sequence_number\":16}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\"units\",\"sequence_number\":17}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" not\",\"sequence_number\":18}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" specified\",\"sequence_number\":19}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\",\",\"sequence_number\":20}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" assumed\",\"sequence_number\":21}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" Fahrenheit\",\"sequence_number\":22}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\")\\n\",\"sequence_number\":23}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\"-\",\"sequence_number\":24}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" Conditions\",\"sequence_number\":25}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\":\",\"sequence_number\":26}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" sunny\",\"sequence_number\":27}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\"\\n\\n\",\"sequence_number\":28}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\"Would\",\"sequence_number\":29}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" you\",\"sequence_number\":30}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" like\",\"sequence_number\":31}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" this\",\"sequence_number\":32}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" in\",\"sequence_number\":33}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" Celsius\",\"sequence_number\":34}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" or\",\"sequence_number\":35}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" need\",\"sequence_number\":36}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" a\",\"sequence_number\":37}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" forecast\",\"sequence_number\":38}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\" too\",\"sequence_number\":39}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_nyfusitrqg\",\"content_index\":0,\"delta\":\"?\",\"sequence_number\":40}\n\ndata: {\"type\":\"response.output_text.done\",\"item_id\":\"msg_tmp_nyfusitrqg\",\"output_index\":0,\"content_index\":0,\"text\":\"The weather in Paris right now:\\n- Temperature: 72 (units not specified, assumed Fahrenheit)\\n- Conditions: sunny\\n\\nWould you like this in Celsius or need a forecast too?\",\"logprobs\":[],\"sequence_number\":41}\n\ndata: {\"type\":\"response.content_part.done\",\"item_id\":\"msg_tmp_nyfusitrqg\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"text\":\"The weather in Paris right now:\\n- Temperature: 72 (units not specified, assumed Fahrenheit)\\n- Conditions: sunny\\n\\nWould you like this in Celsius or need a forecast too?\"},\"sequence_number\":42}\n\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"The weather in Paris right now:\\n- Temperature: 72 (units not specified, assumed Fahrenheit)\\n- Conditions: sunny\\n\\nWould you like this in Celsius or need a forecast too?\",\"annotations\":[]}],\"id\":\"msg_tmp_nyfusitrqg\",\"role\":\"assistant\"},\"sequence_number\":43}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871081-VYubb1UwJZVdPHpjOvcP\",\"created_at\":1764871081,\"model\":\"openai/gpt-5-nano\",\"status\":\"completed\",\"output\":[{\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"The weather in Paris right now:\\n- Temperature: 72 (units not specified, assumed Fahrenheit)\\n- Conditions: sunny\\n\\nWould you like this in Celsius or need a forecast too?\",\"annotations\":[]}],\"id\":\"msg_tmp_nyfusitrqg\",\"role\":\"assistant\"}],\"output_text\":\"\",\"error\":null,\"incomplete_details\":null,\"usage\":{\"input_tokens\":101,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":43,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":144,\"cost\":0.00002225,\"is_byok\":false,\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_input_cost\":0.00000505,\"upstream_inference_output_cost\":0.0000172}},\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"get_current_weather\",\"description\":\"Get the current weather in a location\",\"parameters\":{\"type\":\"object\",\"properties\":{\"location\":{\"type\":\"string\",\"description\":\"City name\"}},\"required\":[\"location\"]}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":44}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-cache",
+      "cf-ray": "9a8d30857cf8aaec-YYZ",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "date": "Thu, 04 Dec 2025 17:58:02 GMT",
+      "permissions-policy": "payment=(self \"https://checkout.stripe.com\" \"https://connect-js.stripe.com\" \"https://js.stripe.com\" \"https://*.js.stripe.com\" \"https://hooks.stripe.com\")",
+      "referrer-policy": "no-referrer, strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff"
+    },
+    "responseIsBinary": false
+  }
+]

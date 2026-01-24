@@ -1,0 +1,41 @@
+[
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/chat/completions",
+    "body": {
+      "model": "openai/gpt-5-nano",
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "stream": true,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You always respond with exactly: \"Hello from instructions\""
+        },
+        {
+          "role": "user",
+          "content": "Hi"
+        }
+      ]
+    },
+    "status": 200,
+    "response": "data: {\"id\":\"gen-1764871107-Kp1eTmLqanldpZbhoS6i\",\"provider\":\"OpenAI\",\"model\":\"openai/gpt-5-nano\",\"object\":\"chat.completion.chunk\",\"created\":1764871107,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}\n\ndata: {\"id\":\"gen-1764871107-Kp1eTmLqanldpZbhoS6i\",\"provider\":\"OpenAI\",\"model\":\"openai/gpt-5-nano\",\"object\":\"chat.completion.chunk\",\"created\":1764871107,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"reasoning\":null,\"reasoning_details\":[{\"type\":\"reasoning.encrypted\",\"data\":\"gAAAAABpMcvD_EItFhSGbi3CEKfnUPJlOaSqP1pUFkYBV5387flGYHUkBZx8adQwsXhqjnOGnFut9HMdRodUU6Fi3kbO9_yY2NeNmaS05j0AA1Q7KJ8dMpReiE9z99TpLNEAmUvH-gQeSv6CEqxRmb-1drTpdv3Nbdh9bvkGLRTM4lz-19uMx83js6boBnMtktlUNgoQHcsTb9qnSgCLhGCuZ91yOx2XPgqoOodITteaWA1a8axKOVONUfymxyS_vD64np_ESrpIXpmNL1_Z_J1iPb9nCl1QBMe11rps3m8ePO5rGuxKRO5NPSpIOYbYWmJG-QRlwVquOkxARLYTMZevts3hr_lF2DXy9zPc5xzmTSS7xztsCua_XyF_d9FiKkdxmEXlVVfChbyDmctgliAJ-mSqdI9T9xdX_k39__TJ8skoL2DqhTkreoZqUlR7izXUpr3QMTbVnbM4kTu3hqzHqXXtNY88WQYwCIjgy1AtwFgt7756NVxqoqEdQRIlytOVtGkVkElohTIxtORPSVP6Nl-0x4xgRCfUHRW2upf44KPkSU9fjIeTeQjXHCDtv5-pUACzUQKauM5cT6N9Ly44_NbtkpEHScq71Q7WjzZkSQtoAXpE52qGRW1nYATVe67bbCv-UdxdFEfLl_znV_tzo58Xd6o2iKeLndfpuaPt-H14YLtTqIexjlgj4hw-AXcdvuFYDBXOx0xb7oHs9vL5gJxlA2ecPy6L8HY87Pr_VCAFrYeX-prcrwZ_q8nUh_7JelaCBTbb-cZ_sWVuuJtxubfQ8Ljr3X8wZxLP_gEsXoozhI4h9S4I51G20HbeQbTyxtMlUu1cLN-CFYMYaXoo_WETgCJv9DcfQ21FPxnKajC22XVUJWQsfYgAitMrfJ_rzDrOW85doWLcsyFUCXyzzxD9vudnbQYLPXIMcw5tzBkeW8IJqZo=\",\"id\":\"rs_0729b46d5e9f27e0016931cbc3d1148197b6bfd9099ecbe5d4\",\"format\":\"openai-responses-v1\",\"index\":0}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}\n\ndata: {\"id\":\"gen-1764871107-Kp1eTmLqanldpZbhoS6i\",\"provider\":\"OpenAI\",\"model\":\"openai/gpt-5-nano\",\"object\":\"chat.completion.chunk\",\"created\":1764871107,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"Hello\"},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}\n\ndata: {\"id\":\"gen-1764871107-Kp1eTmLqanldpZbhoS6i\",\"provider\":\"OpenAI\",\"model\":\"openai/gpt-5-nano\",\"object\":\"chat.completion.chunk\",\"created\":1764871107,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" from\"},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}\n\ndata: {\"id\":\"gen-1764871107-Kp1eTmLqanldpZbhoS6i\",\"provider\":\"OpenAI\",\"model\":\"openai/gpt-5-nano\",\"object\":\"chat.completion.chunk\",\"created\":1764871107,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\" instructions\"},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}\n\ndata: {\"id\":\"gen-1764871107-Kp1eTmLqanldpZbhoS6i\",\"provider\":\"OpenAI\",\"model\":\"openai/gpt-5-nano\",\"object\":\"chat.completion.chunk\",\"created\":1764871107,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":\"stop\",\"native_finish_reason\":\"completed\",\"logprobs\":null}]}\n\ndata: {\"id\":\"gen-1764871107-Kp1eTmLqanldpZbhoS6i\",\"provider\":\"OpenAI\",\"model\":\"openai/gpt-5-nano\",\"object\":\"chat.completion.chunk\",\"created\":1764871107,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}],\"usage\":{\"prompt_tokens\":22,\"completion_tokens\":9,\"total_tokens\":31,\"cost\":0.0000047,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_prompt_cost\":0.0000011,\"upstream_inference_completions_cost\":0.0000036},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"image_tokens\":0}}}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-cache",
+      "cf-ray": "9a8d31259e1e813d-YYZ",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "date": "Thu, 04 Dec 2025 17:58:27 GMT",
+      "permissions-policy": "payment=(self \"https://checkout.stripe.com\" \"https://connect-js.stripe.com\" \"https://js.stripe.com\" \"https://*.js.stripe.com\" \"https://hooks.stripe.com\")",
+      "referrer-policy": "no-referrer, strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff"
+    },
+    "responseIsBinary": false
+  }
+]
