@@ -335,7 +335,7 @@ async function chat() {
     tools,
     mode: 'completions',
     // reasoning: {effort: 'medium'},
-    reasoning: {enabled: true},
+    // reasoning: {enabled: true},
     stream: true,
   });
 
