@@ -92,15 +92,15 @@ describe('AI Client Tests', () => {
       'streaming-responses',
       'responses',
       async () => {
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'responses',
           reasoning: {effort: 'minimal'},
           model: TEST_MODEL,
-          input: 'Say "Mode responses streaming works"',
           temperature: 0,
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('Say "Mode responses streaming works"'));
 
         assert.ok(chunks.length > 0, 'No chunks received in responses mode');
         const hasContent = chunks.some((c) => c.type === 'text' || c.type === 'reasoning');
@@ -114,15 +114,15 @@ describe('AI Client Tests', () => {
       'streaming-completions',
       'completions',
       async () => {
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'completions',
           reasoning: {effort: 'minimal'},
           model: TEST_MODEL,
-          input: 'Say "Mode completions streaming works"',
           temperature: 0,
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('Say "Mode completions streaming works"'));
 
         assert.ok(chunks.length > 0, 'No chunks received in completions mode');
         const hasContent = chunks.some((c) => c.type === 'text' || c.type === 'reasoning');
@@ -156,15 +156,15 @@ describe('AI Client Tests', () => {
           }
         ];
 
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'responses',
           reasoning: {effort: 'minimal'},
           model: TEST_MODEL,
-          input: 'What is the weather in Paris? Use the get_current_weather tool.',
           tools,
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('What is the weather in Paris? Use the get_current_weather tool.'));
 
         console.log('Responses mode chunks:', chunks.map(c => c.type).join(', '));
 
@@ -200,13 +200,12 @@ describe('AI Client Tests', () => {
           }
         ];
 
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'completions',
           reasoning: {effort: 'minimal'},
           model: TEST_MODEL,
-          input: 'Calculate 5 + 3 using the add tool',
           tool_choice: 'required',
           tools,
           onToolCall: async (name, args: any) => {
@@ -215,7 +214,8 @@ describe('AI Client Tests', () => {
             }
             return { error: 'unknown tool' };
           }
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('Calculate 5 + 3 using the add tool'));
 
         console.log('Completions mode chunks:', chunks.map(c => c.type).join(', '));
 
@@ -263,15 +263,15 @@ describe('AI Client Tests', () => {
           }
         ];
 
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'responses',
           reasoning: {effort: 'low'},
           model: TEST_MODEL,
-          input: 'Get temperature for Tokyo and Paris, then tell me which is warmer',
           tools,
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('Get temperature for Tokyo and Paris, then tell me which is warmer'));
 
         const toolCalls = chunks.filter(c => c.type === 'tool_call');
         const toolResults = chunks.filter(c => c.type === 'tool_result');
@@ -321,15 +321,15 @@ describe('AI Client Tests', () => {
           }
         ];
 
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'completions',
           reasoning: {effort: 'low'},
           model: TEST_MODEL,
-          input: 'Use get_number to get two numbers, then multiply them together',
           tools,
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('Use get_number to get two numbers, then multiply them together'));
 
         const toolCalls = chunks.filter(c => c.type === 'tool_call');
 
@@ -347,11 +347,11 @@ describe('AI Client Tests', () => {
       'responses',
       async () => {
         await assert.rejects(async () => {
-          await Array.fromAsync(ai({
+          const chat = ai({
             apiKey: 'invalid',
             baseURL: 'https://invalid-url.example.com/v1',
-            input: 'test',
-          }));
+          });
+          await Array.fromAsync(chat.send('test'));
         });
       }
     );
@@ -371,16 +371,16 @@ describe('AI Client Tests', () => {
           }
         ];
 
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'completions',
           reasoning: {effort: 'minimal'},
           model: TEST_MODEL,
-          input: 'Use the get_secret_data tool to retrieve the secret with key "test123"',
           tools,
           // Don't use tool_choice: 'required' - would cause infinite loop on error
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('Use the get_secret_data tool to retrieve the secret with key "test123"'));
 
         // Should get tool_result with error
         const toolResult = chunks.find(c => c.type === 'tool_result') as any;
@@ -407,16 +407,16 @@ describe('AI Client Tests', () => {
           }
         ];
 
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'responses',
           reasoning: {effort: 'minimal'},
           tool_choice: 'required',
           model: TEST_MODEL,
-          input: 'Call the failing_tool function',
           tools,
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('Call the failing_tool function'));
 
         const toolResult = chunks.find(c => c.type === 'tool_result') as any;
         assert.ok(toolResult, 'Should have tool_result chunk');
@@ -432,13 +432,13 @@ describe('AI Client Tests', () => {
       'default-mode',
       'responses',
       async () => {
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           model: TEST_MODEL,
           reasoning: {effort: 'minimal'},
-          input: 'Say "default mode"',
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('Say "default mode"'));
 
         const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
         assert.ok(content, 'Should receive text content');
@@ -452,18 +452,18 @@ describe('AI Client Tests', () => {
       'custom-headers',
       'responses',
       async () => {
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'responses',
           model: TEST_MODEL,
-          input: 'Say "headers work"',
           reasoning: {effort: 'minimal'},
           headers: {
             'X-Custom-Header': 'test-value',
             'X-Another-Header': 'another-value',
           },
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('Say "headers work"'));
 
         const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
         assert.ok(content, 'Should receive text content with custom headers');
@@ -476,15 +476,15 @@ describe('AI Client Tests', () => {
       'instructions-only-completions',
       'completions',
       async () => {
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'completions',
           model: TEST_MODEL,
           reasoning: {effort: 'minimal'},
           instructions: 'You always respond with exactly: "Hello from instructions"',
-          input: 'Hi',
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('Hi'));
 
         const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
         assert.ok(content, 'Should receive text content');
@@ -497,16 +497,16 @@ describe('AI Client Tests', () => {
       'text-only-completions',
       'completions',
       async () => {
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'completions',
           model: TEST_MODEL,
-          input: 'What is 2+2? Reply with just the number.',
           max_output_tokens: 20,
           reasoning: {effort: 'minimal'},
           temperature: 0,
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('What is 2+2? Reply with just the number.'));
 
         const textChunks = chunks.filter(c => c.type === 'text' || c.type === 'reasoning');
         const doneChunk = chunks.find(c => c.type === 'done');
@@ -523,16 +523,16 @@ describe('AI Client Tests', () => {
       'text-only-responses',
       'responses',
       async () => {
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'responses',
           model: TEST_MODEL,
-          input: 'What is 3+3? Reply with just the number.',
           max_output_tokens: 20,
           reasoning: {effort: 'minimal'},
           temperature: 0,
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('What is 3+3? Reply with just the number.'));
 
         const textChunks = chunks.filter(c => c.type === 'text' || c.type === 'reasoning');
         const doneChunk = chunks.find(c => c.type === 'done');
@@ -566,15 +566,15 @@ describe('AI Client Tests', () => {
           }
         ];
 
-        const chunks = await Array.fromAsync(ai({
+        const chat = ai({
           apiKey: TEST_API_KEY,
           baseURL: TEST_BASE_URL,
           mode: 'responses',
           reasoning: {effort: 'minimal'},
           model: TEST_MODEL,
-          input: 'Call the sync_tool function',
           tools,
-        }));
+        });
+        const chunks = await Array.fromAsync(chat.send('Call the sync_tool function'));
 
         const toolResult = chunks.find(c => c.type === 'tool_result') as any;
         assert.ok(toolResult, 'Should have tool_result chunk');
