@@ -1,1 +1,107 @@
-[]
+[
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "model": "openai/gpt-5-nano",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "Call the sync_tool function"
+        }
+      ],
+      "tools": [
+        {
+          "type": "function",
+          "name": "sync_tool",
+          "description": "A synchronous tool that returns a fixed result",
+          "parameters": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ],
+      "stream": true
+    },
+    "status": 200,
+    "response": "data: {\"type\":\"response.created\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871109-a9IrbohWjo5qq9BiNNI1\",\"created_at\":1764871109,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"sync_tool\",\"description\":\"A synchronous tool that returns a fixed result\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":0}\n\ndata: {\"type\":\"response.in_progress\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871109-a9IrbohWjo5qq9BiNNI1\",\"created_at\":1764871109,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"sync_tool\",\"description\":\"A synchronous tool that returns a fixed result\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":1}\n\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"type\":\"function_call\",\"call_id\":\"call_0p8FEXMMJRbP12ohqeYojJk5\",\"name\":\"sync_tool\",\"arguments\":\"\",\"id\":\"call_0p8FEXMMJRbP12ohqeYojJk5\"},\"sequence_number\":2}\n\ndata: {\"type\":\"response.function_call_arguments.done\",\"item_id\":\"call_0p8FEXMMJRbP12ohqeYojJk5\",\"output_index\":0,\"name\":\"sync_tool\",\"arguments\":\"\",\"sequence_number\":3}\n\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"type\":\"function_call\",\"call_id\":\"call_0p8FEXMMJRbP12ohqeYojJk5\",\"name\":\"sync_tool\",\"arguments\":\"\"},\"sequence_number\":4}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871109-a9IrbohWjo5qq9BiNNI1\",\"created_at\":1764871109,\"model\":\"openai/gpt-5-nano\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call_0p8FEXMMJRbP12ohqeYojJk5\",\"name\":\"sync_tool\",\"arguments\":\"{}\"}],\"output_text\":\"\",\"error\":null,\"incomplete_details\":null,\"usage\":{\"input_tokens\":44,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":16,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":60,\"cost\":0.0000086,\"is_byok\":false,\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_input_cost\":0.0000022,\"upstream_inference_output_cost\":0.0000064}},\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"sync_tool\",\"description\":\"A synchronous tool that returns a fixed result\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":5}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-cache",
+      "cf-ray": "9a8d3134a9f6aaec-YYZ",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "date": "Thu, 04 Dec 2025 17:58:30 GMT",
+      "permissions-policy": "payment=(self \"https://checkout.stripe.com\" \"https://connect-js.stripe.com\" \"https://js.stripe.com\" \"https://*.js.stripe.com\" \"https://hooks.stripe.com\")",
+      "referrer-policy": "no-referrer, strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff"
+    },
+    "responseIsBinary": false
+  },
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "model": "openai/gpt-5-nano",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "Call the sync_tool function"
+        },
+        {
+          "type": "function_call",
+          "call_id": "call_0p8FEXMMJRbP12ohqeYojJk5",
+          "name": "sync_tool",
+          "arguments": "{}"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "call_0p8FEXMMJRbP12ohqeYojJk5",
+          "output": "{\"success\":true,\"data\":\"sync result\"}"
+        }
+      ],
+      "tools": [
+        {
+          "type": "function",
+          "name": "sync_tool",
+          "description": "A synchronous tool that returns a fixed result",
+          "parameters": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ],
+      "stream": true
+    },
+    "status": 200,
+    "response": "data: {\"type\":\"response.created\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871110-VTpzCp91OPfGeVs5He93\",\"created_at\":1764871110,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"sync_tool\",\"description\":\"A synchronous tool that returns a fixed result\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":0}\n\ndata: {\"type\":\"response.in_progress\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871110-VTpzCp91OPfGeVs5He93\",\"created_at\":1764871110,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"sync_tool\",\"description\":\"A synchronous tool that returns a fixed result\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":1}\n\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"type\":\"message\",\"status\":\"in_progress\",\"content\":[],\"id\":\"msg_tmp_d5f2wy3o36g\",\"role\":\"assistant\"},\"sequence_number\":2}\n\ndata: {\"type\":\"response.content_part.added\",\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"text\":\"\"},\"sequence_number\":3}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\"Result\",\"sequence_number\":4}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\" from\",\"sequence_number\":5}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\" sync\",\"sequence_number\":6}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\"_tool\",\"sequence_number\":7}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\":\",\"sequence_number\":8}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\" success\",\"sequence_number\":9}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\" =\",\"sequence_number\":10}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\" true\",\"sequence_number\":11}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\",\",\"sequence_number\":12}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\" data\",\"sequence_number\":13}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\" =\",\"sequence_number\":14}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\" \\\"\",\"sequence_number\":15}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\"sync\",\"sequence_number\":16}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\" result\",\"sequence_number\":17}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"content_index\":0,\"delta\":\"\\\"\",\"sequence_number\":18}\n\ndata: {\"type\":\"response.output_text.done\",\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"output_index\":0,\"content_index\":0,\"text\":\"Result from sync_tool: success = true, data = \\\"sync result\\\"\",\"logprobs\":[],\"sequence_number\":19}\n\ndata: {\"type\":\"response.content_part.done\",\"item_id\":\"msg_tmp_d5f2wy3o36g\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"text\":\"Result from sync_tool: success = true, data = \\\"sync result\\\"\"},\"sequence_number\":20}\n\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"Result from sync_tool: success = true, data = \\\"sync result\\\"\",\"annotations\":[]}],\"id\":\"msg_tmp_d5f2wy3o36g\",\"role\":\"assistant\"},\"sequence_number\":21}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871110-VTpzCp91OPfGeVs5He93\",\"created_at\":1764871110,\"model\":\"openai/gpt-5-nano\",\"status\":\"completed\",\"output\":[{\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"Result from sync_tool: success = true, data = \\\"sync result\\\"\",\"annotations\":[]}],\"id\":\"msg_tmp_d5f2wy3o36g\",\"role\":\"assistant\"}],\"output_text\":\"\",\"error\":null,\"incomplete_details\":null,\"usage\":{\"input_tokens\":76,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":21,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":97,\"cost\":0.0000122,\"is_byok\":false,\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_input_cost\":0.0000038,\"upstream_inference_output_cost\":0.0000084}},\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"sync_tool\",\"description\":\"A synchronous tool that returns a fixed result\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":22}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-cache",
+      "cf-ray": "9a8d313a2ee5813d-YYZ",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "date": "Thu, 04 Dec 2025 17:58:31 GMT",
+      "permissions-policy": "payment=(self \"https://checkout.stripe.com\" \"https://connect-js.stripe.com\" \"https://js.stripe.com\" \"https://*.js.stripe.com\" \"https://hooks.stripe.com\")",
+      "referrer-policy": "no-referrer, strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff"
+    },
+    "responseIsBinary": false
+  }
+]

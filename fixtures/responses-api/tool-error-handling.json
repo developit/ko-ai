@@ -1,1 +1,177 @@
-[]
+[
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "tool_choice": "required",
+      "model": "openai/gpt-5-nano",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "Call the failing_tool function"
+        }
+      ],
+      "tools": [
+        {
+          "type": "function",
+          "name": "failing_tool",
+          "description": "A tool that throws an error",
+          "parameters": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ],
+      "stream": true
+    },
+    "status": 200,
+    "response": "data: {\"type\":\"response.created\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871102-oU5GJhVktiCE1SCNWoKD\",\"created_at\":1764871102,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"failing_tool\",\"description\":\"A tool that throws an error\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"required\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":0}\n\ndata: {\"type\":\"response.in_progress\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871102-oU5GJhVktiCE1SCNWoKD\",\"created_at\":1764871102,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"failing_tool\",\"description\":\"A tool that throws an error\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"required\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":1}\n\n: OPENROUTER PROCESSING\n\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"type\":\"function_call\",\"call_id\":\"call_fR0vvkdDRaEHI8kAHnypz2sD\",\"name\":\"failing_tool\",\"arguments\":\"\",\"id\":\"call_fR0vvkdDRaEHI8kAHnypz2sD\"},\"sequence_number\":2}\n\ndata: {\"type\":\"response.function_call_arguments.done\",\"item_id\":\"call_fR0vvkdDRaEHI8kAHnypz2sD\",\"output_index\":0,\"name\":\"failing_tool\",\"arguments\":\"\",\"sequence_number\":3}\n\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"type\":\"function_call\",\"call_id\":\"call_fR0vvkdDRaEHI8kAHnypz2sD\",\"name\":\"failing_tool\",\"arguments\":\"\"},\"sequence_number\":4}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871102-oU5GJhVktiCE1SCNWoKD\",\"created_at\":1764871102,\"model\":\"openai/gpt-5-nano\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call_fR0vvkdDRaEHI8kAHnypz2sD\",\"name\":\"failing_tool\",\"arguments\":\"{}\"}],\"output_text\":\"\",\"error\":null,\"incomplete_details\":null,\"usage\":{\"input_tokens\":42,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":17,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":59,\"cost\":0.0000089,\"is_byok\":false,\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_input_cost\":0.0000021,\"upstream_inference_output_cost\":0.0000068}},\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"failing_tool\",\"description\":\"A tool that throws an error\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"required\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":5}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-cache",
+      "cf-ray": "9a8d3109094aaaec-YYZ",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "date": "Thu, 04 Dec 2025 17:58:23 GMT",
+      "permissions-policy": "payment=(self \"https://checkout.stripe.com\" \"https://connect-js.stripe.com\" \"https://js.stripe.com\" \"https://*.js.stripe.com\" \"https://hooks.stripe.com\")",
+      "referrer-policy": "no-referrer, strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff"
+    },
+    "responseIsBinary": false
+  },
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "model": "openai/gpt-5-nano",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "Call the failing_tool function"
+        },
+        {
+          "type": "function_call",
+          "call_id": "call_fR0vvkdDRaEHI8kAHnypz2sD",
+          "name": "failing_tool",
+          "arguments": "{}"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "call_fR0vvkdDRaEHI8kAHnypz2sD",
+          "output": "{\"error\":\"Tool execution failed\"}"
+        }
+      ],
+      "tools": [
+        {
+          "type": "function",
+          "name": "failing_tool",
+          "description": "A tool that throws an error",
+          "parameters": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ],
+      "stream": true
+    },
+    "status": 200,
+    "response": "data: {\"type\":\"response.created\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871103-FMNIO7YyGc6ehOBtajLW\",\"created_at\":1764871103,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"failing_tool\",\"description\":\"A tool that throws an error\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":0}\n\ndata: {\"type\":\"response.in_progress\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871103-FMNIO7YyGc6ehOBtajLW\",\"created_at\":1764871103,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"failing_tool\",\"description\":\"A tool that throws an error\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":1}\n\n: OPENROUTER PROCESSING\n\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"type\":\"function_call\",\"call_id\":\"call_9p4x0wRzs28fJMTeer0TYAqw\",\"name\":\"failing_tool\",\"arguments\":\"\",\"id\":\"call_9p4x0wRzs28fJMTeer0TYAqw\"},\"sequence_number\":2}\n\ndata: {\"type\":\"response.function_call_arguments.done\",\"item_id\":\"call_9p4x0wRzs28fJMTeer0TYAqw\",\"output_index\":0,\"name\":\"failing_tool\",\"arguments\":\"\",\"sequence_number\":3}\n\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"type\":\"function_call\",\"call_id\":\"call_9p4x0wRzs28fJMTeer0TYAqw\",\"name\":\"failing_tool\",\"arguments\":\"\"},\"sequence_number\":4}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871103-FMNIO7YyGc6ehOBtajLW\",\"created_at\":1764871103,\"model\":\"openai/gpt-5-nano\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call_9p4x0wRzs28fJMTeer0TYAqw\",\"name\":\"failing_tool\",\"arguments\":\"{}\"}],\"output_text\":\"\",\"error\":null,\"incomplete_details\":null,\"usage\":{\"input_tokens\":73,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":17,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":90,\"cost\":0.00001045,\"is_byok\":false,\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_input_cost\":0.00000365,\"upstream_inference_output_cost\":0.0000068}},\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"failing_tool\",\"description\":\"A tool that throws an error\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":5}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-cache",
+      "cf-ray": "9a8d310e8fd8813d-YYZ",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "date": "Thu, 04 Dec 2025 17:58:23 GMT",
+      "permissions-policy": "payment=(self \"https://checkout.stripe.com\" \"https://connect-js.stripe.com\" \"https://js.stripe.com\" \"https://*.js.stripe.com\" \"https://hooks.stripe.com\")",
+      "referrer-policy": "no-referrer, strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff"
+    },
+    "responseIsBinary": false
+  },
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "model": "openai/gpt-5-nano",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "Call the failing_tool function"
+        },
+        {
+          "type": "function_call",
+          "call_id": "call_fR0vvkdDRaEHI8kAHnypz2sD",
+          "name": "failing_tool",
+          "arguments": "{}"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "call_fR0vvkdDRaEHI8kAHnypz2sD",
+          "output": "{\"error\":\"Tool execution failed\"}"
+        },
+        {
+          "type": "function_call",
+          "call_id": "call_9p4x0wRzs28fJMTeer0TYAqw",
+          "name": "failing_tool",
+          "arguments": "{}"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "call_9p4x0wRzs28fJMTeer0TYAqw",
+          "output": "{\"error\":\"Tool execution failed\"}"
+        }
+      ],
+      "tools": [
+        {
+          "type": "function",
+          "name": "failing_tool",
+          "description": "A tool that throws an error",
+          "parameters": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ],
+      "stream": true
+    },
+    "status": 200,
+    "response": "data: {\"type\":\"response.created\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871104-oiQDmwZu1jcAAlWhjW3Q\",\"created_at\":1764871104,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"failing_tool\",\"description\":\"A tool that throws an error\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":0}\n\ndata: {\"type\":\"response.in_progress\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871104-oiQDmwZu1jcAAlWhjW3Q\",\"created_at\":1764871104,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"failing_tool\",\"description\":\"A tool that throws an error\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":1}\n\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"type\":\"message\",\"status\":\"in_progress\",\"content\":[],\"id\":\"msg_tmp_n3xykodwo8l\",\"role\":\"assistant\"},\"sequence_number\":2}\n\ndata: {\"type\":\"response.content_part.added\",\"item_id\":\"msg_tmp_n3xykodwo8l\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"text\":\"\"},\"sequence_number\":3}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"The\",\"sequence_number\":4}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" requested\",\"sequence_number\":5}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" tool\",\"sequence_number\":6}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" (\",\"sequence_number\":7}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"f\",\"sequence_number\":8}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"ailing\",\"sequence_number\":9}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"_tool\",\"sequence_number\":10}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\")\",\"sequence_number\":11}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" has\",\"sequence_number\":12}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" failed\",\"sequence_number\":13}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" to\",\"sequence_number\":14}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" execute\",\"sequence_number\":15}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\".\",\"sequence_number\":16}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" Here\",\"sequence_number\":17}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" are\",\"sequence_number\":18}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" options\",\"sequence_number\":19}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" I\",\"sequence_number\":20}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" can\",\"sequence_number\":21}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" take\",\"sequence_number\":22}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" next\",\"sequence_number\":23}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\":\\n\\n\",\"sequence_number\":24}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"-\",\"sequence_number\":25}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" Report\",\"sequence_number\":26}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" the\",\"sequence_number\":27}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" failure\",\"sequence_number\":28}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" and\",\"sequence_number\":29}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" provide\",\"sequence_number\":30}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" any\",\"sequence_number\":31}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" error\",\"sequence_number\":32}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" details\",\"sequence_number\":33}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" returned\",\"sequence_number\":34}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\".\\n\",\"sequence_number\":35}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"-\",\"sequence_number\":36}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" Try\",\"sequence_number\":37}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" a\",\"sequence_number\":38}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" fallback\",\"sequence_number\":39}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\":\",\"sequence_number\":40}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" run\",\"sequence_number\":41}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" a\",\"sequence_number\":42}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" different\",\"sequence_number\":43}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" tool\",\"sequence_number\":44}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" if\",\"sequence_number\":45}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" you\",\"sequence_number\":46}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" want\",\"sequence_number\":47}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" to\",\"sequence_number\":48}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" test\",\"sequence_number\":49}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" another\",\"sequence_number\":50}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" action\",\"sequence_number\":51}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\".\\n\",\"sequence_number\":52}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"-\",\"sequence_number\":53}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" If\",\"sequence_number\":54}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" you\",\"sequence_number\":55}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" have\",\"sequence_number\":56}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" a\",\"sequence_number\":57}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" specific\",\"sequence_number\":58}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" error\",\"sequence_number\":59}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"-hand\",\"sequence_number\":60}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"ling\",\"sequence_number\":61}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" or\",\"sequence_number\":62}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" retry\",\"sequence_number\":63}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" policy\",\"sequence_number\":64}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\",\",\"sequence_number\":65}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" specify\",\"sequence_number\":66}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" and\",\"sequence_number\":67}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" I\",\"sequence_number\":68}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"’ll\",\"sequence_number\":69}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" apply\",\"sequence_number\":70}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" it\",\"sequence_number\":71}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\".\\n\\n\",\"sequence_number\":72}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"Would\",\"sequence_number\":73}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" you\",\"sequence_number\":74}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" like\",\"sequence_number\":75}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" me\",\"sequence_number\":76}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" to\",\"sequence_number\":77}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" retry\",\"sequence_number\":78}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\",\",\"sequence_number\":79}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" or\",\"sequence_number\":80}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" run\",\"sequence_number\":81}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" an\",\"sequence_number\":82}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" alternative\",\"sequence_number\":83}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\" tool\",\"sequence_number\":84}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_tmp_n3xykodwo8l\",\"content_index\":0,\"delta\":\"?\",\"sequence_number\":85}\n\ndata: {\"type\":\"response.output_text.done\",\"item_id\":\"msg_tmp_n3xykodwo8l\",\"output_index\":0,\"content_index\":0,\"text\":\"The requested tool (failing_tool) has failed to execute. Here are options I can take next:\\n\\n- Report the failure and provide any error details returned.\\n- Try a fallback: run a different tool if you want to test another action.\\n- If you have a specific error-handling or retry policy, specify and I’ll apply it.\\n\\nWould you like me to retry, or run an alternative tool?\",\"logprobs\":[],\"sequence_number\":86}\n\ndata: {\"type\":\"response.content_part.done\",\"item_id\":\"msg_tmp_n3xykodwo8l\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"text\":\"The requested tool (failing_tool) has failed to execute. Here are options I can take next:\\n\\n- Report the failure and provide any error details returned.\\n- Try a fallback: run a different tool if you want to test another action.\\n- If you have a specific error-handling or retry policy, specify and I’ll apply it.\\n\\nWould you like me to retry, or run an alternative tool?\"},\"sequence_number\":87}\n\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"The requested tool (failing_tool) has failed to execute. Here are options I can take next:\\n\\n- Report the failure and provide any error details returned.\\n- Try a fallback: run a different tool if you want to test another action.\\n- If you have a specific error-handling or retry policy, specify and I’ll apply it.\\n\\nWould you like me to retry, or run an alternative tool?\",\"annotations\":[]}],\"id\":\"msg_tmp_n3xykodwo8l\",\"role\":\"assistant\"},\"sequence_number\":88}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"object\":\"response\",\"id\":\"gen-1764871104-oiQDmwZu1jcAAlWhjW3Q\",\"created_at\":1764871104,\"model\":\"openai/gpt-5-nano\",\"status\":\"completed\",\"output\":[{\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"The requested tool (failing_tool) has failed to execute. Here are options I can take next:\\n\\n- Report the failure and provide any error details returned.\\n- Try a fallback: run a different tool if you want to test another action.\\n- If you have a specific error-handling or retry policy, specify and I’ll apply it.\\n\\nWould you like me to retry, or run an alternative tool?\",\"annotations\":[]}],\"id\":\"msg_tmp_n3xykodwo8l\",\"role\":\"assistant\"}],\"output_text\":\"\",\"error\":null,\"incomplete_details\":null,\"usage\":{\"input_tokens\":104,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":88,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":192,\"cost\":0.0000404,\"is_byok\":false,\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_input_cost\":0.0000052,\"upstream_inference_output_cost\":0.0000352}},\"max_tool_calls\":null,\"tools\":[{\"type\":\"function\",\"name\":\"failing_tool\",\"description\":\"A tool that throws an error\",\"parameters\":{\"type\":\"object\",\"properties\":{}}}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":null,\"top_p\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":null,\"store\":false,\"instructions\":null,\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":89}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-cache",
+      "cf-ray": "9a8d31149d76aaec-YYZ",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "date": "Thu, 04 Dec 2025 17:58:24 GMT",
+      "permissions-policy": "payment=(self \"https://checkout.stripe.com\" \"https://connect-js.stripe.com\" \"https://js.stripe.com\" \"https://*.js.stripe.com\" \"https://hooks.stripe.com\")",
+      "referrer-policy": "no-referrer, strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff"
+    },
+    "responseIsBinary": false
+  }
+]
