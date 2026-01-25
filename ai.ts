@@ -3,12 +3,12 @@ export type Message = {
 	content: string;
 };
 
-export type Tool = {
+export type Tool<TArgs = Record<string, unknown>, TResult = unknown> = {
 	type: "function";
 	name: string;
 	description: string;
 	parameters: Record<string, unknown>;
-	call?: (args: Record<string, unknown>) => unknown | Promise<unknown>;
+	call?: (args: TArgs) => TResult | Promise<TResult>;
 };
 
 export type ToolCall = {
@@ -27,8 +27,8 @@ export type ToolResult = { type: "tool_result"; result: unknown } & Omit<
 >;
 
 export type StreamChunk =
-	| { type: "text"; text: string }
-	| { type: "reasoning"; text: string }
+	| { type: "text"; text: string; id: string }
+	| { type: "reasoning"; text: string; id: string }
 	| ToolCall
 	| ToolResult
 	| { type: "done" };
@@ -69,6 +69,7 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 	async function* send(
 		input: string | any[],
 		overrides: Partial<CompleteOptions> = {},
+		signal?: AbortSignal,
 	): AsyncIterableIterator<StreamChunk> {
 		const options: CompleteOptions = {
 			...restConfig,
@@ -134,6 +135,7 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 			const outputItems: any[] = [];
 			let assistantContent = "";
 			let reasoningContent = "";
+			let messageId = "";
 
 			// For responses mode: use conversation array if available
 			if (!c && conversation.length) {
@@ -152,6 +154,7 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 				method: "POST",
 				headers: allHeaders,
 				body: JSON.stringify(body),
+				signal,
 			});
 
 			if (!response.ok) throw Error(await response.text());
@@ -162,12 +165,10 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 
 			try {
 				while (true) {
-					const { done, value } = await reader.read();
-					if (done) break;
-
-					buffer += decoder.decode(value, { stream: true });
+					if (signal?.aborted) throw new Error('Aborted');
+					
 					const lines = buffer.split("\n");
-					buffer = (stream && lines.pop()) || "";
+					buffer = stream ? (lines.pop() || "") : "";
 
 					for (const line of lines) {
 						let dataLine = line;
@@ -200,15 +201,17 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 						try {
 							// console.log(dataLine);
 							const data = JSON.parse(dataLine);
+							if (data.id) messageId = data.id;
+							if (data.response?.id) messageId = data.response.id;
 							const choice = data.choices?.[0];
 							// console.log(choice);
 							if (choice) {
 								// Completions API
 								const delta = choice.delta || choice.message;
 								if (delta?.reasoning) {
-									chunk = { type: "reasoning", text: delta.reasoning };
+									chunk = { type: "reasoning", text: delta.reasoning, id: messageId };
 								} else if (delta?.content) {
-									chunk = { type: "text", text: delta.content };
+									chunk = { type: "text", text: delta.content, id: messageId };
 								} else if (delta?.tool_calls) {
 									for (const tc of delta.tool_calls) {
 										const idx = tc.index ?? 0;
@@ -225,8 +228,10 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 										if (tc.id) call.id = tc.id;
 										if (tc.function?.name)
 											call.function.name += tc.function.name;
-										if (tc.function?.arguments)
+										if (tc.function?.arguments) {
 											call.function.arguments += tc.function.arguments;
+											yield call;
+										}
 										chunk = call;
 									}
 								}
@@ -236,6 +241,7 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 								chunk = {
 									type: data.type.includes("reasoning") ? "reasoning" : "text",
 									text: data.delta,
+									id: messageId,
 								};
 							} else if (data.item?.type === "function_call") {
 								// Responses API tool call
@@ -243,6 +249,7 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 								const pending = toolCallMap[id];
 								if (pending) {
 									pending.function.arguments += data.item.arguments;
+									yield pending;
 									chunk = pending;
 								} else {
 									chunk = {
@@ -270,6 +277,8 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 									return;
 								}
 								continue;
+							} else if (data.usage || data.type === "response.completed") {
+								yield data;
 							}
 						} catch {}
 
@@ -282,6 +291,17 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 							yield chunk;
 						}
 					}
+
+					const { done, value } = await reader.read();
+					if (done) {
+						if (stream && buffer.trim()) {
+							buffer += "\ndata: [DONE]";
+							continue;
+						}
+						break;
+					}
+
+					buffer += decoder.decode(value, { stream: true });
 				}
 			} finally {
 				reader.releaseLock();
