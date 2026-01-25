@@ -85,6 +85,8 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 			tools,
 			onToolCall,
 			stream = true,
+			mode: _mode,
+			input: _input,
 			...rest
 		} = options;
 
@@ -110,9 +112,9 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 		};
 
 		if (c) {
-			const { max_output_tokens, instructions, input, ...r } = body;
+			const { max_output_tokens, instructions, ...r } = body;
 			// Use closure messages array, add new user input
-			if (input) messages.push({ role: "user", content: input });
+			if (_input) messages.push({ role: "user", content: _input });
 			body = { ...r, max_tokens: max_output_tokens, messages };
 			// Wrap tools in {function: {...}} for completions API
 			if (body.tools)
@@ -120,9 +122,9 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 					type,
 					function: fn,
 				}));
-		} else if (!c && body.input) {
+		} else if (!c && _input) {
 			// For responses mode: append user message to conversation once before loop
-			conversation.push({ role: "user", content: body.input });
+			conversation.push({ type: "message", role: "user", content: _input });
 		}
 
 		// Outer loop for tool continuation
@@ -180,6 +182,13 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 								//     yield {...tc, type: 'tool_call' as const};
 								//   }
 								if (!pendingCalls.length) {
+									// Save assistant message before returning
+									if (c && (assistantContent || reasoningContent)) {
+										const msg: any = { role: "assistant" };
+										if (assistantContent) msg.content = assistantContent;
+										if (reasoningContent) msg.reasoning_content = reasoningContent;
+										messages.push(msg);
+									}
 									yield { type: "done" };
 									return;
 								}
@@ -253,6 +262,10 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 								if (data.response.output)
 									outputItems.push(...data.response.output);
 								if (!pendingCalls.length) {
+									// Save conversation items before returning
+									if (!c && outputItems.length) {
+										conversation.push(...outputItems);
+									}
 									yield { type: "done" };
 									return;
 								}
