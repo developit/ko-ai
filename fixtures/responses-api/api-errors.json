@@ -1,1 +1,25 @@
-[]
+[
+  {
+    "scope": "https://invalid-url.example.com:443",
+    "method": "POST",
+    "path": "/v1/responses",
+    "body": {
+      "stream": true,
+      "reasoning": {},
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "test"
+        }
+      ]
+    },
+    "status": 401,
+    "response": {
+      "error": {
+        "message": "Invalid API key",
+        "code": 401
+      }
+    }
+  }
+]

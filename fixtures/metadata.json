@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-01-24T18:14:21.601Z",
+  "lastUpdated": "2026-01-25T02:07:26.736Z",
   "provider": "openrouter",
   "fixtures": {
     "text-generation-responses": {
@@ -53,15 +53,15 @@
     },
     "multi-turn-tool-calling-completions": {
       "path": "completions-api/multi-turn-tool-calling-completions.json",
-      "recordedAt": "2026-01-24T18:14:21.610Z",
-      "requestCount": 3,
-      "checksum": "065b35c0ef02990d"
+      "recordedAt": "2026-01-25T02:06:58.663Z",
+      "requestCount": 0,
+      "checksum": "4f53cda18c2baa0c"
     },
     "missing-tool-handler": {
       "path": "completions-api/missing-tool-handler.json",
-      "recordedAt": "2026-01-24T18:14:21.631Z",
-      "requestCount": 2,
-      "checksum": "568ca68a041b347f"
+      "recordedAt": "2026-01-25T02:07:01.706Z",
+      "requestCount": 0,
+      "checksum": "4f53cda18c2baa0c"
     },
     "tool-error-handling": {
       "path": "responses-api/tool-error-handling.json",
@@ -104,6 +104,18 @@
       "recordedAt": "2026-01-24T18:14:21.637Z",
       "requestCount": 2,
       "checksum": "97b676bfaba0b3b8"
+    },
+    "multi-turn-history-completions": {
+      "path": "completions-api/multi-turn-history-completions.json",
+      "recordedAt": "2026-01-25T02:07:19.852Z",
+      "requestCount": 0,
+      "checksum": "4f53cda18c2baa0c"
+    },
+    "multi-turn-history-responses": {
+      "path": "responses-api/multi-turn-history-responses.json",
+      "recordedAt": "2026-01-25T02:07:26.736Z",
+      "requestCount": 0,
+      "checksum": "4f53cda18c2baa0c"
     }
   }
 }

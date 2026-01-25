@@ -228,13 +228,13 @@ export class FixtureManager {
       const fixtures = this.load(testName, apiMode);
       nock.define(fixtures);
     } else if (effectiveMode === 'record') {
-      // Start recording
-      if (!nock.isActive()) {
-        nock.recorder.rec({
-          dont_print: true,
-          output_objects: true,
-        });
-      }
+      // Start recording - activate nock to intercept fetch
+      nock.activate();
+      nock.recorder.rec({
+        dont_print: true,
+        output_objects: true,
+        enable_reqheaders_recording: true,
+      });
     }
   }
 
@@ -245,7 +245,8 @@ export class FixtureManager {
     const effectiveMode = this.getEffectiveMode(testName, apiMode);
 
     if (effectiveMode === 'record') {
-      // Save recorded fixtures
+      // Stop recording and get fixtures
+      nock.recorder.clear();
       const recordings = nock.recorder.play() as nock.Definition[];
 
       // Store for this test
@@ -255,6 +256,9 @@ export class FixtureManager {
       this.save(testName, apiMode, recordings);
 
       console.log(`\n✅ Recorded ${recordings.length} HTTP fixtures for "${testName}"`);
+
+      // Restore nock
+      nock.restore();
     }
 
     // Clean up nock

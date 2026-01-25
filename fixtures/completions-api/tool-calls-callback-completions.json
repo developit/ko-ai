@@ -114,22 +114,8 @@
                 "name": "add",
                 "arguments": "{\"a\":5,\"b\":3}"
               }
-            },
-            {
-              "type": "function",
-              "id": "call_819DaEckDi7W13CXR6oeWu0P",
-              "streaming": false,
-              "function": {
-                "name": "add",
-                "arguments": "{\"a\":5,\"b\":3}"
-              }
             }
           ]
-        },
-        {
-          "role": "tool",
-          "tool_call_id": "call_819DaEckDi7W13CXR6oeWu0P",
-          "content": "{\"result\":8}"
         },
         {
           "role": "tool",
