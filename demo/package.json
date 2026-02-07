@@ -1,5 +1,5 @@
 {
-  "name": "demo-app",
+  "name": "demo",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,10 +13,11 @@
     "@preact/signals-core": "^1.13.0",
     "just-bash": "^2.9.6",
     "preact": "^10.27.2",
-    "koai": "file:.."
+    "koai": "workspace:*"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.2",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vite-plugin-node-polyfills": "^0.25.0"
   }
 }
