@@ -1,121 +1,127 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-01-25T02:07:26.736Z",
+  "lastUpdated": "2026-02-07T19:10:41.329Z",
   "provider": "openrouter",
   "fixtures": {
     "text-generation-responses": {
       "path": "responses-api/text-generation-responses.json",
-      "recordedAt": "2026-01-24T18:14:21.602Z",
+      "recordedAt": "2026-02-07T19:09:47.248Z",
       "requestCount": 1,
-      "checksum": "693c8702a4667af0"
+      "checksum": "c99395809d09de61"
     },
     "text-generation-completions": {
       "path": "completions-api/text-generation-completions.json",
-      "recordedAt": "2026-01-24T18:14:21.603Z",
-      "requestCount": 1,
-      "checksum": "5c329e71b62f56cd"
+      "recordedAt": "2026-02-07T19:09:48.422Z",
+      "requestCount": 2,
+      "checksum": "c7f67cf5d954b699"
     },
     "system-messages": {
       "path": "responses-api/system-messages.json",
-      "recordedAt": "2026-01-24T18:14:21.604Z",
-      "requestCount": 1,
-      "checksum": "5c900d984a1e230b"
+      "recordedAt": "2026-02-07T19:09:50.665Z",
+      "requestCount": 3,
+      "checksum": "adba67cb40e061a1"
     },
     "streaming-responses": {
       "path": "responses-api/streaming-responses.json",
-      "recordedAt": "2026-01-24T18:14:21.604Z",
-      "requestCount": 1,
-      "checksum": "8183ec2ea6e2f355"
+      "recordedAt": "2026-02-07T19:09:51.641Z",
+      "requestCount": 4,
+      "checksum": "8f33d4494d87790e"
     },
     "streaming-completions": {
       "path": "completions-api/streaming-completions.json",
-      "recordedAt": "2026-01-24T18:14:21.605Z",
-      "requestCount": 1,
-      "checksum": "ab0aa19c98f6581d"
+      "recordedAt": "2026-02-07T19:09:52.880Z",
+      "requestCount": 5,
+      "checksum": "c37eb8e3bb364a90"
     },
     "tool-calls-inline-responses": {
       "path": "responses-api/tool-calls-inline-responses.json",
-      "recordedAt": "2026-01-24T18:14:21.606Z",
-      "requestCount": 2,
-      "checksum": "a8091832003a8bda"
+      "recordedAt": "2026-02-07T19:10:00.892Z",
+      "requestCount": 7,
+      "checksum": "008b6f3f42ab51cb"
     },
     "tool-calls-callback-completions": {
       "path": "completions-api/tool-calls-callback-completions.json",
-      "recordedAt": "2026-01-24T18:14:21.607Z",
-      "requestCount": 2,
-      "checksum": "5d7b4f40271f7f9b"
+      "recordedAt": "2026-02-07T19:10:02.390Z",
+      "requestCount": 9,
+      "checksum": "f8c6d5ad6586d4d9"
     },
     "multi-turn-tool-calling-responses": {
       "path": "responses-api/multi-turn-tool-calling-responses.json",
-      "recordedAt": "2026-01-24T18:14:21.609Z",
-      "requestCount": 3,
-      "checksum": "893956e809f692ad"
+      "recordedAt": "2026-02-07T19:10:09.177Z",
+      "requestCount": 11,
+      "checksum": "149a23026b4b55d2"
     },
     "multi-turn-tool-calling-completions": {
       "path": "completions-api/multi-turn-tool-calling-completions.json",
-      "recordedAt": "2026-01-25T02:06:58.663Z",
-      "requestCount": 0,
-      "checksum": "4f53cda18c2baa0c"
+      "recordedAt": "2026-02-07T19:10:16.096Z",
+      "requestCount": 14,
+      "checksum": "033232910eee9fe4"
     },
     "missing-tool-handler": {
       "path": "completions-api/missing-tool-handler.json",
-      "recordedAt": "2026-01-25T02:07:01.706Z",
-      "requestCount": 0,
-      "checksum": "4f53cda18c2baa0c"
+      "recordedAt": "2026-02-07T19:10:19.016Z",
+      "requestCount": 16,
+      "checksum": "80fd1e9714ff5536"
     },
     "tool-error-handling": {
       "path": "responses-api/tool-error-handling.json",
-      "recordedAt": "2026-01-24T18:14:21.632Z",
-      "requestCount": 3,
-      "checksum": "c0cc8ac652667a05"
+      "recordedAt": "2026-02-07T19:10:21.384Z",
+      "requestCount": 18,
+      "checksum": "7a8daaeeaf3c1ba2"
     },
     "default-mode": {
       "path": "responses-api/default-mode.json",
-      "recordedAt": "2026-01-24T18:14:21.633Z",
-      "requestCount": 1,
-      "checksum": "4f8f3f46ac11bfdc"
+      "recordedAt": "2026-02-07T19:10:22.220Z",
+      "requestCount": 19,
+      "checksum": "6d35b7ca597923dd"
     },
     "custom-headers": {
       "path": "responses-api/custom-headers.json",
-      "recordedAt": "2026-01-24T18:14:21.633Z",
-      "requestCount": 1,
-      "checksum": "2e6b418c7d0a23e8"
+      "recordedAt": "2026-02-07T19:10:22.786Z",
+      "requestCount": 20,
+      "checksum": "da8ae0c80349b299"
     },
     "instructions-only-completions": {
       "path": "completions-api/instructions-only-completions.json",
-      "recordedAt": "2026-01-24T18:14:21.634Z",
-      "requestCount": 1,
-      "checksum": "549bae11beaa3ec3"
+      "recordedAt": "2026-02-07T19:10:23.551Z",
+      "requestCount": 21,
+      "checksum": "80609e0b993b6c1f"
     },
     "text-only-completions": {
       "path": "completions-api/text-only-completions.json",
-      "recordedAt": "2026-01-24T18:14:21.635Z",
-      "requestCount": 1,
-      "checksum": "68008b31c3801aa6"
+      "recordedAt": "2026-02-07T19:10:24.061Z",
+      "requestCount": 22,
+      "checksum": "690f7c5101fb9e3a"
     },
     "text-only-responses": {
       "path": "responses-api/text-only-responses.json",
-      "recordedAt": "2026-01-24T18:14:21.636Z",
-      "requestCount": 1,
-      "checksum": "60abf8419477ceba"
+      "recordedAt": "2026-02-07T19:10:26.310Z",
+      "requestCount": 23,
+      "checksum": "30fc1389aa344f3b"
     },
     "sync-tool-function": {
       "path": "responses-api/sync-tool-function.json",
-      "recordedAt": "2026-01-24T18:14:21.637Z",
-      "requestCount": 2,
-      "checksum": "97b676bfaba0b3b8"
+      "recordedAt": "2026-02-07T19:10:27.433Z",
+      "requestCount": 25,
+      "checksum": "3428574f900169e0"
     },
     "multi-turn-history-completions": {
       "path": "completions-api/multi-turn-history-completions.json",
-      "recordedAt": "2026-01-25T02:07:19.852Z",
-      "requestCount": 0,
-      "checksum": "4f53cda18c2baa0c"
+      "recordedAt": "2026-02-07T19:10:35.382Z",
+      "requestCount": 27,
+      "checksum": "e588263c0fd4996d"
     },
     "multi-turn-history-responses": {
       "path": "responses-api/multi-turn-history-responses.json",
-      "recordedAt": "2026-01-25T02:07:26.736Z",
-      "requestCount": 0,
-      "checksum": "4f53cda18c2baa0c"
+      "recordedAt": "2026-02-07T19:10:41.329Z",
+      "requestCount": 29,
+      "checksum": "c2104ce46d0c92aa"
+    },
+    "api-errors": {
+      "path": "responses-api/api-errors.json",
+      "recordedAt": "2026-02-07T19:10:16.104Z",
+      "requestCount": 14,
+      "checksum": "033232910eee9fe4"
     }
   }
 }
