@@ -72,7 +72,14 @@ export class FixtureManager {
 
     if (this.mode === 'auto') {
       // Auto mode: record if fixture doesn't exist, replay if it does
-      return this.exists(testName, apiMode) ? 'replay' : 'record';
+      const fixtureExists = this.exists(testName, apiMode);
+      if (!fixtureExists && !this.apiKey) {
+        throw new Error(
+          `Fixture not found for "${testName}" and no API key provided. ` +
+          `Set OPENROUTER_API_KEY to record fixtures, or use KOAI_TEST_MODE=replay to skip missing fixtures.`
+        );
+      }
+      return fixtureExists ? 'replay' : 'record';
     }
 
     return this.mode;
@@ -89,11 +96,18 @@ export class FixtureManager {
   }
 
   /**
-   * Check if a fixture exists
+   * Check if a fixture exists and has content
    */
   exists(testName: string, apiMode: ApiMode): boolean {
     const fixturePath = this.getFixturePath(testName, apiMode);
-    return existsSync(fixturePath);
+    if (!existsSync(fixturePath)) return false;
+
+    try {
+      const fixtures = JSON.parse(readFileSync(fixturePath, 'utf8'));
+      return Array.isArray(fixtures) && fixtures.length > 0;
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -107,7 +121,18 @@ export class FixtureManager {
     }
 
     const fixtures = JSON.parse(readFileSync(fixturePath, 'utf8'));
-    return fixtures;
+
+    // Remove authorization headers from fixtures so nock doesn't match on them
+    return fixtures.map((fixture: nock.Definition) => {
+      if (fixture.reqheaders) {
+        const { authorization, ...otherHeaders } = fixture.reqheaders as any;
+        return {
+          ...fixture,
+          reqheaders: Object.keys(otherHeaders).length > 0 ? otherHeaders : undefined
+        };
+      }
+      return fixture;
+    });
   }
 
   /**
@@ -122,11 +147,24 @@ export class FixtureManager {
       mkdirSync(dir, {recursive: true});
     }
 
-    // Write fixture file
-    writeFileSync(fixturePath, JSON.stringify(fixtures, null, 2));
+    // Sanitize fixtures: replace actual API keys with placeholder
+    const sanitized = fixtures.map(fixture => {
+      const sanitizedFixture = { ...fixture };
+      if (sanitizedFixture.reqheaders) {
+        sanitizedFixture.reqheaders = { ...sanitizedFixture.reqheaders };
+        // Replace authorization header with placeholder
+        if (sanitizedFixture.reqheaders.authorization) {
+          sanitizedFixture.reqheaders.authorization = 'Bearer REDACTED_API_KEY';
+        }
+      }
+      return sanitizedFixture;
+    });
 
-    // Update metadata
-    const fixtureData = JSON.stringify(fixtures);
+    // Write fixture file
+    writeFileSync(fixturePath, JSON.stringify(sanitized, null, 2));
+
+    // Update metadata (use sanitized fixtures for checksum)
+    const fixtureData = JSON.stringify(sanitized);
     const checksum = createHash('sha256').update(fixtureData).digest('hex');
 
     const subdir = apiMode === 'completions' ? 'completions-api' :
@@ -224,12 +262,23 @@ export class FixtureManager {
     const effectiveMode = this.getEffectiveMode(testName, apiMode);
 
     if (effectiveMode === 'replay') {
-      // Load and define fixtures
+      // Check if fixture has content
+      if (!this.exists(testName, apiMode)) {
+        throw new Error(
+          `Fixture not found or empty for "${testName}". ` +
+          `Set OPENROUTER_API_KEY and use KOAI_TEST_MODE=record or auto to record fixtures.`
+        );
+      }
+      // Load and define fixtures (auth headers are stripped in load())
       const fixtures = this.load(testName, apiMode);
       nock.define(fixtures);
     } else if (effectiveMode === 'record') {
-      // Start recording - activate nock to intercept fetch
+      // Start recording - we need to restore and reactivate to reset recorder state
+      if (nock.isActive()) {
+        nock.restore();
+      }
       nock.activate();
+
       nock.recorder.rec({
         dont_print: true,
         output_objects: true,
@@ -246,7 +295,6 @@ export class FixtureManager {
 
     if (effectiveMode === 'record') {
       // Stop recording and get fixtures
-      nock.recorder.clear();
       const recordings = nock.recorder.play() as nock.Definition[];
 
       // Store for this test
@@ -257,12 +305,15 @@ export class FixtureManager {
 
       console.log(`\n✅ Recorded ${recordings.length} HTTP fixtures for "${testName}"`);
 
-      // Restore nock
+      // MUST call restore() to reset recorder state
+      // Note: recorder.play() deactivates nock (isActive() = false),
+      // but restore() still needs to be called to reset recordingInProgress flag
       nock.restore();
-    }
 
-    // Clean up nock
-    nock.cleanAll();
+      // Clean up any pending interceptors after recording
+      nock.cleanAll();
+    }
+    // In replay mode, don't clean interceptors - just consume them
   }
 
   /**
@@ -307,7 +358,7 @@ export function recordReplayTest(
  * Create a fixture manager from environment variables
  */
 export function createFixtureManager(): FixtureManager {
-  const mode = (process.env.KOAI_TEST_MODE || 'replay') as TestMode;
+  const mode = (process.env.KOAI_TEST_MODE || 'auto') as TestMode;
   const apiKey = process.env.OPENROUTER_API_KEY;
   const fixtureDir = process.env.KOAI_FIXTURE_DIR || './fixtures';
   const updateFixtures = process.env.KOAI_UPDATE_FIXTURES?.split(',').map(s => s.trim()).filter(Boolean);
