@@ -2,11 +2,11 @@ import ai from './ai.ts';
 
 const config = {
   apiKey: process.env.OPENROUTER_API_KEY || process.env.API_KEY || 'sk-fake',
-  // baseURL: 'https://openrouter.ai/api/v1',
-  // model: 'openai/gpt-5-nano',
+  baseURL: 'https://openrouter.ai/api/v1',
+  model: 'openai/gpt-5-nano',
   // model: '@preset/free-tool-calling',
-  baseURL: 'http://woody.the-millers.ca:11434/v1',
-  model: 'ministral-3:3b',
+  // baseURL: 'http://woody.the-millers.ca:11434/v1',
+  // model: 'ministral-3:3b',
   /** @type {'completions'} */
   mode: 'completions',
   // stream: false,
@@ -20,10 +20,13 @@ async function streamingDemo() {
   });
 
   let lastType = '';
+  let lastId = '';
   for await (const chunk of chat.send('Count from 1 to 5')) {
     if ('text' in chunk) {
-      if (chunk.type !== lastType) {
+      // if (chunk.type !== lastType || chunk.id !== lastId) {
+      if (chunk.id !== lastId) {
         lastType = chunk.type;
+        lastId = chunk.id;
         process.stdout.write('\n' + chunk.type.toUpperCase() + ': \n');
       }
       process.stdout.write(chunk.text);
@@ -47,13 +50,17 @@ async function toolDemo() {
     },
   ];
 
-  const chat = ai({...config, reasoning: {effort: 'none'}, tools});
+  // const chat = ai({...config, reasoning: {effort: 'none'}, tools});
+  const chat = ai({...config, reasoning: {effort: 'minimal'}, tools});
 
   let lastType = '';
+  let lastId = '';
   for await (const chunk of chat.send('Weather in Asakusa?')) {
     if ('text' in chunk) {
-      if (chunk.type !== lastType) {
+      // if (chunk.type !== lastType || chunk.id !== lastId) {
+      if (chunk.id !== lastId) {
         lastType = chunk.type;
+        lastId = chunk.id;
         process.stdout.write('\n' + chunk.type.toUpperCase() + ': \n');
       }
       process.stdout.write(chunk.text);
