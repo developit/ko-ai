@@ -110,16 +110,21 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
     };
 
     if (c) {
-      const { max_output_tokens, instructions, ...r } = body;
       // Use closure messages array, add new user input
       if (_input) messages.push({ role: "user", content: _input });
-      body = { ...r, max_tokens: max_output_tokens, messages };
       // Wrap tools in {function: {...}} for completions API
-      if (body.tools)
+      if (body.tools) {
         body.tools = body.tools.map(({ call, type, ...fn }: Tool) => ({
           type,
           function: fn,
         }));
+      }
+      body.messages = messages;
+      // Rename max_output_tokens to max_tokens for completions API
+      if (body.max_output_tokens != null) {
+        body.max_tokens = body.max_output_tokens;
+        delete body.max_output_tokens;
+      }
     } else if (_input) {
       conversation.push({ type: "message", role: "user", content: _input });
     }
@@ -315,8 +320,8 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
       if (c) {
         const msg: any = {
           role: "assistant",
-          tool_calls: pendingCalls.map((tc) => ({ ...tc, type: "function" })),
           content: assistantContent || null,
+          tool_calls: pendingCalls.map((tc) => ({ ...tc, type: "function" })),
         };
         if (reasoningContent) msg.reasoning_content = reasoningContent;
         messages.push(
