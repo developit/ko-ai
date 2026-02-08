@@ -3,28 +3,28 @@ export default function ChatMessage({ message }) {
 
   const roleConfig = {
     user: {
-      bg: 'bg-gray-100',
-      text: 'text-gray-900',
+      bg: 'bg-gray-100 dark:bg-gray-700',
+      text: 'text-gray-900 dark:text-gray-100',
       icon: 'mdi:account-circle',
       label: 'You',
-      iconBg: 'bg-gray-200',
-      iconColor: 'text-gray-600'
+      iconBg: 'bg-gray-200 dark:bg-gray-600',
+      iconColor: 'text-gray-600 dark:text-gray-300'
     },
     assistant: {
-      bg: 'bg-white',
-      text: 'text-gray-900',
+      bg: 'bg-white dark:bg-gray-800',
+      text: 'text-gray-900 dark:text-gray-100',
       icon: 'mdi:robot',
       label: 'Assistant',
-      iconBg: 'bg-indigo-100',
-      iconColor: 'text-indigo-600'
+      iconBg: 'bg-indigo-100 dark:bg-indigo-900/50',
+      iconColor: 'text-indigo-600 dark:text-indigo-400'
     },
     system: {
-      bg: 'bg-yellow-50',
-      text: 'text-yellow-900',
+      bg: 'bg-yellow-50 dark:bg-yellow-900/20',
+      text: 'text-yellow-900 dark:text-yellow-200',
       icon: 'mdi:information',
       label: 'System',
-      iconBg: 'bg-yellow-100',
-      iconColor: 'text-yellow-600'
+      iconBg: 'bg-yellow-100 dark:bg-yellow-800',
+      iconColor: 'text-yellow-600 dark:text-yellow-400'
     }
   };
 
@@ -56,7 +56,7 @@ export default function ChatMessage({ message }) {
             />
           </div>
           <div class="flex-1 min-w-0">
-            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+            <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
               {config.label}
             </div>
 
@@ -71,13 +71,13 @@ export default function ChatMessage({ message }) {
                 {toolCalls.map((call, idx) => (
                   <div
                     key={idx}
-                    class="bg-gray-50 rounded-lg p-3 border border-gray-200"
+                    class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700"
                   >
                     <div class="flex items-center gap-2 mb-2">
-                      <div class="flex-shrink-0 w-6 h-6 bg-indigo-100 rounded flex items-center justify-center">
-                        <iconify-icon icon="mdi:function-variant" class="text-indigo-600" width="14" />
+                      <div class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900/50 rounded flex items-center justify-center">
+                        <iconify-icon icon="mdi:function-variant" class="text-indigo-600 dark:text-indigo-400" width="14" />
                       </div>
-                      <span class="text-xs font-semibold text-indigo-700">
+                      <span class="text-xs font-semibold text-indigo-700 dark:text-indigo-400">
                         {call.function.name}
                       </span>
                     </div>
@@ -85,10 +85,10 @@ export default function ChatMessage({ message }) {
                     <div class="space-y-2">
                       <div>
                         <div class="flex items-center gap-1.5 mb-1">
-                          <iconify-icon icon="mdi:code-braces" class="text-gray-500" width="12" />
-                          <div class="text-xs font-medium text-gray-600">Arguments</div>
+                          <iconify-icon icon="mdi:code-braces" class="text-gray-500 dark:text-gray-400" width="12" />
+                          <div class="text-xs font-medium text-gray-600 dark:text-gray-400">Arguments</div>
                         </div>
-                        <pre class="bg-gray-900 text-gray-100 p-2 rounded text-xs font-mono overflow-x-auto">
+                        <pre class="bg-gray-900 dark:bg-black text-gray-100 dark:text-gray-300 p-2 rounded text-xs font-mono overflow-x-auto">
 {call.function.arguments}
                         </pre>
                       </div>
@@ -96,10 +96,10 @@ export default function ChatMessage({ message }) {
                       {call.result && (
                         <div>
                           <div class="flex items-center gap-1.5 mb-1">
-                            <iconify-icon icon="mdi:check-circle" class="text-emerald-500" width="12" />
-                            <div class="text-xs font-medium text-gray-600">Result</div>
+                            <iconify-icon icon="mdi:check-circle" class="text-emerald-500 dark:text-emerald-400" width="12" />
+                            <div class="text-xs font-medium text-gray-600 dark:text-gray-400">Result</div>
                           </div>
-                          <pre class="bg-gray-900 text-emerald-400 p-2 rounded max-h-48 overflow-y-auto text-xs font-mono">
+                          <pre class="bg-gray-900 dark:bg-black text-emerald-400 dark:text-emerald-300 p-2 rounded max-h-48 overflow-y-auto text-xs font-mono">
 {JSON.stringify(call.result, null, 2)}
                           </pre>
                         </div>

@@ -122,7 +122,7 @@ export default function FileTreeViewer({ fileHandle }) {
     return (
       <div key={node.path}>
         <div
-          class={`flex items-center py-1.5 px-3 hover:bg-gray-100 cursor-pointer rounded-lg transition-colors group ${
+          class={`flex items-center py-1.5 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer rounded-lg transition-colors group ${
             hasChildren ? 'font-medium' : ''
           }`}
           style={{ paddingLeft: `${paddingLeft}px` }}
@@ -131,7 +131,7 @@ export default function FileTreeViewer({ fileHandle }) {
           {hasChildren && (
             <iconify-icon
               icon={isCollapsed ? 'mdi:chevron-right' : 'mdi:chevron-down'}
-              class="text-gray-500 mr-1 transition-transform"
+              class="text-gray-500 dark:text-gray-400 mr-1 transition-transform"
               width="18"
             />
           )}
@@ -143,10 +143,10 @@ export default function FileTreeViewer({ fileHandle }) {
                   : 'mdi:folder-open'
                 : getFileIcon(node.name)
             }
-            class={`mr-2 ${hasChildren ? 'text-blue-500' : 'text-gray-600'}`}
+            class={`mr-2 ${hasChildren ? 'text-blue-500 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`}
             width="18"
           />
-          <span class="text-sm text-gray-900 truncate">{node.name}</span>
+          <span class="text-sm text-gray-900 dark:text-gray-100 truncate">{node.name}</span>
         </div>
         {/* Smart rendering: only render children if not collapsed */}
         {hasChildren && !isCollapsed && node.children && (
@@ -189,11 +189,11 @@ export default function FileTreeViewer({ fileHandle }) {
       <div class="flex flex-col items-center justify-center h-full text-center p-6">
         <iconify-icon
           icon="mdi:folder-open-outline"
-          class="text-gray-300 mb-4"
+          class="text-gray-300 dark:text-gray-600 mb-4"
           width="64"
         />
-        <p class="text-sm text-gray-500">No directory selected</p>
-        <p class="text-xs text-gray-400 mt-1">
+        <p class="text-sm text-gray-500 dark:text-gray-400">No directory selected</p>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
           Request directory access to view files
         </p>
       </div>
@@ -206,10 +206,10 @@ export default function FileTreeViewer({ fileHandle }) {
         <div class="flex flex-col items-center">
           <iconify-icon
             icon="mdi:loading"
-            class="text-indigo-600 animate-spin mb-2"
+            class="text-indigo-600 dark:text-indigo-400 animate-spin mb-2"
             width="32"
           />
-          <p class="text-sm text-gray-600">Loading directory...</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Loading directory...</p>
         </div>
       </div>
     );
@@ -220,11 +220,11 @@ export default function FileTreeViewer({ fileHandle }) {
       <div class="flex flex-col items-center justify-center h-full text-center p-6">
         <iconify-icon
           icon="mdi:alert-circle-outline"
-          class="text-red-500 mb-4"
+          class="text-red-500 dark:text-red-400 mb-4"
           width="48"
         />
-        <p class="text-sm text-red-600 font-medium">Error loading directory</p>
-        <p class="text-xs text-gray-500 mt-2">{error.value}</p>
+        <p class="text-sm text-red-600 dark:text-red-400 font-medium">Error loading directory</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">{error.value}</p>
       </div>
     );
   }
