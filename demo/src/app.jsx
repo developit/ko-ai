@@ -113,13 +113,13 @@ export function App() {
     <div class="h-screen flex bg-gray-50">
       {/* Sidebar with File Tree */}
       <aside class="w-80 bg-white border-r border-gray-200 flex flex-col shadow-lg">
-        <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-              <iconify-icon icon="mdi:robot-happy" class="text-white" width="24" />
+        <div class="p-3 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+              <iconify-icon icon="mdi:robot" class="text-white" width="18" />
             </div>
             <div class="flex-1 min-w-0">
-              <h2 class="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent truncate">
+              <h2 class="text-base font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent truncate">
                 AI Assistant
               </h2>
               <p class="text-xs text-gray-500">Powered by koai</p>
@@ -127,18 +127,18 @@ export function App() {
           </div>
 
           {chatModel.fileHandle.value ? (
-            <div class="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-indigo-200 shadow-sm">
-              <iconify-icon icon="mdi:folder-open" class="text-indigo-600 flex-shrink-0" width="18" />
-              <span class="text-sm font-medium text-gray-900 truncate">
+            <div class="flex items-center gap-2 px-2 py-1.5 bg-white rounded-lg border border-indigo-200 shadow-sm">
+              <iconify-icon icon="mdi:folder-open" class="text-indigo-600 flex-shrink-0" width="16" />
+              <span class="text-xs font-medium text-gray-900 truncate">
                 {chatModel.fileHandle.value.name}
               </span>
             </div>
           ) : (
             <button
-              class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+              class="w-full flex items-center justify-center gap-2 px-2 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
               onClick={() => chatModel.requestDirectoryAccess()}
             >
-              <iconify-icon icon="mdi:folder-plus" width="18" />
+              <iconify-icon icon="mdi:folder-plus" width="16" />
               <span>Select Directory</span>
             </button>
           )}
@@ -148,12 +148,12 @@ export function App() {
           <FileTreeViewer fileHandle={chatModel.fileHandle.value} />
         </div>
 
-        <div class="p-4 border-t border-gray-200 bg-gray-50">
+        <div class="p-3 border-t border-gray-200 bg-gray-50">
           <button
-            class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg transition-colors"
+            class="w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg transition-colors"
             onClick={() => (appModel.showSettings.value = true)}
           >
-            <iconify-icon icon="mdi:cog" width="18" />
+            <iconify-icon icon="mdi:cog" width="16" />
             <span>Settings</span>
           </button>
         </div>
@@ -162,32 +162,32 @@ export function App() {
       {/* Main Chat Area */}
       <main class="flex-1 flex flex-col">
         {/* Header */}
-        <header class="bg-white border-b border-gray-200 shadow-sm backdrop-blur-sm">
-          <div class="px-6 py-4">
+        <header class="bg-white border-b border-gray-200 shadow-sm">
+          <div class="px-4 py-3">
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-4">
-                <h1 class="text-xl font-bold text-gray-900">Chat</h1>
+              <div class="flex items-center gap-3">
+                <h1 class="text-lg font-bold text-gray-900">Chat</h1>
                 {chatModel.messages.value.length > 0 && (
-                  <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
-                    {chatModel.messages.value.length} message{chatModel.messages.value.length !== 1 ? 's' : ''}
+                  <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                    {chatModel.messages.value.length}
                   </span>
                 )}
               </div>
 
               <button
-                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow"
+                class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow"
                 onClick={() => chatModel.clearChat()}
                 disabled={chatModel.messages.value.length === 0}
               >
-                <iconify-icon icon="mdi:trash-can-outline" width="18" />
-                <span>Clear Chat</span>
+                <iconify-icon icon="mdi:trash-can-outline" width="16" />
+                <span>Clear</span>
               </button>
             </div>
           </div>
         </header>
 
         {/* Messages */}
-        <div class="flex-1 overflow-y-auto px-6 py-6">
+        <div class="flex-1 overflow-y-auto px-4 py-4">
           {chatModel.messages.value.length === 0 ? (
             <div class="flex flex-col items-center justify-center h-full text-center max-w-3xl mx-auto">
               <div class="mb-8 relative">
@@ -268,7 +268,7 @@ export function App() {
               </div>
             </div>
           ) : (
-            <div class="max-w-4xl mx-auto space-y-6">
+            <div class="max-w-4xl mx-auto space-y-3">
               {chatModel.messages.value.map((message, idx) => (
                 <ChatMessage key={idx} message={message} />
               ))}
@@ -278,35 +278,35 @@ export function App() {
         </div>
 
         {/* Input Area */}
-        <div class="border-t border-gray-200 bg-white/80 backdrop-blur-lg px-6 py-4 shadow-lg">
+        <div class="border-t border-gray-200 bg-white px-4 py-3 shadow-lg">
           <form onSubmit={handleSubmit} class="max-w-4xl mx-auto">
-            <div class="flex gap-3">
+            <div class="flex gap-2">
               <div class="flex-1 relative">
                 <textarea
-                  class="w-full resize-none rounded-2xl border-2 border-gray-200 px-5 py-4 text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 disabled:bg-gray-50 disabled:text-gray-500 transition-all shadow-sm"
+                  class="w-full resize-none rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:bg-gray-50 disabled:text-gray-500 transition-all"
                   value={chatModel.input.value}
                   onInput={(e) => (chatModel.input.value = e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Type your message... (Shift+Enter for new line)"
                   rows="1"
-                  style={{ minHeight: '56px', maxHeight: '200px' }}
+                  style={{ minHeight: '44px', maxHeight: '150px' }}
                   disabled={chatModel.isStreaming.value}
                 />
               </div>
               <button
                 type="submit"
-                class="px-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-2xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                class="px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-semibold rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                 disabled={!chatModel.input.value.trim() || chatModel.isStreaming.value}
-                style={{ minHeight: '56px' }}
+                style={{ minHeight: '44px' }}
               >
                 {chatModel.isStreaming.value ? (
                   <>
-                    <iconify-icon icon="mdi:loading" class="animate-spin" width="20" />
-                    <span>Sending...</span>
+                    <iconify-icon icon="mdi:loading" class="animate-spin" width="18" />
+                    <span>Sending</span>
                   </>
                 ) : (
                   <>
-                    <iconify-icon icon="mdi:send" width="20" />
+                    <iconify-icon icon="mdi:send" width="18" />
                     <span>Send</span>
                   </>
                 )}

@@ -1,30 +1,29 @@
-import { signal } from '@preact/signals';
-import { useState, useEffect } from 'preact/hooks';
+import { useSignal, useSignalEffect } from '@preact/signals';
 
 export default function FileTreeViewer({ fileHandle }) {
-  const [tree, setTree] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [collapsedDirs, setCollapsedDirs] = useState(new Set());
+  const tree = useSignal(null);
+  const loading = useSignal(false);
+  const error = useSignal(null);
+  const collapsedDirs = useSignal(new Set());
 
-  useEffect(() => {
+  useSignalEffect(() => {
     if (fileHandle) {
       loadDirectoryTree();
     } else {
-      setTree(null);
+      tree.value = null;
     }
-  }, [fileHandle]);
+  });
 
   const loadDirectoryTree = async () => {
-    setLoading(true);
-    setError(null);
+    loading.value = true;
+    error.value = null;
     try {
-      const tree = await buildTree(fileHandle, '');
-      setTree(tree);
+      const builtTree = await buildTree(fileHandle, '');
+      tree.value = builtTree;
     } catch (err) {
-      setError(err.message);
+      error.value = err.message;
     } finally {
-      setLoading(false);
+      loading.value = false;
     }
   };
 
@@ -80,7 +79,7 @@ export default function FileTreeViewer({ fileHandle }) {
   };
 
   const toggleDirectory = async (path, node) => {
-    const newCollapsed = new Set(collapsedDirs);
+    const newCollapsed = new Set(collapsedDirs.value);
 
     if (newCollapsed.has(path)) {
       newCollapsed.delete(path);
@@ -88,12 +87,12 @@ export default function FileTreeViewer({ fileHandle }) {
       newCollapsed.add(path);
     }
 
-    setCollapsedDirs(newCollapsed);
+    collapsedDirs.value = newCollapsed;
 
     // Lazy load children if expanding and not loaded
     if (!newCollapsed.has(path) && node.children.length === 0 && node.handle) {
-      const updatedTree = await loadDirectoryChildren(tree, path, node.handle);
-      setTree({ ...updatedTree });
+      const updatedTree = await loadDirectoryChildren(tree.value, path, node.handle);
+      tree.value = { ...updatedTree };
     }
   };
 
@@ -116,7 +115,7 @@ export default function FileTreeViewer({ fileHandle }) {
   };
 
   const renderTreeNode = (node, depth = 0) => {
-    const isCollapsed = collapsedDirs.has(node.path);
+    const isCollapsed = collapsedDirs.value.has(node.path);
     const hasChildren = node.kind === 'directory';
     const paddingLeft = depth * 16 + 12;
 
@@ -201,7 +200,7 @@ export default function FileTreeViewer({ fileHandle }) {
     );
   }
 
-  if (loading) {
+  if (loading.value) {
     return (
       <div class="flex items-center justify-center h-full">
         <div class="flex flex-col items-center">
@@ -216,7 +215,7 @@ export default function FileTreeViewer({ fileHandle }) {
     );
   }
 
-  if (error) {
+  if (error.value) {
     return (
       <div class="flex flex-col items-center justify-center h-full text-center p-6">
         <iconify-icon
@@ -225,14 +224,14 @@ export default function FileTreeViewer({ fileHandle }) {
           width="48"
         />
         <p class="text-sm text-red-600 font-medium">Error loading directory</p>
-        <p class="text-xs text-gray-500 mt-2">{error}</p>
+        <p class="text-xs text-gray-500 mt-2">{error.value}</p>
       </div>
     );
   }
 
   return (
     <div class="h-full overflow-y-auto py-2">
-      {tree && renderTreeNode(tree)}
+      {tree.value && renderTreeNode(tree.value)}
     </div>
   );
 }
