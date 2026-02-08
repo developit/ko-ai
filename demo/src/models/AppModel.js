@@ -7,7 +7,10 @@ export const AppModel = createModel(function AppModel() {
   const model = signal(localStorage.getItem('model') || 'gpt-4o-mini');
   const instructions = signal(
     localStorage.getItem('instructions') ||
-    'You are a helpful AI assistant. You have access to file operations and a bash shell.'
+    'You are a helpful AI assistant with access to file operations and a bash shell.\n\n' +
+    'Important: When accessing local files, ALWAYS respect .gitignore patterns by default. ' +
+    'When listing files or showing directory trees, exclude files and directories that match .gitignore patterns unless explicitly asked to include them. ' +
+    'Common patterns to ignore include: node_modules/, .git/, dist/, build/, .env files, and other build artifacts.'
   );
 
   // UI State
