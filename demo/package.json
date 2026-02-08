@@ -13,11 +13,13 @@
     "@preact/signals": "^2.7.0",
     "@preact/signals-core": "^1.13.0",
     "just-bash": "^2.9.6",
-    "preact": "^10.27.2",
-    "koai": "workspace:*"
+    "koai": "workspace:*",
+    "preact": "^10.27.2"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.2",
+    "@tailwindcss/vite": "^4.1.18",
+    "tailwindcss": "^4.1.18",
     "vite": "^7.2.4",
     "vite-plugin-node-polyfills": "^0.25.0"
   }

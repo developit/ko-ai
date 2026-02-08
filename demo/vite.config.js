@@ -1,11 +1,13 @@
 import { defineConfig } from 'vite'
 import preact from '@preact/preset-vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     preact(),
+    tailwindcss(),
     nodePolyfills({
       // Enable polyfills for zlib and other node modules
       include: ['zlib', 'stream', 'buffer', 'util'],
