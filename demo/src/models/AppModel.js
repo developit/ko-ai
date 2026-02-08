@@ -2,32 +2,43 @@ import { createModel, signal } from '@preact/signals';
 
 export const AppModel = createModel(function AppModel() {
   // API Configuration
-  this.apiKey = signal(localStorage.getItem('apiKey') || '');
-  this.baseURL = signal(localStorage.getItem('baseURL') || 'https://api.openai.com/v1');
-  this.model = signal(localStorage.getItem('model') || 'gpt-4o-mini');
-  this.instructions = signal(
+  const apiKey = signal(localStorage.getItem('apiKey') || '');
+  const baseURL = signal(localStorage.getItem('baseURL') || 'https://api.openai.com/v1');
+  const model = signal(localStorage.getItem('model') || 'gpt-4o-mini');
+  const instructions = signal(
     localStorage.getItem('instructions') ||
     'You are a helpful AI assistant. You have access to file operations and a bash shell.'
   );
 
   // UI State
-  this.showSettings = signal(false);
-  this.isConfigured = signal(
+  const showSettings = signal(false);
+  const isConfigured = signal(
     Boolean(localStorage.getItem('apiKey'))
   );
 
   // Save configuration
-  this.saveConfig = () => {
-    localStorage.setItem('apiKey', this.apiKey.value);
-    localStorage.setItem('baseURL', this.baseURL.value);
-    localStorage.setItem('model', this.model.value);
-    localStorage.setItem('instructions', this.instructions.value);
-    this.isConfigured.value = Boolean(this.apiKey.value);
-    this.showSettings.value = false;
+  const saveConfig = () => {
+    localStorage.setItem('apiKey', apiKey.value);
+    localStorage.setItem('baseURL', baseURL.value);
+    localStorage.setItem('model', model.value);
+    localStorage.setItem('instructions', instructions.value);
+    isConfigured.value = Boolean(apiKey.value);
+    showSettings.value = false;
   };
 
   // Toggle settings
-  this.toggleSettings = () => {
-    this.showSettings.value = !this.showSettings.value;
+  const toggleSettings = () => {
+    showSettings.value = !showSettings.value;
+  };
+
+  return {
+    apiKey,
+    baseURL,
+    model,
+    instructions,
+    showSettings,
+    isConfigured,
+    saveConfig,
+    toggleSettings
   };
 });

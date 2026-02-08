@@ -3,17 +3,16 @@ import ai from 'koai';
 import { Bash } from 'just-bash';
 
 export const ChatModel = createModel(function ChatModel(appModel) {
-  this.appModel = appModel;
-  this.messages = signal([]);
-  this.input = signal('');
-  this.isStreaming = signal(false);
-  this.bash = signal(null);
-  this.fileHandle = signal(null);
+  const messages = signal([]);
+  const input = signal('');
+  const isStreaming = signal(false);
+  const bash = signal(null);
+  const fileHandle = signal(null);
 
   // Initialize bash environment
-  this.initBash = () => {
-    if (!this.bash.value) {
-      this.bash.value = new Bash({
+  const initBash = () => {
+    if (!bash.value) {
+      bash.value = new Bash({
         cwd: '/home/user',
         files: {
           '/home/user/README.md': '# Welcome to the AI Chat Assistant\n\nYou can use the bash tool to execute commands.'
@@ -23,20 +22,20 @@ export const ChatModel = createModel(function ChatModel(appModel) {
   };
 
   // File System Access API - Request directory access
-  this.requestDirectoryAccess = async () => {
+  const requestDirectoryAccess = async () => {
     try {
       const handle = await window.showDirectoryPicker({
         mode: 'readwrite'
       });
-      this.fileHandle.value = handle;
-      this.addMessage({
+      fileHandle.value = handle;
+      addMessage({
         role: 'system',
         content: `Directory access granted: ${handle.name}`
       });
       return handle;
     } catch (err) {
       if (err.name !== 'AbortError') {
-        this.addMessage({
+        addMessage({
           role: 'system',
           content: `Error accessing directory: ${err.message}`
         });
@@ -46,21 +45,21 @@ export const ChatModel = createModel(function ChatModel(appModel) {
   };
 
   // Read file using File System Access API
-  this.readFile = async (path) => {
+  const readFile = async (path) => {
     try {
-      if (!this.fileHandle.value) {
+      if (!fileHandle.value) {
         throw new Error('No directory access granted');
       }
 
       const parts = path.split('/').filter(p => p);
-      let handle = this.fileHandle.value;
+      let handle = fileHandle.value;
 
       for (let i = 0; i < parts.length - 1; i++) {
         handle = await handle.getDirectoryHandle(parts[i]);
       }
 
-      const fileHandle = await handle.getFileHandle(parts[parts.length - 1]);
-      const file = await fileHandle.getFile();
+      const fHandle = await handle.getFileHandle(parts[parts.length - 1]);
+      const file = await fHandle.getFile();
       const content = await file.text();
 
       return { success: true, content };
@@ -70,21 +69,21 @@ export const ChatModel = createModel(function ChatModel(appModel) {
   };
 
   // Write file using File System Access API
-  this.writeFile = async (path, content) => {
+  const writeFile = async (path, content) => {
     try {
-      if (!this.fileHandle.value) {
+      if (!fileHandle.value) {
         throw new Error('No directory access granted');
       }
 
       const parts = path.split('/').filter(p => p);
-      let handle = this.fileHandle.value;
+      let handle = fileHandle.value;
 
       for (let i = 0; i < parts.length - 1; i++) {
         handle = await handle.getDirectoryHandle(parts[i], { create: true });
       }
 
-      const fileHandle = await handle.getFileHandle(parts[parts.length - 1], { create: true });
-      const writable = await fileHandle.createWritable();
+      const fHandle = await handle.getFileHandle(parts[parts.length - 1], { create: true });
+      const writable = await fHandle.createWritable();
       await writable.write(content);
       await writable.close();
 
@@ -95,13 +94,13 @@ export const ChatModel = createModel(function ChatModel(appModel) {
   };
 
   // List files in directory
-  this.listFiles = async (path = '') => {
+  const listFiles = async (path = '') => {
     try {
-      if (!this.fileHandle.value) {
+      if (!fileHandle.value) {
         throw new Error('No directory access granted');
       }
 
-      let handle = this.fileHandle.value;
+      let handle = fileHandle.value;
 
       if (path) {
         const parts = path.split('/').filter(p => p);
@@ -125,8 +124,8 @@ export const ChatModel = createModel(function ChatModel(appModel) {
   };
 
   // Define tools for AI
-  this.getTools = () => {
-    this.initBash();
+  const getTools = () => {
+    initBash();
 
     return [
       {
@@ -145,7 +144,7 @@ export const ChatModel = createModel(function ChatModel(appModel) {
         },
         call: async ({ command }) => {
           try {
-            const result = await this.bash.value.exec(command);
+            const result = await bash.value.exec(command);
             return {
               stdout: result.stdout,
               stderr: result.stderr,
@@ -170,7 +169,7 @@ export const ChatModel = createModel(function ChatModel(appModel) {
           required: []
         },
         call: async () => {
-          const handle = await this.requestDirectoryAccess();
+          const handle = await requestDirectoryAccess();
           return handle ? { success: true, message: 'Directory access granted' } : { success: false };
         }
       },
@@ -189,7 +188,7 @@ export const ChatModel = createModel(function ChatModel(appModel) {
           required: ['path']
         },
         call: async ({ path }) => {
-          return await this.readFile(path);
+          return await readFile(path);
         }
       },
       {
@@ -211,7 +210,7 @@ export const ChatModel = createModel(function ChatModel(appModel) {
           required: ['path', 'content']
         },
         call: async ({ path, content }) => {
-          return await this.writeFile(path, content);
+          return await writeFile(path, content);
         }
       },
       {
@@ -229,39 +228,39 @@ export const ChatModel = createModel(function ChatModel(appModel) {
           required: []
         },
         call: async ({ path }) => {
-          return await this.listFiles(path || '');
+          return await listFiles(path || '');
         }
       }
     ];
   };
 
   // Add message to history
-  this.addMessage = (message) => {
-    this.messages.value = [...this.messages.value, message];
+  const addMessage = (message) => {
+    messages.value = [...messages.value, message];
   };
 
   // Send message to AI
-  this.sendMessage = async () => {
-    const userMessage = this.input.value.trim();
-    if (!userMessage || this.isStreaming.value) return;
+  const sendMessage = async () => {
+    const userMessage = input.value.trim();
+    if (!userMessage || isStreaming.value) return;
 
     // Add user message
-    this.addMessage({
+    addMessage({
       role: 'user',
       content: userMessage
     });
 
     // Clear input
-    this.input.value = '';
-    this.isStreaming.value = true;
+    input.value = '';
+    isStreaming.value = true;
 
     // Create AI session
     const chat = ai({
-      apiKey: this.appModel.apiKey.value,
-      baseURL: this.appModel.baseURL.value,
-      model: this.appModel.model.value,
-      instructions: this.appModel.instructions.value,
-      tools: this.getTools(),
+      apiKey: appModel.apiKey.value,
+      baseURL: appModel.baseURL.value,
+      model: appModel.model.value,
+      instructions: appModel.instructions.value,
+      tools: getTools(),
       mode: 'completions'
     });
 
@@ -271,38 +270,55 @@ export const ChatModel = createModel(function ChatModel(appModel) {
       content: '',
       toolCalls: []
     };
-    this.addMessage(assistantMessage);
+    addMessage(assistantMessage);
 
     try {
       for await (const chunk of chat.send(userMessage)) {
         if (chunk.type === 'text') {
           assistantMessage.content += chunk.text;
           // Update the last message
-          this.messages.value = [...this.messages.value];
+          messages.value = [...messages.value];
         } else if (chunk.type === 'tool_call' && !chunk.streaming) {
           assistantMessage.toolCalls.push(chunk);
-          this.messages.value = [...this.messages.value];
+          messages.value = [...messages.value];
         } else if (chunk.type === 'tool_result') {
           // Find and update the tool call with result
           const toolCall = assistantMessage.toolCalls.find(tc => tc.id === chunk.id);
           if (toolCall) {
             toolCall.result = chunk.result;
-            this.messages.value = [...this.messages.value];
+            messages.value = [...messages.value];
           }
         }
       }
     } catch (err) {
-      this.addMessage({
+      addMessage({
         role: 'system',
         content: `Error: ${err.message}`
       });
     } finally {
-      this.isStreaming.value = false;
+      isStreaming.value = false;
     }
   };
 
   // Clear chat
-  this.clearChat = () => {
-    this.messages.value = [];
+  const clearChat = () => {
+    messages.value = [];
+  };
+
+  return {
+    messages,
+    input,
+    isStreaming,
+    bash,
+    fileHandle,
+    initBash,
+    requestDirectoryAccess,
+    readFile,
+    writeFile,
+    listFiles,
+    getTools,
+    addMessage,
+    sendMessage,
+    clearChat
   };
 });

@@ -19,7 +19,9 @@ export default defineConfig({
   resolve: {
     alias: {
       // Use browser-specific just-bash build
-      'just-bash': 'just-bash/browser'
+      'just-bash': 'just-bash/browser',
+      // Stub node:module import that just-bash tries to use
+      'node:module': new URL('./src/stubs/module.js', import.meta.url).pathname
     }
   },
   optimizeDeps: {
