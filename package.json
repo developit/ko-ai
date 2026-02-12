@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "build": "tsup --clean",
+    "build-demo": "pnpm --filter demo build",
     "dev": "tsup --watch",
     "test": "node --test *.test.ts",
     "test:watch": "node --test --watch *.test.ts",

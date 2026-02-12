@@ -1,0 +1,27 @@
+{
+  "name": "demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prebuild": "cd .. && pnpm run build"
+  },
+  "dependencies": {
+    "@preact/signals": "^2.7.0",
+    "@preact/signals-core": "^1.13.0",
+    "iconify-icon": "^3.0.2",
+    "just-bash": "^2.9.6",
+    "koai": "workspace:*",
+    "preact": "^10.27.2"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.2",
+    "@tailwindcss/vite": "^4.1.18",
+    "tailwindcss": "^4.1.18",
+    "vite": "^7.2.4",
+    "vite-plugin-node-polyfills": "^0.25.0"
+  }
+}
