@@ -6,7 +6,6 @@ import { ChatModel } from './models/ChatModel';
 import Settings from './components/Settings';
 import ChatMessage from './components/ChatMessage';
 import FileTreeViewer from './components/FileTreeViewer';
-import 'iconify-icon';
 
 export function App() {
   const appModel = useModel(AppModel);
