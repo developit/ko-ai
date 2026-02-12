@@ -3,5 +3,3 @@ node_modules
 coverage
 .nock-fixtures.json
 package-lock.json
-demo/dist
-demo/node_modules
