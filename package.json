@@ -5,6 +5,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "author": "Jason Miller (https://jasonformat.com)",
+  "license": "MIT",
   "exports": {
     "types": "./dist/index.d.ts",
     "import": "./dist/index.js"
