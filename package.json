@@ -2,11 +2,11 @@
   "name": "koai",
   "version": "0.1.0",
   "type": "module",
-  "main": "./dist/ai.js",
-  "types": "./dist/ai.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    "types": "./dist/ai.d.ts",
-    "import": "./dist/ai.js"
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.js"
   },
   "files": [
     "dist"
