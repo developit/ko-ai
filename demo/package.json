@@ -14,7 +14,7 @@
     "@preact/signals-core": "^1.13.0",
     "iconify-icon": "^3.0.2",
     "just-bash": "^2.9.6",
-    "koai": "workspace:*",
+    "ko-ai": "workspace:*",
     "preact": "^10.27.2"
   },
   "devDependencies": {

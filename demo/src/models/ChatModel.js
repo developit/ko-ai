@@ -1,5 +1,5 @@
 import { createModel, signal } from '@preact/signals';
-import ai from 'koai';
+import ai from 'ko-ai';
 import { Bash } from 'just-bash';
 
 export const ChatModel = createModel(function ChatModel(appModel) {

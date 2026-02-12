@@ -1,5 +1,5 @@
 {
-  "name": "koai",
+  "name": "ko-ai",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",

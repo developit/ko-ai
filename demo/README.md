@@ -1,6 +1,6 @@
 # AI Chat Assistant Demo
 
-A full-featured AI chat application built with Preact, demonstrating the power of **koai** (a minimalist OpenAI-compatible streaming client) combined with:
+A full-featured AI chat application built with Preact, demonstrating the power of **ko-ai** (a minimalist OpenAI-compatible streaming client) combined with:
 
 - 🖥️ **just-bash**: Sandboxed bash environment for safe command execution
 - 📁 **File System Access API**: Browser-native file operations
@@ -24,7 +24,7 @@ A full-featured AI chat application built with Preact, demonstrating the power o
 - **Preact**: Lightweight React alternative (~3KB)
 - **Preact Models**: New state management pattern using signals
 - **Vite**: Lightning-fast dev server and build tool
-- **koai**: Zero-dependency OpenAI client (~1.5KB gzipped)
+- **ko-ai**: Zero-dependency OpenAI client (~1.5KB gzipped)
 - **just-bash**: Browser-compatible bash interpreter
 
 ## Quick Start
@@ -158,7 +158,7 @@ The bash tool (just-bash) works in all modern browsers.
 
 ## Learn More
 
-- [koai](https://github.com/developit/koai) - The streaming AI client
+- [ko-ai](https://github.com/developit/ko-ai) - The streaming AI client
 - [just-bash](https://github.com/vercel-labs/just-bash) - Sandboxed bash for JavaScript
 - [Preact](https://preactjs.com) - Fast 3KB alternative to React
 - [Preact Signals](https://preactjs.com/guide/v10/signals/) - Reactive state management

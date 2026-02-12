@@ -1,6 +1,6 @@
 <img src="fixtures/koai.png" width="128" height="128">
 
-# koai (小AI)
+# ko-ai (小AI)
 
 A minimalist, zero-dependency OpenAI-compatible streaming client with automatic tool calling.
 
@@ -15,7 +15,7 @@ A minimalist, zero-dependency OpenAI-compatible streaming client with automatic 
 ## Usage
 
 ```js
-import ai from 'koai';
+import ai from 'ko-ai';
 
 // Create a chat session
 const chat = ai({
