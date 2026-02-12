@@ -3,6 +3,7 @@ import nock from 'nock';
 import {readFileSync, writeFileSync, existsSync, mkdirSync} from 'node:fs';
 import {join, dirname} from 'node:path';
 import {createHash} from 'node:crypto';
+import {gunzipSync} from 'node:zlib';
 
 export type TestMode = 'record' | 'replay' | 'auto';
 export type ApiMode = 'completions' | 'responses';
@@ -147,7 +148,7 @@ export class FixtureManager {
       mkdirSync(dir, {recursive: true});
     }
 
-    // Sanitize fixtures: replace actual API keys with placeholder
+    // Sanitize fixtures: replace actual API keys with placeholder and decompress responses
     const sanitized = fixtures.map(fixture => {
       const sanitizedFixture = { ...fixture };
       if (sanitizedFixture.reqheaders) {
@@ -157,6 +158,42 @@ export class FixtureManager {
           sanitizedFixture.reqheaders.authorization = 'Bearer REDACTED_API_KEY';
         }
       }
+
+      // Decompress gzipped responses for readability
+      // Note: nock stores headers in rawHeaders (not in the type definition)
+      const fixtureAny = sanitizedFixture as any;
+      const isGzipped = fixtureAny.rawHeaders?.['content-encoding'] === 'gzip';
+      if (isGzipped && sanitizedFixture.response) {
+        try {
+          // Response can be an array of hex strings or a single string
+          const responses = Array.isArray(sanitizedFixture.response)
+            ? sanitizedFixture.response
+            : [sanitizedFixture.response];
+
+          const decompressed = responses.map(resp => {
+            if (typeof resp === 'string') {
+              // Convert hex string to buffer, decompress, and parse JSON
+              const buffer = Buffer.from(resp, 'hex');
+              const decompressedBuffer = gunzipSync(buffer);
+              return JSON.parse(decompressedBuffer.toString());
+            }
+            return resp;
+          });
+
+          // Store as single object if there was only one response
+          sanitizedFixture.response = decompressed.length === 1 ? decompressed[0] : decompressed;
+
+          // Remove content-encoding header since we decompressed it
+          if (fixtureAny.rawHeaders) {
+            const {['content-encoding']: removed, ...otherHeaders} = fixtureAny.rawHeaders;
+            fixtureAny.rawHeaders = otherHeaders;
+          }
+        } catch (e) {
+          // If decompression fails, keep the original response
+          console.warn(`Warning: Failed to decompress response for ${testName}:`, e);
+        }
+      }
+
       return sanitizedFixture;
     });
 

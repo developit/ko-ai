@@ -136,6 +136,7 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
       let assistantContent = "";
       let reasoningContent = "";
       let messageId = "";
+      let resp: any;
 
       const saveAssistant = () => {
         if (c && (assistantContent || reasoningContent)) {
@@ -257,13 +258,18 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
                   pendingCalls.push(chunk);
                   toolCallMap[id] = chunk;
                 }
-              } else if (data.response?.status == "completed") {
-                // Responses API completed
-                if (data.response.output) {
-                  outputItems.push(...data.response.output);
+              } else if ((resp = data.response || data).status == "completed") {
+                if (resp.output) {
+                  outputItems.push(...resp.output);
+                  if (!stream) {
+                    for (const item of resp.output) {
+                      for (const c of item.content || []) {
+                        if (c.text) yield { type: "text", text: c.text, id: messageId };
+                      }
+                    }
+                  }
                 }
                 if (!pendingCalls.length) {
-                  // Save conversation items before returning
                   if (!c && outputItems.length) {
                     conversation.push(...outputItems);
                   }
@@ -304,6 +310,7 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
         if (!c && outputItems.length) {
           conversation.push(...outputItems);
         }
+        yield { type: "done" };
         return;
       }
       pendingCalls.map((tc) => (tc.streaming = false));

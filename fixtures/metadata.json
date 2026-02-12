@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-07T19:10:41.329Z",
+  "lastUpdated": "2026-02-12T16:24:46.158Z",
   "provider": "openrouter",
   "fixtures": {
     "text-generation-responses": {
@@ -122,6 +122,18 @@
       "recordedAt": "2026-02-07T19:10:16.104Z",
       "requestCount": 14,
       "checksum": "033232910eee9fe4"
+    },
+    "non-streaming-completions": {
+      "path": "completions-api/non-streaming-completions.json",
+      "recordedAt": "2026-02-12T16:17:26.645Z",
+      "requestCount": 1,
+      "checksum": "865f2f892208ca80"
+    },
+    "non-streaming-responses": {
+      "path": "responses-api/non-streaming-responses.json",
+      "recordedAt": "2026-02-12T16:24:46.157Z",
+      "requestCount": 1,
+      "checksum": "a6b3ce01b10eb066"
     }
   }
 }

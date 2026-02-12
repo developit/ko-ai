@@ -429,6 +429,50 @@ describe('AI Client Tests', () => {
   describe('Edge cases', () => {
     recordReplayTest(
       fixtureManager,
+      'non-streaming-completions',
+      'completions',
+      async () => {
+        const chat = ai({
+          apiKey: TEST_API_KEY,
+          baseURL: TEST_BASE_URL,
+          mode: 'completions',
+          model: TEST_MODEL,
+          reasoning: {effort: 'minimal'},
+          temperature: 0,
+        });
+        const chunks = await Array.fromAsync(chat.send('Reply with "Non-streaming completions works"', {stream: false}));
+
+        const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
+        assert.ok(content, 'Should receive text content in non-streaming mode');
+        assert.ok(chunks.at(-1)?.type === 'done', 'Should end with done chunk');
+        console.log('Non-streaming completions result:', content.slice(0, 100));
+      }
+    );
+
+    recordReplayTest(
+      fixtureManager,
+      'non-streaming-responses',
+      'responses',
+      async () => {
+        const chat = ai({
+          apiKey: TEST_API_KEY,
+          baseURL: TEST_BASE_URL,
+          mode: 'responses',
+          model: TEST_MODEL,
+          reasoning: {effort: 'minimal'},
+          temperature: 0,
+        });
+        const chunks = await Array.fromAsync(chat.send('Reply with "Non-streaming responses works"', {stream: false}));
+
+        const content = chunks.filter(c => c.type === 'text' || c.type === 'reasoning').map(c => c.text).join('');
+        assert.ok(content, 'Should receive text content in non-streaming mode');
+        assert.ok(chunks.at(-1)?.type === 'done', 'Should end with done chunk');
+        console.log('Non-streaming responses result:', content.slice(0, 100));
+      }
+    );
+
+    recordReplayTest(
+      fixtureManager,
       'default-mode',
       'responses',
       async () => {

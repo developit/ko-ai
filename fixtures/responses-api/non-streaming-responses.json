@@ -1,0 +1,120 @@
+[
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "stream": false,
+      "model": "openai/gpt-5-nano",
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "temperature": 0,
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "Reply with \"Non-streaming responses works\""
+        }
+      ]
+    },
+    "status": 200,
+    "response": {
+      "object": "response",
+      "id": "gen-1770913484-w9naSMtmHp0wP9z8CSGb",
+      "created_at": 1770913484,
+      "model": "openai/gpt-5-nano",
+      "status": "completed",
+      "completed_at": 1770913486,
+      "error": null,
+      "output_text": "",
+      "output": [
+        {
+          "type": "reasoning",
+          "id": "rs_048970d324ea5e4801698dfecd551c8193877eac3ea0f561dd",
+          "summary": [],
+          "encrypted_content": "gAAAAABpjf7N1vUUqv-gLdVd9t3dlIY9XOO6JZ_mSrXfv1exgaEqjRM43SizUDMM0PwT8x8Xb72wkVLjkC2GEg1g9UfiFd8WLHQiHAP2rhsGkpnU-Z4d0Wa_VEGngFqpBoeiZgBDQdWApUSS_MvHD1dMUXrYn4IiBWsqxQtBKfmcJXuGszz_G_rK1B6Ra_RKJiN5BAkibvsEE3BfSC6xZ-uDjpAyclYqSvtz_GbaRt8aNuKQ43-FbMxiDy6OkJ1syQomYmL-aacM_8nJOAecKM3Km4B9youxXGkzdU8EAh2g_SCKIN9PXi-wMaZNish0dVdejrtnh8yxEQAlcb5JJmINbg91uqfRZuBeZxUK-_XlRo-E_vEF_EamODgBUcqlI_GxRuwlPFaN9mM9prtXBMwnqXuLNzDbLU-X3Q3K2lBGdHA0Zw3pD0VcNgSdT2bS4SYrD2ggBjP4sPb3LiarWSDmfBRZl0BYLw8CQ5UTtAWcFPvSJwwwGgSElUUWjpJ3s3QwEtxE-BaVuNeAlak1-myrbVeqd8FsoERt8HERn5qbX1nFphYX3x8DtWODKe8AqDn7AOQ6R7cPjrCRl8Iy131HMcv84YpSHTKGqtAJQCTBg7IVPB4KTNqgKKWnsGHA9JPrYGgX-jR16hcAU6JRbFuR91_ydkmPOqitiA_IVIusCNWAQVNe3FSzq3CSrrZzmNl5S57kFGdEHliyTC8Kw-1i7ua_2LU8C7GFpW-ghKek8SWN5lXfGj2B5DwOWfsAUJv4ACp46sk9O1X3fA5dflTC5_VOVdhfZrQeiD_OxQg3dtKU6UhsqN56BiBPGK2RXjJfffggGdfi7Q6fmzL_-i9XY_ShVnhc4rCxGi9M-5gpMl_Hn0kwaj-AMOaE_-cHxjtJ1FQsum-q",
+          "format": "openai-responses-v1"
+        },
+        {
+          "role": "assistant",
+          "type": "message",
+          "status": "completed",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "Non-streaming responses works",
+              "annotations": [],
+              "logprobs": []
+            }
+          ],
+          "id": "msg_tmp_546ryhi0shr"
+        }
+      ],
+      "incomplete_details": null,
+      "tools": [],
+      "tool_choice": "auto",
+      "parallel_tool_calls": true,
+      "max_output_tokens": null,
+      "temperature": 0,
+      "top_p": 1,
+      "presence_penalty": 0,
+      "frequency_penalty": 0,
+      "top_logprobs": 0,
+      "max_tool_calls": null,
+      "metadata": {},
+      "background": false,
+      "previous_response_id": null,
+      "service_tier": "auto",
+      "truncation": "disabled",
+      "store": false,
+      "instructions": null,
+      "text": {
+        "format": {
+          "type": "text"
+        }
+      },
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "safety_identifier": null,
+      "prompt_cache_key": null,
+      "user": null,
+      "usage": {
+        "input_tokens": 15,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 23,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 38,
+        "cost": 0,
+        "is_byok": true,
+        "cost_details": {
+          "upstream_inference_cost": 0.00000995,
+          "upstream_inference_input_cost": 7.5e-7,
+          "upstream_inference_output_cost": 0.0000092
+        }
+      }
+    },
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cf-ray": "9ccd701d593044b0-YYZ",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Thu, 12 Feb 2026 16:24:44 GMT",
+      "permissions-policy": "payment=(self \"https://checkout.stripe.com\" \"https://connect-js.stripe.com\" \"https://js.stripe.com\" \"https://*.js.stripe.com\" \"https://hooks.stripe.com\")",
+      "referrer-policy": "no-referrer, strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-content-type-options": "nosniff"
+    },
+    "reqheaders": {
+      "authorization": "Bearer REDACTED_API_KEY",
+      "content-type": "application/json"
+    },
+    "responseIsBinary": false
+  }
+]
