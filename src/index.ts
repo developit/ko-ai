@@ -263,6 +263,13 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
                   outputItems.push(...resp.output);
                   if (!stream) {
                     for (const item of resp.output) {
+                      if (item.type == "function_call") {
+                        pendingCalls.push(chunk = {
+                          type: "tool_call",
+                          id: item.call_id,
+                          function: item,
+                        });
+                      }
                       for (const c of item.content || []) {
                         if (c.text) yield { type: "text", text: c.text, id: messageId };
                       }

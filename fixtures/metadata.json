@@ -1,139 +1,151 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-12T16:24:46.158Z",
+  "lastUpdated": "2026-02-12T16:59:42.905Z",
   "provider": "openrouter",
   "fixtures": {
     "text-generation-responses": {
       "path": "responses-api/text-generation-responses.json",
-      "recordedAt": "2026-02-07T19:09:47.248Z",
+      "recordedAt": "2026-02-12T16:58:33.647Z",
       "requestCount": 1,
-      "checksum": "c99395809d09de61"
+      "checksum": "6ad5c7cacd41c854"
     },
     "text-generation-completions": {
       "path": "completions-api/text-generation-completions.json",
-      "recordedAt": "2026-02-07T19:09:48.422Z",
+      "recordedAt": "2026-02-12T16:58:34.609Z",
       "requestCount": 2,
-      "checksum": "c7f67cf5d954b699"
+      "checksum": "f9661d8c70193a0f"
     },
     "system-messages": {
       "path": "responses-api/system-messages.json",
-      "recordedAt": "2026-02-07T19:09:50.665Z",
+      "recordedAt": "2026-02-12T16:58:39.556Z",
       "requestCount": 3,
-      "checksum": "adba67cb40e061a1"
+      "checksum": "09c60bd38eff9b97"
     },
     "streaming-responses": {
       "path": "responses-api/streaming-responses.json",
-      "recordedAt": "2026-02-07T19:09:51.641Z",
+      "recordedAt": "2026-02-12T16:58:40.676Z",
       "requestCount": 4,
-      "checksum": "8f33d4494d87790e"
+      "checksum": "247b2602c1b837d7"
     },
     "streaming-completions": {
       "path": "completions-api/streaming-completions.json",
-      "recordedAt": "2026-02-07T19:09:52.880Z",
+      "recordedAt": "2026-02-12T16:58:41.308Z",
       "requestCount": 5,
-      "checksum": "c37eb8e3bb364a90"
+      "checksum": "34468f296dca7f1f"
     },
     "tool-calls-inline-responses": {
       "path": "responses-api/tool-calls-inline-responses.json",
-      "recordedAt": "2026-02-07T19:10:00.892Z",
+      "recordedAt": "2026-02-12T16:58:43.256Z",
       "requestCount": 7,
-      "checksum": "008b6f3f42ab51cb"
+      "checksum": "4051fea5264741b1"
     },
     "tool-calls-callback-completions": {
       "path": "completions-api/tool-calls-callback-completions.json",
-      "recordedAt": "2026-02-07T19:10:02.390Z",
+      "recordedAt": "2026-02-12T16:58:45.058Z",
       "requestCount": 9,
-      "checksum": "f8c6d5ad6586d4d9"
+      "checksum": "e393cc60cd4a5642"
     },
     "multi-turn-tool-calling-responses": {
       "path": "responses-api/multi-turn-tool-calling-responses.json",
-      "recordedAt": "2026-02-07T19:10:09.177Z",
+      "recordedAt": "2026-02-12T16:58:52.137Z",
       "requestCount": 11,
-      "checksum": "149a23026b4b55d2"
+      "checksum": "c525e5e88aee7028"
     },
     "multi-turn-tool-calling-completions": {
       "path": "completions-api/multi-turn-tool-calling-completions.json",
-      "recordedAt": "2026-02-07T19:10:16.096Z",
+      "recordedAt": "2026-02-12T16:59:01.773Z",
       "requestCount": 14,
-      "checksum": "033232910eee9fe4"
+      "checksum": "4e6107e4761dc6ce"
     },
     "missing-tool-handler": {
       "path": "completions-api/missing-tool-handler.json",
-      "recordedAt": "2026-02-07T19:10:19.016Z",
+      "recordedAt": "2026-02-12T16:59:04.098Z",
       "requestCount": 16,
-      "checksum": "80fd1e9714ff5536"
+      "checksum": "a11bfd540a3b24bc"
     },
     "tool-error-handling": {
       "path": "responses-api/tool-error-handling.json",
-      "recordedAt": "2026-02-07T19:10:21.384Z",
+      "recordedAt": "2026-02-12T16:59:05.997Z",
       "requestCount": 18,
-      "checksum": "7a8daaeeaf3c1ba2"
+      "checksum": "79c6811f92025228"
     },
     "default-mode": {
       "path": "responses-api/default-mode.json",
-      "recordedAt": "2026-02-07T19:10:22.220Z",
-      "requestCount": 19,
-      "checksum": "6d35b7ca597923dd"
+      "recordedAt": "2026-02-12T16:59:14.650Z",
+      "requestCount": 26,
+      "checksum": "7c826d51faea7adb"
     },
     "custom-headers": {
       "path": "responses-api/custom-headers.json",
-      "recordedAt": "2026-02-07T19:10:22.786Z",
-      "requestCount": 20,
-      "checksum": "da8ae0c80349b299"
+      "recordedAt": "2026-02-12T16:59:17.319Z",
+      "requestCount": 27,
+      "checksum": "57b3159bcec7b8da"
     },
     "instructions-only-completions": {
       "path": "completions-api/instructions-only-completions.json",
-      "recordedAt": "2026-02-07T19:10:23.551Z",
-      "requestCount": 21,
-      "checksum": "80609e0b993b6c1f"
+      "recordedAt": "2026-02-12T16:59:17.886Z",
+      "requestCount": 28,
+      "checksum": "b5dcbfe1b1cc0750"
     },
     "text-only-completions": {
       "path": "completions-api/text-only-completions.json",
-      "recordedAt": "2026-02-07T19:10:24.061Z",
-      "requestCount": 22,
-      "checksum": "690f7c5101fb9e3a"
+      "recordedAt": "2026-02-12T16:59:18.451Z",
+      "requestCount": 29,
+      "checksum": "1aef09bc699fe172"
     },
     "text-only-responses": {
       "path": "responses-api/text-only-responses.json",
-      "recordedAt": "2026-02-07T19:10:26.310Z",
-      "requestCount": 23,
-      "checksum": "30fc1389aa344f3b"
+      "recordedAt": "2026-02-12T16:59:19.476Z",
+      "requestCount": 30,
+      "checksum": "1df0cb1ee14535bd"
     },
     "sync-tool-function": {
       "path": "responses-api/sync-tool-function.json",
-      "recordedAt": "2026-02-07T19:10:27.433Z",
-      "requestCount": 25,
-      "checksum": "3428574f900169e0"
+      "recordedAt": "2026-02-12T16:59:22.437Z",
+      "requestCount": 32,
+      "checksum": "8ac9ec4e3ac81ff7"
     },
     "multi-turn-history-completions": {
       "path": "completions-api/multi-turn-history-completions.json",
-      "recordedAt": "2026-02-07T19:10:35.382Z",
-      "requestCount": 27,
-      "checksum": "e588263c0fd4996d"
+      "recordedAt": "2026-02-12T16:59:34.816Z",
+      "requestCount": 34,
+      "checksum": "a8581172f1608449"
     },
     "multi-turn-history-responses": {
       "path": "responses-api/multi-turn-history-responses.json",
-      "recordedAt": "2026-02-07T19:10:41.329Z",
-      "requestCount": 29,
-      "checksum": "c2104ce46d0c92aa"
+      "recordedAt": "2026-02-12T16:59:42.905Z",
+      "requestCount": 36,
+      "checksum": "3b76c1a3fcdf6389"
     },
     "api-errors": {
       "path": "responses-api/api-errors.json",
-      "recordedAt": "2026-02-07T19:10:16.104Z",
+      "recordedAt": "2026-02-12T16:59:01.783Z",
       "requestCount": 14,
-      "checksum": "033232910eee9fe4"
+      "checksum": "4e6107e4761dc6ce"
     },
     "non-streaming-completions": {
       "path": "completions-api/non-streaming-completions.json",
-      "recordedAt": "2026-02-12T16:17:26.645Z",
-      "requestCount": 1,
-      "checksum": "865f2f892208ca80"
+      "recordedAt": "2026-02-12T16:59:06.751Z",
+      "requestCount": 19,
+      "checksum": "2bfe07b06b978d85"
     },
     "non-streaming-responses": {
       "path": "responses-api/non-streaming-responses.json",
-      "recordedAt": "2026-02-12T16:24:46.157Z",
-      "requestCount": 1,
-      "checksum": "a6b3ce01b10eb066"
+      "recordedAt": "2026-02-12T16:59:07.297Z",
+      "requestCount": 20,
+      "checksum": "34b70abaf59eeb49"
+    },
+    "non-streaming-tool-calls-completions": {
+      "path": "completions-api/non-streaming-tool-calls-completions.json",
+      "recordedAt": "2026-02-12T16:59:10.320Z",
+      "requestCount": 23,
+      "checksum": "9aaa58536b453bfa"
+    },
+    "non-streaming-tool-calls-responses": {
+      "path": "responses-api/non-streaming-tool-calls-responses.json",
+      "recordedAt": "2026-02-12T16:59:13.626Z",
+      "requestCount": 25,
+      "checksum": "434cc7299e411b61"
     }
   }
 }

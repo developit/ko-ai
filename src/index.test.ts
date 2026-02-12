@@ -473,6 +473,122 @@ describe('AI Client Tests', () => {
 
     recordReplayTest(
       fixtureManager,
+      'non-streaming-tool-calls-completions',
+      'completions',
+      async () => {
+        const tools = [
+          {
+            type: 'function' as const,
+            name: 'get_temperature',
+            description: 'Get temperature for a city',
+            parameters: {
+              type: 'object',
+              properties: {
+                city: { type: 'string' }
+              },
+              required: ['city']
+            },
+            call: async ({city}: any) => ({temperature: city === 'Tokyo' ? 22 : 18})
+          },
+          {
+            type: 'function' as const,
+            name: 'compare',
+            description: 'Compare two numbers',
+            parameters: {
+              type: 'object',
+              properties: {
+                a: { type: 'number' },
+                b: { type: 'number' }
+              },
+              required: ['a', 'b']
+            },
+            call: async ({a, b}: any) => ({comparison: a > b ? 'greater' : a < b ? 'less' : 'equal'})
+          }
+        ];
+
+        const chat = ai({
+          apiKey: TEST_API_KEY,
+          baseURL: TEST_BASE_URL,
+          mode: 'completions',
+          model: TEST_MODEL,
+          reasoning: {effort: 'minimal'},
+          temperature: 0,
+          tools,
+        });
+        const chunks = await Array.fromAsync(chat.send('Get temperature for Tokyo and Paris, then tell me which is warmer', {stream: false}));
+
+        const toolCalls = chunks.filter((c: any) => c.type === 'tool_call');
+        const toolResults = chunks.filter((c: any) => c.type === 'tool_result');
+        const content = chunks.filter((c: any) => c.type === 'text' || c.type === 'reasoning').map((c: any) => c.text).join('');
+
+        assert.ok(toolCalls.length >= 2, `Should have at least 2 tool calls, got ${toolCalls.length}`);
+        assert.ok(toolResults.length >= 2, `Should have at least 2 tool results, got ${toolResults.length}`);
+        assert.ok(content, 'Should receive final text content');
+        assert.ok(chunks.at(-1)?.type === 'done', 'Should end with done chunk');
+        console.log('Non-streaming tool calls (completions) test passed:', toolCalls.length, 'calls');
+      }
+    );
+
+    recordReplayTest(
+      fixtureManager,
+      'non-streaming-tool-calls-responses',
+      'responses',
+      async () => {
+        const tools = [
+          {
+            type: 'function' as const,
+            name: 'get_temperature',
+            description: 'Get temperature for a city',
+            parameters: {
+              type: 'object',
+              properties: {
+                city: { type: 'string' }
+              },
+              required: ['city']
+            },
+            call: async ({city}: any) => ({temperature: city === 'Tokyo' ? 22 : 18})
+          },
+          {
+            type: 'function' as const,
+            name: 'compare',
+            description: 'Compare two numbers',
+            parameters: {
+              type: 'object',
+              properties: {
+                a: { type: 'number' },
+                b: { type: 'number' }
+              },
+              required: ['a', 'b']
+            },
+            call: async ({a, b}: any) => ({comparison: a > b ? 'greater' : a < b ? 'less' : 'equal'})
+          }
+        ];
+
+        const chat = ai({
+          apiKey: TEST_API_KEY,
+          baseURL: TEST_BASE_URL,
+          mode: 'responses',
+          model: TEST_MODEL,
+          reasoning: {effort: 'minimal'},
+          temperature: 0,
+          tools,
+        });
+        const chunks = await Array.fromAsync(chat.send('Get temperature for Tokyo and Paris, then tell me which is warmer', {stream: false}));
+
+        const toolCalls = chunks.filter((c: any) => c.type === 'tool_call');
+        const toolResults = chunks.filter((c: any) => c.type === 'tool_result');
+        const content = chunks.filter((c: any) => c.type === 'text' || c.type === 'reasoning').map((c: any) => c.text).join('');
+
+        assert.ok(toolCalls.length >= 2, `Should have at least 2 tool calls, got ${toolCalls.length}`);
+        assert.ok(toolResults.length >= 2, `Should have at least 2 tool results, got ${toolResults.length}`);
+        assert.ok(content, 'Should receive final text content');
+        assert.ok(chunks.at(-1)?.type === 'done', 'Should end with done chunk');
+        console.log('Non-streaming tool calls (responses) test passed:', toolCalls.length, 'calls');
+      }
+    );
+
+    recordReplayTest(
+      fixtureManager,
       'default-mode',
       'responses',
       async () => {
