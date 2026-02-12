@@ -4,7 +4,7 @@ import * as readline from 'node:readline';
 import {exec} from 'node:child_process';
 import {promisify} from 'node:util';
 import {readFile} from 'node:fs/promises';
-import ai, {type Tool, type StreamChunk} from './ai.ts';
+import ai, {type Tool, type StreamChunk} from '../src/index.ts';
 
 const execAsync = promisify(exec);
 

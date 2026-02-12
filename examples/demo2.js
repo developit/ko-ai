@@ -1,4 +1,4 @@
-import ai from './ai.ts';
+import ai from '../src/index.ts';
 
 const config = {
   apiKey: process.env.API_KEY || 'sk-fake',
