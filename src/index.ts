@@ -174,8 +174,8 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
         while (true) {
           if (signal?.aborted) throw Error();
 
-          const lines = buffer.split("\n");
-          buffer = stream ? (lines.pop() || "") : "";
+          const lines = stream ? buffer.split("\n") : [buffer];
+          if (stream) buffer = lines.pop() || "";
 
           for (const line of lines) {
             let dataLine = line;
@@ -195,6 +195,7 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
             let chunk: StreamChunk | null = null;
             try {
               const data = JSON.parse(dataLine);
+              if (!stream) buffer = "";
               messageId = data.id || data.response?.id || messageId;
               const choice = data.choices?.[0];
               if (choice) {
