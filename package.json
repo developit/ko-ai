@@ -15,9 +15,9 @@
     "build": "tsup --clean",
     "build-demo": "pnpm --filter demo build",
     "dev": "tsup --watch",
-    "test": "node --test *.test.ts",
-    "test:watch": "node --test --watch *.test.ts",
-    "test:record": "KOAI_TEST_MODE=record node --test *.test.ts",
+    "test": "node --test **/*.test.ts",
+    "test:watch": "node --test --watch **/*.test.ts",
+    "test:record": "KOAI_TEST_MODE=record node --test **/*.test.ts",
     "test:validate": "node test/validate-fixtures.ts",
     "pretest": "pnpm run build"
   },

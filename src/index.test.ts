@@ -1,7 +1,7 @@
 import {describe, after} from 'node:test';
 import assert from 'node:assert/strict';
-import ai from './ai.ts';
-import {createFixtureManager, recordReplayTest} from './test/record-replay.ts';
+import ai from './index.ts';
+import {createFixtureManager, recordReplayTest} from '../test/record-replay.ts';
 
 // Create fixture manager from environment
 const fixtureManager = createFixtureManager();
