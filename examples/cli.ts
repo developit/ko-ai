@@ -261,11 +261,6 @@ ${colors.bright}Examples:${colors.reset}
 }
 
 async function listModels() {
-  // if (!API_KEY) {
-  //   console.error(`${colors.red}Error: OPENROUTER_API_KEY or OPENAI_API_KEY environment variable is required${colors.reset}`);
-  //   process.exit(1);
-  // }
-
   console.log(`${colors.bright}${colors.cyan}📋 Available Models${colors.reset}`);
   console.log(`${colors.dim}Fetching from ${BASE_URL}/models...${colors.reset}\n`);
 
@@ -312,11 +307,6 @@ async function listModels() {
 }
 
 async function chat() {
-  // if (!API_KEY) {
-  //   console.error('Error: OPENROUTER_API_KEY or OPENAI_API_KEY environment variable is required');
-  //   process.exit(1);
-  // }
-
   const verbose = args.verbose || false;
 
   console.log(`${colors.bright}${colors.cyan}🤖 AI Chat CLI${colors.reset}`);
@@ -334,8 +324,6 @@ async function chat() {
     instructions: 'You are a helpful AI assistant with access to web search, HTTP fetch, shell (bash) commands, and file reading tools. Always think about how you can use these tools to fulfill the user\'s request before attempting to remember something on your own. Use tools as much as and often as you can to produce the best possible answers. Be concise and helpful.',
     tools,
     mode: 'completions',
-    // reasoning: {effort: 'medium'},
-    // reasoning: {enabled: true},
     stream: true,
   });
 
@@ -359,9 +347,6 @@ async function chat() {
 
           case 'reasoning':
             process.stdout.write(`${colors.dim}${colors.magenta}${chunk.text}${colors.reset}`);
-            // if (verbose) {
-            //   process.stdout.write(`${colors.dim}${colors.magenta}[reasoning: ${chunk.text}]${colors.reset}`);
-            // }
             break;
 
           case 'tool_call':
@@ -369,10 +354,6 @@ async function chat() {
               // Tool call complete, show what we're calling
               const args = JSON.parse(chunk.function.arguments || '{}');
               console.log(`${colors.yellow}🔧 ${chunk.function.name}(${JSON.stringify(args, null, 2)})${colors.reset}`);
-              // if (verbose) {
-              // } else {
-              //   console.log(`\n${colors.yellow}🔧 ${chunk.function.name}()${colors.reset}`);
-              // }
               currentToolCall = chunk.function.name;
             }
             break;

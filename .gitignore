@@ -2,4 +2,5 @@ dist
 node_modules
 coverage
 .nock-fixtures.json
+*.tmp
 package-lock.json
