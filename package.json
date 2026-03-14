@@ -7,8 +7,18 @@
   "author": "Jason Miller (https://jasonformat.com)",
   "license": "MIT",
   "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/index.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.js"
+    },
+    "./agent-tools": {
+      "types": "./dist/agent-tools.d.ts",
+      "import": "./dist/agent-tools.js"
+    }
   },
   "files": [
     "src",

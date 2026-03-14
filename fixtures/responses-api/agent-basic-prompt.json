@@ -1,0 +1,41 @@
+[
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "stream": true,
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "model": "openai/gpt-5-nano",
+      "max_output_tokens": 50,
+      "temperature": 0,
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "Reply with \"Agent works\" and nothing else"
+        }
+      ]
+    },
+    "status": 200,
+    "response": "data: {\"type\":\"response.created\",\"response\":{\"object\":\"response\",\"id\":\"gen-agent-basic-001\",\"created_at\":1771000000,\"completed_at\":null,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"usage\":null,\"tools\":[],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":50,\"temperature\":0,\"top_p\":1,\"presence_penalty\":0,\"frequency_penalty\":0,\"top_logprobs\":0,\"max_tool_calls\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":\"disabled\",\"store\":false,\"instructions\":null,\"text\":{\"format\":{\"type\":\"text\"}},\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":0}\n\ndata: {\"type\":\"response.in_progress\",\"response\":{\"object\":\"response\",\"id\":\"gen-agent-basic-001\",\"created_at\":1771000000,\"completed_at\":null,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"usage\":null,\"tools\":[],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":50,\"temperature\":0,\"top_p\":1,\"presence_penalty\":0,\"frequency_penalty\":0,\"top_logprobs\":0,\"max_tool_calls\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":\"disabled\",\"store\":false,\"instructions\":null,\"text\":{\"format\":{\"type\":\"text\"}},\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":1}\n\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"type\":\"message\",\"status\":\"in_progress\",\"content\":[],\"id\":\"msg_agent_basic_001\",\"role\":\"assistant\"},\"sequence_number\":2}\n\ndata: {\"type\":\"response.content_part.added\",\"item_id\":\"msg_agent_basic_001\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"text\":\"\",\"logprobs\":[]},\"sequence_number\":3}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_agent_basic_001\",\"content_index\":0,\"delta\":\"Agent\",\"sequence_number\":4}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_agent_basic_001\",\"content_index\":0,\"delta\":\" works\",\"sequence_number\":5}\n\ndata: {\"type\":\"response.output_text.done\",\"item_id\":\"msg_agent_basic_001\",\"output_index\":0,\"content_index\":0,\"text\":\"Agent works\",\"logprobs\":[],\"sequence_number\":6}\n\ndata: {\"type\":\"response.content_part.done\",\"item_id\":\"msg_agent_basic_001\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"text\":\"Agent works\",\"logprobs\":[]},\"sequence_number\":7}\n\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"Agent works\",\"annotations\":[],\"logprobs\":[]}],\"id\":\"msg_agent_basic_001\",\"role\":\"assistant\"},\"sequence_number\":8}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"object\":\"response\",\"id\":\"gen-agent-basic-001\",\"created_at\":1771000000,\"completed_at\":1771000001,\"status\":\"completed\",\"error\":null,\"output_text\":\"\",\"output\":[{\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"Agent works\",\"annotations\":[],\"logprobs\":[]}],\"id\":\"msg_agent_basic_001\",\"role\":\"assistant\"}],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"usage\":{\"input_tokens\":20,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":10,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":30,\"cost\":0,\"is_byok\":true,\"cost_details\":{\"upstream_inference_cost\":0.00001}},\"tools\":[],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":50,\"temperature\":0,\"top_p\":1,\"presence_penalty\":0,\"frequency_penalty\":0,\"top_logprobs\":0,\"max_tool_calls\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":\"disabled\",\"store\":false,\"instructions\":null,\"text\":{\"format\":{\"type\":\"text\"}},\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"user\":null},\"sequence_number\":9}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-cache",
+      "cf-ray": "agent-test-fixture",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "date": "Sat, 14 Mar 2026 00:00:00 GMT",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-content-type-options": "nosniff"
+    },
+    "reqheaders": {
+      "authorization": "Bearer REDACTED_API_KEY",
+      "content-type": "application/json"
+    },
+    "responseIsBinary": false
+  }
+]
