@@ -20,9 +20,9 @@ export const shellTool: Tool = {
     required: ['command'],
   },
   async call(args: Record<string, unknown>) {
-    const { command, timeout = 30000 } = args as { command: string; timeout?: number };
+    const { command, timeout = 30000, cwd } = args as { command: string; timeout?: number; cwd?: string };
     return new Promise(resolve => {
-      exec(command, { timeout, maxBuffer: 1024 * 1024 }, (err, stdout, stderr) => {
+      exec(command, { timeout, maxBuffer: 1024 * 1024, cwd }, (err, stdout, stderr) => {
         resolve({
           stdout: stdout?.slice(0, 50000) || '',
           stderr: (err && !stderr ? err.message : stderr?.slice(0, 50000)) || '',
