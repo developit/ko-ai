@@ -1,6 +1,5 @@
 import { exec } from 'node:child_process';
-import { readFile, writeFile, stat } from 'node:fs/promises';
-import { glob } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import type { Tool } from './index.ts';
 
 export const shellTool: Tool = {
@@ -11,6 +10,11 @@ export const shellTool: Tool = {
     type: 'object',
     properties: {
       command: { type: 'string', description: 'The shell command to execute' },
+      description: {
+        type: 'string',
+        description:
+          'Short description of the command\'s purpose/goal (~100 chars). When provided, this is typically shown to the user instead of the raw command.',
+      },
       timeout: { type: 'number', description: 'Timeout in ms (default: 30000)' },
     },
     required: ['command'],
@@ -102,61 +106,5 @@ export const editFileTool: Tool = {
   },
 };
 
-export const globTool: Tool = {
-  type: 'function',
-  name: 'glob',
-  description: 'Find files matching a glob pattern. Returns an array of matching paths.',
-  parameters: {
-    type: 'object',
-    properties: {
-      pattern: { type: 'string', description: 'Glob pattern (e.g. "src/**/*.ts")' },
-      cwd: { type: 'string', description: 'Working directory (default: process.cwd())' },
-    },
-    required: ['pattern'],
-  },
-  async call(args: Record<string, unknown>) {
-    const { pattern, cwd } = args as { pattern: string; cwd?: string };
-    try {
-      const files: string[] = [];
-      for await (const entry of glob(pattern, { cwd: cwd || process.cwd() })) {
-        files.push(entry);
-        if (files.length >= 1000) break;
-      }
-      return { pattern, files, count: files.length };
-    } catch (e: any) {
-      return { error: e.message };
-    }
-  },
-};
-
-export const grepTool: Tool = {
-  type: 'function',
-  name: 'grep',
-  description: 'Search file contents using a regex pattern. Uses shell grep -rn.',
-  parameters: {
-    type: 'object',
-    properties: {
-      pattern: { type: 'string', description: 'Regex pattern to search for' },
-      path: { type: 'string', description: 'File or directory to search (default: ".")' },
-      include: { type: 'string', description: 'Glob to filter files (e.g. "*.ts")' },
-    },
-    required: ['pattern'],
-  },
-  async call(args: Record<string, unknown>) {
-    const { pattern, path = '.', include } = args as { pattern: string; path?: string; include?: string };
-    const includeFlag = include ? ` --include='${include}'` : '';
-    return new Promise(resolve => {
-      exec(
-        `grep -rn${includeFlag} -- ${JSON.stringify(pattern)} ${JSON.stringify(path)}`,
-        { maxBuffer: 1024 * 1024 },
-        (err, stdout) => {
-          const lines = stdout?.trim().split('\n').filter(Boolean).slice(0, 200) || [];
-          resolve({ pattern, matches: lines, count: lines.length });
-        },
-      );
-    });
-  },
-};
-
 /** All agent tools as a convenient array. */
-export const allTools: Tool[] = [shellTool, readFileTool, writeFileTool, editFileTool, globTool, grepTool];
+export const allTools: Tool[] = [shellTool, readFileTool, writeFileTool, editFileTool];
