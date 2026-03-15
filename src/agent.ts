@@ -1,5 +1,8 @@
-import { resolve } from 'node:path';
 import ai, { type CompleteOptions, type Tool, type StreamChunk } from './index.ts';
+
+/** Resolve a relative path against a base directory (no node:path dependency). */
+const resolvePath = (base: string, rel: string) =>
+  rel.startsWith('/') ? rel : base.replace(/\/+$/, '') + '/' + rel;
 
 export type AgentTool = Tool;
 
@@ -66,7 +69,7 @@ export default function agent(config: AgentConfig): Agent {
     if (!cwd || !PATH_TOOLS.has(name)) return args;
     if (name === 'shell') return args; // shell uses cwd via exec option
     if (typeof args.path === 'string' && !args.path.startsWith('/')) {
-      return { ...args, path: resolve(cwd, args.path) };
+      return { ...args, path: resolvePath(cwd, args.path) };
     }
     return args;
   };
