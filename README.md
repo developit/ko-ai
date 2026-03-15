@@ -1,4 +1,4 @@
-<img src="https://gist.github.com/user-attachments/assets/05ae0dc6-7a0c-4313-9f81-8b0c0d5f567c" width="128" height="128">
+<img src="https://github.com/developit/ko-ai/raw/refs/heads/claude/plan-agent-sdk-frCcz/fixtures/koai.png" width="128" height="128">
 
 # ko-ai (小AI)
 
