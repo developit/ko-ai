@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@preact/signals-core':
+        specifier: ^1.14.0
+        version: 1.14.0
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.1
@@ -370,6 +373,9 @@ packages:
 
   '@preact/signals-core@1.13.0':
     resolution: {integrity: sha512-slT6XeTCAbdql61GVLlGU4x7XHI7kCZV5Um5uhE4zLX4ApgiiXc0UYFvVOKq06xcovzp7p+61l68oPi563ARKg==}
+
+  '@preact/signals-core@1.14.0':
+    resolution: {integrity: sha512-AowtCcCU/33lFlh1zRFf/u+12rfrhtNakj7UpaGEsmMwUKpKWMVvcktOGcwBBNiB4lWrZWc01LhiyyzVklJyaQ==}
 
   '@preact/signals@2.7.0':
     resolution: {integrity: sha512-9rQ030JhUfdBO4xlFB6Iwc/rOBi9IFXaCgu8VrFMSjAJfubGRTTxBPsgSlAF5qmWdY3C91b9kBK09mpUOMh1Rw==}
@@ -2313,9 +2319,11 @@ snapshots:
 
   '@preact/signals-core@1.13.0': {}
 
+  '@preact/signals-core@1.14.0': {}
+
   '@preact/signals@2.7.0(preact@10.28.3)':
     dependencies:
-      '@preact/signals-core': 1.13.0
+      '@preact/signals-core': 1.14.0
       preact: 10.28.3
 
   '@prefresh/babel-plugin@0.5.2': {}
