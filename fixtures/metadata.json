@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-12T16:59:42.905Z",
+  "lastUpdated": "2026-03-16T20:00:00.000Z",
   "provider": "openrouter",
   "fixtures": {
     "text-generation-responses": {
@@ -146,6 +146,18 @@
       "recordedAt": "2026-02-12T16:59:13.626Z",
       "requestCount": 25,
       "checksum": "434cc7299e411b61"
+    },
+    "agent-signals-basic-prompt": {
+      "path": "responses-api/agent-signals-basic-prompt.json",
+      "recordedAt": "2026-03-16T20:00:00.000Z",
+      "requestCount": 1,
+      "checksum": "237da0f8bfaab750"
+    },
+    "agent-signals-tool-calls": {
+      "path": "responses-api/agent-signals-tool-calls.json",
+      "recordedAt": "2026-03-16T20:00:00.000Z",
+      "requestCount": 2,
+      "checksum": "6349dd6d56442f40"
     }
   }
 }

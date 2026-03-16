@@ -1,0 +1,124 @@
+[
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "stream": true,
+      "tools": [
+        {
+          "type": "function",
+          "name": "get_temp",
+          "description": "Get temperature for a city",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "city": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ]
+          }
+        }
+      ],
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "model": "openai/gpt-5-nano",
+      "temperature": 0,
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "What is the temperature in Paris? Use the get_temp tool."
+        }
+      ]
+    },
+    "status": 200,
+    "response": "data: {\"type\":\"response.created\",\"response\":{\"object\":\"response\",\"id\":\"gen-sig-tool-001\",\"created_at\":1771000000,\"completed_at\":null,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"usage\":null,\"tools\":[{\"type\":\"function\",\"name\":\"get_temp\",\"description\":\"Get temperature for a city\",\"parameters\":{\"type\":\"object\",\"properties\":{\"city\":{\"type\":\"string\"}},\"required\":[\"city\"]},\"strict\":null}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":0,\"reasoning\":{\"effort\":\"minimal\"}},\"sequence_number\":0}\n\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"type\":\"function_call\",\"call_id\":\"call_sig_temp_001\",\"name\":\"get_temp\",\"arguments\":\"\",\"id\":\"call_sig_temp_001\",\"status\":\"in_progress\"},\"sequence_number\":1}\n\ndata: {\"type\":\"response.function_call_arguments.delta\",\"item_id\":\"call_sig_temp_001\",\"output_index\":0,\"delta\":\"{\"\",\"sequence_number\":2}\n\ndata: {\"type\":\"response.function_call_arguments.delta\",\"item_id\":\"call_sig_temp_001\",\"output_index\":0,\"delta\":\"city\",\"sequence_number\":3}\n\ndata: {\"type\":\"response.function_call_arguments.delta\",\"item_id\":\"call_sig_temp_001\",\"output_index\":0,\"delta\":\"\\\":\\\"\",\"sequence_number\":4}\n\ndata: {\"type\":\"response.function_call_arguments.delta\",\"item_id\":\"call_sig_temp_001\",\"output_index\":0,\"delta\":\"Paris\",\"sequence_number\":5}\n\ndata: {\"type\":\"response.function_call_arguments.delta\",\"item_id\":\"call_sig_temp_001\",\"output_index\":0,\"delta\":\"\\\"}\", \"sequence_number\":6}\n\ndata: {\"type\":\"response.function_call_arguments.done\",\"item_id\":\"call_sig_temp_001\",\"output_index\":0,\"name\":\"get_temp\",\"arguments\":\"{\\\"city\\\":\\\"Paris\\\"}\",\"sequence_number\":7}\n\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"type\":\"function_call\",\"call_id\":\"call_sig_temp_001\",\"name\":\"get_temp\",\"arguments\":\"{\\\"city\\\":\\\"Paris\\\"}\",\"status\":\"completed\"},\"sequence_number\":8}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"object\":\"response\",\"id\":\"gen-sig-tool-001\",\"created_at\":1771000000,\"completed_at\":1771000001,\"status\":\"completed\",\"error\":null,\"output_text\":\"\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call_sig_temp_001\",\"name\":\"get_temp\",\"arguments\":\"{\\\"city\\\":\\\"Paris\\\"}\",\"status\":\"completed\"}],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"usage\":{\"input_tokens\":40,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":20,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":60,\"cost\":0,\"is_byok\":true,\"cost_details\":{\"upstream_inference_cost\":0.00001}},\"tools\":[{\"type\":\"function\",\"name\":\"get_temp\",\"description\":\"Get temperature for a city\",\"parameters\":{\"type\":\"object\",\"properties\":{\"city\":{\"type\":\"string\"}},\"required\":[\"city\"]},\"strict\":null}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":0,\"reasoning\":{\"effort\":\"minimal\"}},\"sequence_number\":9}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "date": "Mon, 16 Mar 2026 20:00:00 GMT",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-content-type-options": "nosniff"
+    },
+    "reqheaders": {
+      "authorization": "Bearer REDACTED_API_KEY",
+      "content-type": "application/json"
+    },
+    "responseIsBinary": false
+  },
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "stream": true,
+      "tools": [
+        {
+          "type": "function",
+          "name": "get_temp",
+          "description": "Get temperature for a city",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "city": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ]
+          }
+        }
+      ],
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "model": "openai/gpt-5-nano",
+      "temperature": 0,
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "What is the temperature in Paris? Use the get_temp tool."
+        },
+        {
+          "type": "function_call",
+          "call_id": "call_sig_temp_001",
+          "name": "get_temp",
+          "arguments": "{\"city\":\"Paris\"}",
+          "status": "completed"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "call_sig_temp_001",
+          "output": "{\"temperature\":72,\"city\":\"Paris\"}"
+        }
+      ]
+    },
+    "status": 200,
+    "response": "data: {\"type\":\"response.created\",\"response\":{\"object\":\"response\",\"id\":\"gen-sig-tool-002\",\"created_at\":1771000000,\"completed_at\":null,\"status\":\"in_progress\",\"error\":null,\"output_text\":\"\",\"output\":[],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"usage\":null,\"tools\":[{\"type\":\"function\",\"name\":\"get_temp\",\"description\":\"Get temperature for a city\",\"parameters\":{\"type\":\"object\",\"properties\":{\"city\":{\"type\":\"string\"}},\"required\":[\"city\"]},\"strict\":null}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":0,\"reasoning\":{\"effort\":\"minimal\"}},\"sequence_number\":0}\n\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"type\":\"message\",\"status\":\"in_progress\",\"content\":[],\"id\":\"msg_sig_tool_002\",\"role\":\"assistant\"},\"sequence_number\":1}\n\ndata: {\"type\":\"response.content_part.added\",\"item_id\":\"msg_sig_tool_002\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"text\":\"\",\"logprobs\":[]},\"sequence_number\":2}\n\ndata: {\"type\":\"response.output_text.delta\",\"logprobs\":[],\"output_index\":0,\"item_id\":\"msg_sig_tool_002\",\"content_index\":0,\"delta\":\"The temperature in Paris is 72°F.\",\"sequence_number\":3}\n\ndata: {\"type\":\"response.output_text.done\",\"item_id\":\"msg_sig_tool_002\",\"output_index\":0,\"content_index\":0,\"text\":\"The temperature in Paris is 72°F.\",\"logprobs\":[],\"sequence_number\":4}\n\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"The temperature in Paris is 72°F.\",\"annotations\":[],\"logprobs\":[]}],\"id\":\"msg_sig_tool_002\",\"role\":\"assistant\"},\"sequence_number\":5}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"object\":\"response\",\"id\":\"gen-sig-tool-002\",\"created_at\":1771000000,\"completed_at\":1771000001,\"status\":\"completed\",\"error\":null,\"output_text\":\"\",\"output\":[{\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"The temperature in Paris is 72°F.\",\"annotations\":[],\"logprobs\":[]}],\"id\":\"msg_sig_tool_002\",\"role\":\"assistant\"}],\"model\":\"openai/gpt-5-nano\",\"incomplete_details\":null,\"usage\":{\"input_tokens\":30,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":12,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":42,\"cost\":0,\"is_byok\":true,\"cost_details\":{\"upstream_inference_cost\":0.000005}},\"tools\":[{\"type\":\"function\",\"name\":\"get_temp\",\"description\":\"Get temperature for a city\",\"parameters\":{\"type\":\"object\",\"properties\":{\"city\":{\"type\":\"string\"}},\"required\":[\"city\"]},\"strict\":null}],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":0,\"reasoning\":{\"effort\":\"minimal\"}},\"sequence_number\":6}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "access-control-allow-origin": "*",
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "date": "Mon, 16 Mar 2026 20:00:00 GMT",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-content-type-options": "nosniff"
+    },
+    "reqheaders": {
+      "authorization": "Bearer REDACTED_API_KEY",
+      "content-type": "application/json"
+    },
+    "responseIsBinary": false
+  }
+]
