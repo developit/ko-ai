@@ -234,10 +234,10 @@ function truncateContext(maxMessages: number): (msgs: any[]) => any[];
 Requires `@preact/signals-core >= 1.14.0` as a peer dependency.
 
 ```ts
-import { SignalAgentModel, truncateContext } from 'ko-ai/agent-signals';
-import { effect } from '@preact/signals-core';
+import {Agent, truncateContext} from 'ko-ai/agent-signals';
+import {effect} from '@preact/signals-core';
 
-const model = new SignalAgentModel({
+const model = new Agent({
   apiKey: 'sk-...',
   baseURL: 'https://api.openai.com/v1',
   model: 'gpt-4o',
@@ -252,13 +252,13 @@ effect(() => {
 
 // Drive streaming — signals update as events arrive
 for await (const event of model.prompt('List the files in src/')) {
-  // model.items, model.status, model.activeTools, model.usage all update
+  // model.items, model.status, model.pendingTools, model.usage all update
 }
 
 // Clean up (aborts any in-flight prompt)
 model[Symbol.dispose]();
 // Or with TypeScript 5.2+ using declarations:
-// using model = new SignalAgentModel(config);
+// using model = new Agent(config);
 ```
 
 ### Reactive Timeline
@@ -266,17 +266,17 @@ model[Symbol.dispose]();
 Each streamed response entity becomes its own item in `model.items`, keyed by the `.id` from the API. Text, reasoning, and tool calls are never mashed together:
 
 ```ts
-import type { Item, TextItem, ToolCallItem } from 'ko-ai/agent-signals';
+import type {Item, TextItem, ToolCallItem} from 'ko-ai/agent-signals';
 
 effect(() => {
   for (const item of model.items.value) {
     switch (item.kind) {
-      case 'user':     console.log('User:', item.content);          break;
-      case 'text':     console.log('Text:', item.content.value);    break;
-      case 'reasoning':console.log('Thought:', item.content.value); break;
+      case 'user':     console.log('User:', item.content.value);       break;
+      case 'text':     console.log('Text:', item.content.value);       break;
+      case 'reasoning':console.log('Thought:', item.content.value);    break;
       case 'tool_call':
         if (item.pending.value) {
-          console.log(`Calling ${item.id} with`, item.args.value);
+          console.log(`Calling ${item.name.value} with`, item.args.value);
         } else {
           console.log(`Result:`, item.result.value);
         }
@@ -292,11 +292,12 @@ effect(() => {
 |---|---|---|
 | `items` | `ReadonlySignal<Item[]>` | Append-only conversation timeline |
 | `status` | `ReadonlySignal<AgentStatus>` | `'idle' \| 'running' \| 'done' \| 'error'` |
-| `busy` | `ReadonlySignal<boolean>` | `true` while a prompt is running |
 | `turn` | `ReadonlySignal<number>` | Current turn number (0-based) |
-| `usage` | `ReadonlySignal<AgentUsage>` | Cumulative `{input_tokens, output_tokens, total_tokens}` |
-| `error` | `ReadonlySignal<unknown>` | Last error, or `undefined` |
-| `activeTools` | `ReadonlySignal<string[]>` | Names of tool calls currently awaiting results |
+| `usage.input_tokens` | `Signal<number>` | Cumulative input tokens |
+| `usage.output_tokens` | `Signal<number>` | Cumulative output tokens |
+| `usage.total_tokens` | `Signal<number>` | Cumulative total tokens |
+| `error` | `ReadonlySignal<unknown>` | Last error, or `null` |
+| `pendingTools` | `ReadonlySignal<ToolCallItem[]>` | Tool calls currently awaiting results |
 
 ### Actions
 
@@ -311,11 +312,12 @@ effect(() => {
 ### Item Types
 
 ```ts
-type UserItem     = { kind: 'user';      id: string; content: string }
-type TextItem     = { kind: 'text';      id: string; content: Signal<string> }
-type ReasoningItem= { kind: 'reasoning'; id: string; content: Signal<string> }
-type ToolCallItem = { kind: 'tool_call'; id: string; name: string;
-                      args: Signal<string>; result: Signal<unknown>; pending: Signal<boolean> }
+type UserItem      = { kind: 'user';      id: string; content: Signal<string> }
+type TextItem      = { kind: 'text';      id: string; content: Signal<string> }
+type ReasoningItem = { kind: 'reasoning'; id: string; content: Signal<string> }
+type ToolCallItem  = { kind: 'tool_call'; id: string; name: Signal<string>;
+                       args: Signal<string>; result: Signal<unknown>;
+                       error: Signal<unknown>; pending: Signal<boolean> }
 type Item = UserItem | TextItem | ReasoningItem | ToolCallItem
 ```
 

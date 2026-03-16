@@ -1,7 +1,7 @@
-import {describe, it, after} from 'node:test';
+import {after, describe, it} from 'node:test';
 import assert from 'node:assert/strict';
 import {effect} from '@preact/signals-core';
-import {SignalAgentModel, type Item, type TextItem, type ToolCallItem, type AgentStatus} from './agent-signals.ts';
+import {Agent, type Item, type TextItem, type ToolCallItem, type AgentStatus} from './agent-signals.ts';
 import {createFixtureManager, recordReplayTest} from '../test/record-replay.ts';
 
 const fixtureManager = createFixtureManager();
@@ -15,10 +15,10 @@ after(() => {
   fixtureManager.cleanup();
 });
 
-describe('SignalAgentModel', () => {
+describe('Agent', () => {
   describe('initial state', () => {
     it('initialises all signals to their default values', () => {
-      const model = new SignalAgentModel({
+      const model = new Agent({
         apiKey: 'test-key',
         baseURL: 'https://api.example.com/v1',
         model: 'gpt-4o',
@@ -26,11 +26,12 @@ describe('SignalAgentModel', () => {
 
       assert.equal(model.status.value, 'idle');
       assert.equal(model.turn.value, 0);
-      assert.deepEqual(model.usage.value, {input_tokens: 0, output_tokens: 0, total_tokens: 0});
+      assert.equal(model.usage.input_tokens.value, 0);
+      assert.equal(model.usage.output_tokens.value, 0);
+      assert.equal(model.usage.total_tokens.value, 0);
       assert.equal(model.error.value, null);
       assert.deepEqual(model.items.value, []);
-      assert.equal(model.busy.value, false);
-      assert.deepEqual(model.activeTools.value, []);
+      assert.deepEqual(model.pendingTools.value, []);
 
       model[Symbol.dispose]();
     });
@@ -38,7 +39,7 @@ describe('SignalAgentModel', () => {
 
   describe('reset()', () => {
     it('restores all signals to their default values', () => {
-      const model = new SignalAgentModel({
+      const model = new Agent({
         apiKey: 'test-key',
         baseURL: 'https://api.example.com/v1',
         model: 'gpt-4o',
@@ -48,40 +49,25 @@ describe('SignalAgentModel', () => {
 
       assert.equal(model.status.value, 'idle');
       assert.equal(model.turn.value, 0);
-      assert.deepEqual(model.usage.value, {input_tokens: 0, output_tokens: 0, total_tokens: 0});
+      assert.equal(model.usage.input_tokens.value, 0);
+      assert.equal(model.usage.output_tokens.value, 0);
+      assert.equal(model.usage.total_tokens.value, 0);
       assert.equal(model.error.value, null);
       assert.deepEqual(model.items.value, []);
-      assert.equal(model.busy.value, false);
 
       model[Symbol.dispose]();
     });
   });
 
   describe('signal reactivity', () => {
-    it('busy is derived from status', () => {
-      const model = new SignalAgentModel({
+    it('pendingTools is empty when no tool calls are in flight', () => {
+      const model = new Agent({
         apiKey: 'test-key',
         baseURL: 'https://api.example.com/v1',
         model: 'gpt-4o',
       });
 
-      const log: boolean[] = [];
-      const disposeEffect = effect(() => log.push(model.busy.value));
-
-      assert.deepEqual(log, [false]); // initial value recorded by effect
-
-      model[Symbol.dispose]();
-      disposeEffect();
-    });
-
-    it('activeTools returns tool names as strings', () => {
-      const model = new SignalAgentModel({
-        apiKey: 'test-key',
-        baseURL: 'https://api.example.com/v1',
-        model: 'gpt-4o',
-      });
-
-      assert.deepEqual(model.activeTools.value, []);
+      assert.deepEqual(model.pendingTools.value, []);
 
       model[Symbol.dispose]();
     });
@@ -89,7 +75,7 @@ describe('SignalAgentModel', () => {
 
   describe('dispose pattern', () => {
     it('Symbol.dispose is defined and callable', () => {
-      const model = new SignalAgentModel({
+      const model = new Agent({
         apiKey: 'test-key',
         baseURL: 'https://api.example.com/v1',
         model: 'gpt-4o',
@@ -102,7 +88,7 @@ describe('SignalAgentModel', () => {
 
   describe('prompt() — fixture-based streaming tests', () => {
     recordReplayTest(fixtureManager, 'agent-signals-basic-prompt', 'responses', async () => {
-      const model = new SignalAgentModel({
+      const model = new Agent({
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         model: TEST_MODEL,
@@ -124,7 +110,6 @@ describe('SignalAgentModel', () => {
       // Status should have transitioned through running → done
       assert.ok(statuses.includes('running'), 'status should have been running during prompt');
       assert.equal(model.status.value, 'done');
-      assert.equal(model.busy.value, false);
 
       // Items should contain a user item + at least one text or reasoning item
       const kinds = model.items.value.map((i: Item) => i.kind);
@@ -141,7 +126,7 @@ describe('SignalAgentModel', () => {
     });
 
     recordReplayTest(fixtureManager, 'agent-signals-tool-calls', 'responses', async () => {
-      const model = new SignalAgentModel({
+      const model = new Agent({
         apiKey: TEST_API_KEY,
         baseURL: TEST_BASE_URL,
         model: TEST_MODEL,
@@ -163,8 +148,8 @@ describe('SignalAgentModel', () => {
         ],
       });
 
-      const activeToolNames: string[][] = [];
-      const disposeEffect = effect(() => activeToolNames.push([...model.activeTools.value]));
+      const pendingToolSnapshots: string[][] = [];
+      const disposeEffect = effect(() => pendingToolSnapshots.push(model.pendingTools.value.map(t => t.name.value)));
 
       for await (const _ of model.prompt('What is the temperature in Paris? Use the get_temp tool.')) {
         // drain
@@ -179,14 +164,14 @@ describe('SignalAgentModel', () => {
       for (const t of toolItems) {
         assert.equal(t.pending.value, false, `tool item ${t.id} should not be pending`);
         assert.notEqual(t.result.value, null, `tool item ${t.id} should have a result`);
-        assert.equal(t.name, 'get_temp', 'tool item should have correct name');
+        assert.equal(t.name.value, 'get_temp', 'tool item should have correct name');
       }
 
-      // activeTools should be empty at end (all resolved)
-      assert.equal(model.activeTools.value.length, 0, 'no tools should be active after completion');
+      // pendingTools should be empty at end (all resolved)
+      assert.equal(model.pendingTools.value.length, 0, 'no tools should be pending after completion');
 
-      // activeToolNames should have seen the tool name at some point
-      assert.ok(activeToolNames.some(names => names.includes('get_temp')), 'get_temp should have appeared in activeTools');
+      // pendingToolSnapshots should have seen the tool name at some point
+      assert.ok(pendingToolSnapshots.some(names => names.includes('get_temp')), 'get_temp should have appeared in pendingTools');
 
       model[Symbol.dispose]();
     });
