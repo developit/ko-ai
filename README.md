@@ -316,8 +316,7 @@ type UserItem      = { kind: 'user';      id: string; content: Signal<string> }
 type TextItem      = { kind: 'text';      id: string; content: Signal<string> }
 type ReasoningItem = { kind: 'reasoning'; id: string; content: Signal<string> }
 type ToolCallItem  = { kind: 'tool_call'; id: string; name: Signal<string>;
-                       args: Signal<string>; result: Signal<unknown>;
-                       error: Signal<unknown>; pending: Signal<boolean> }
+                       args: Signal<string>; result: Signal<unknown>; pending: Signal<boolean> }
 type Item = UserItem | TextItem | ReasoningItem | ToolCallItem
 ```
 

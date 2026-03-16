@@ -38,7 +38,6 @@ export interface ToolCallItem extends ItemBase<'tool_call'> {
   name: Signal<string>;
   args: Signal<string>;
   result: Signal<unknown>;
-  error: Signal<unknown>;
   pending: Signal<boolean>;
 }
 
@@ -111,15 +110,15 @@ export const Agent: ModelConstructor<AgentModel, [config: AgentConfig]> = create
   const inner = createAgent(config);
 
   // Dispose pattern: abort in-flight on model disposal.
-  effect(() => () => {
-    inner.abort();
-  });
+  effect(() => inner.abort);
 
   // Live lookup map: id → mutable item, for O(1) chunk correlation.
   const live = new Map<string, TextItem | ReasoningItem | ToolCallItem>();
 
   const push = (item: Item) => {
-    items.value = [...items.value, item];
+    const nextItems = items.peek().slice();
+    nextItems.push(item);
+    items.value = nextItems;
   };
 
   async function* prompt(input: string, overrides: Partial<AgentConfig> = {}): AsyncIterableIterator<AgentEvent> {
@@ -130,13 +129,6 @@ export const Agent: ModelConstructor<AgentModel, [config: AgentConfig]> = create
     push({kind: 'user', id: `user_${++uid}`, content: signal(input)});
 
     for await (const event of inner.prompt(input, overrides)) {
-      if ((event as any).usage) {
-        const u = (event as any).usage;
-        usage.input_tokens.value += u.input_tokens || u.prompt_tokens || 0;
-        usage.output_tokens.value += u.output_tokens || u.completion_tokens || 0;
-        usage.total_tokens.value = usage.input_tokens.value + usage.output_tokens.value;
-      }
-
       switch (event.type) {
         case 'turn_start':
           turn.value = event.turn;
@@ -182,7 +174,6 @@ export const Agent: ModelConstructor<AgentModel, [config: AgentConfig]> = create
               name: signal(tc.function.name),
               args: signal(tc.function.arguments),
               result: signal<unknown>(null),
-              error: signal<unknown>(null),
               pending: signal(true),
             };
             live.set(tc.id, item);
@@ -195,9 +186,6 @@ export const Agent: ModelConstructor<AgentModel, [config: AgentConfig]> = create
           const tr = event as ToolResult;
           const item = live.get(tr.id);
           if (item && item.kind === 'tool_call') {
-            if (tr.result && typeof tr.result === 'object' && 'error' in tr.result) {
-              item.error.value = (tr.result as {error: unknown}).error;
-            }
             item.result.value = tr.result;
             item.pending.value = false;
           }
@@ -210,6 +198,10 @@ export const Agent: ModelConstructor<AgentModel, [config: AgentConfig]> = create
           break;
       }
 
+      for (const i in inner.usage) {
+        if (i in usage) (usage as any)[i].value = (inner.usage as any)[i];
+      }
+
       yield event;
     }
 
@@ -217,12 +209,8 @@ export const Agent: ModelConstructor<AgentModel, [config: AgentConfig]> = create
     if (status.value !== 'error') status.value = 'done';
   }
 
-  function steer(message: string) {
-    inner.steer(message);
-  }
-  function queueFollowUp(input: string) {
-    inner.queueFollowUp(input);
-  }
+  const {steer, queueFollowUp} = inner;
+
   function abort() {
     inner.abort();
     live.clear();
