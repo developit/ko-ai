@@ -261,29 +261,25 @@ model[Symbol.dispose]();
 // using model = new Agent(config);
 ```
 
-### Reactive Timeline
+### Rendering in Preact
 
-Each streamed response entity becomes its own item in `model.items`, keyed by the `.id` from the API. Text, reasoning, and tool calls are never mashed together:
+Because every mutable field is a signal, rendering is trivial — no transformation logic needed:
 
-```ts
-import type {Item, TextItem, ToolCallItem} from 'ko-ai/agent-signals';
+```tsx
+import { Agent, useModel } from 'ko-ai/agent-signals';
+import { For } from '@preact/signals/utils';
 
-effect(() => {
-  for (const item of model.items.value) {
-    switch (item.kind) {
-      case 'user':     console.log('User:', item.content.value);       break;
-      case 'text':     console.log('Text:', item.content.value);       break;
-      case 'reasoning':console.log('Thought:', item.content.value);    break;
-      case 'tool_call':
-        if (item.pending.value) {
-          console.log(`Calling ${item.name.value} with`, item.args.value);
-        } else {
-          console.log(`Result:`, item.result.value);
-        }
-        break;
-    }
-  }
-});
+const types = {
+  user:      item => <div class="msg user"><Markdown content={item.content} /></div>,
+  text:      item => <div class="msg text"><Markdown content={item.content} /></div>,
+  reasoning: item => <details><summary>Thinking…</summary>{item.content}</details>,
+  tool_call: item => <div class="tool">{item.name} {item.pending ? '⏳' : '✓'}</div>,
+};
+
+export function Chat({ config }) {
+  const session = useModel(Agent, config);
+  return <For each={session.items}>{item => types[item.kind]?.(item)}</For>;
+}
 ```
 
 ### Signals API
