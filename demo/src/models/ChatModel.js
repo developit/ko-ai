@@ -1,5 +1,5 @@
 import { createModel, signal } from '@preact/signals';
-import ai from 'ko-ai';
+import agent from 'ko-ai/agent';
 import { Bash } from 'just-bash';
 
 export const ChatModel = createModel(function ChatModel(appModel) {
@@ -8,6 +8,8 @@ export const ChatModel = createModel(function ChatModel(appModel) {
   const isStreaming = signal(false);
   const bash = signal(null);
   const fileHandle = signal(null);
+
+  let a = null; // current agent instance
 
   // Initialize bash environment
   const initBash = () => {
@@ -234,6 +236,18 @@ export const ChatModel = createModel(function ChatModel(appModel) {
     ];
   };
 
+  // Create or recreate the agent (called on config changes and clear)
+  const createAgent = () => {
+    a = agent({
+      apiKey: appModel.apiKey.value,
+      baseURL: appModel.baseURL.value,
+      model: appModel.model.value,
+      instructions: appModel.instructions.value,
+      tools: getTools(),
+      mode: 'completions'
+    });
+  };
+
   // Add message to history
   const addMessage = (message) => {
     messages.value = [...messages.value, message];
@@ -254,15 +268,8 @@ export const ChatModel = createModel(function ChatModel(appModel) {
     input.value = '';
     isStreaming.value = true;
 
-    // Create AI session
-    const chat = ai({
-      apiKey: appModel.apiKey.value,
-      baseURL: appModel.baseURL.value,
-      model: appModel.model.value,
-      instructions: appModel.instructions.value,
-      tools: getTools(),
-      mode: 'completions'
-    });
+    // Lazily create agent on first message
+    if (!a) createAgent();
 
     // Prepare assistant message
     let assistantMessage = {
@@ -273,19 +280,17 @@ export const ChatModel = createModel(function ChatModel(appModel) {
     addMessage(assistantMessage);
 
     try {
-      for await (const chunk of chat.send(userMessage)) {
-        if (chunk.type === 'text') {
-          assistantMessage.content += chunk.text;
-          // Update the last message
+      for await (const event of a.prompt(userMessage)) {
+        if (event.type === 'text') {
+          assistantMessage.content += event.text;
           messages.value = [...messages.value];
-        } else if (chunk.type === 'tool_call' && !chunk.streaming) {
-          assistantMessage.toolCalls.push(chunk);
+        } else if (event.type === 'tool_call' && !event.streaming) {
+          assistantMessage.toolCalls.push(event);
           messages.value = [...messages.value];
-        } else if (chunk.type === 'tool_result') {
-          // Find and update the tool call with result
-          const toolCall = assistantMessage.toolCalls.find(tc => tc.id === chunk.id);
+        } else if (event.type === 'tool_result') {
+          const toolCall = assistantMessage.toolCalls.find(tc => tc.id === event.id);
           if (toolCall) {
-            toolCall.result = chunk.result;
+            toolCall.result = event.result;
             messages.value = [...messages.value];
           }
         }
@@ -303,6 +308,7 @@ export const ChatModel = createModel(function ChatModel(appModel) {
   // Clear chat
   const clearChat = () => {
     messages.value = [];
+    a = null; // reset agent so next message starts fresh
   };
 
   return {
