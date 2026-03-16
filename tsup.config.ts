@@ -1,7 +1,7 @@
 import {defineConfig} from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/agent.ts', 'src/agent-tools.ts'],
+  entry: ['src/index.ts', 'src/agent.ts', 'src/agent-tools.ts', 'src/agent-signals.ts'],
   format: 'esm',
   dts: true,
   minify: true,

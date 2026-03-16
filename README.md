@@ -227,6 +227,98 @@ type AgentEvent =
 function truncateContext(maxMessages: number): (msgs: any[]) => any[];
 ```
 
+## Agent Signals
+
+`ko-ai/agent-signals` is a [Preact Signals](https://github.com/preactjs/signals) wrapper around `ko-ai/agent`, built as a Preact Model via `createModel`. It projects the streaming `AgentEvent` iterator into a reactive timeline of typed items, making it trivial to build reactive UIs or wire up `signal-wire`-style server↔client reactivity.
+
+Requires `@preact/signals-core >= 1.14.0` as a peer dependency.
+
+```ts
+import { SignalAgentModel, truncateContext } from 'ko-ai/agent-signals';
+import { effect } from '@preact/signals-core';
+
+const model = new SignalAgentModel({
+  apiKey: 'sk-...',
+  baseURL: 'https://api.openai.com/v1',
+  model: 'gpt-4o',
+  tools: [...],
+});
+
+// React to signal changes (framework-agnostic)
+effect(() => {
+  console.log('status:', model.status.value);
+  console.log('items:', model.items.value.length);
+});
+
+// Drive streaming — signals update as events arrive
+for await (const event of model.prompt('List the files in src/')) {
+  // model.items, model.status, model.activeTools, model.usage all update
+}
+
+// Clean up (aborts any in-flight prompt)
+model[Symbol.dispose]();
+// Or with TypeScript 5.2+ using declarations:
+// using model = new SignalAgentModel(config);
+```
+
+### Reactive Timeline
+
+Each streamed response entity becomes its own item in `model.items`, keyed by the `.id` from the API. Text, reasoning, and tool calls are never mashed together:
+
+```ts
+import type { Item, TextItem, ToolCallItem } from 'ko-ai/agent-signals';
+
+effect(() => {
+  for (const item of model.items.value) {
+    switch (item.kind) {
+      case 'user':     console.log('User:', item.content);          break;
+      case 'text':     console.log('Text:', item.content.value);    break;
+      case 'reasoning':console.log('Thought:', item.content.value); break;
+      case 'tool_call':
+        if (item.pending.value) {
+          console.log(`Calling ${item.id} with`, item.args.value);
+        } else {
+          console.log(`Result:`, item.result.value);
+        }
+        break;
+    }
+  }
+});
+```
+
+### Signals API
+
+| Signal | Type | Description |
+|---|---|---|
+| `items` | `ReadonlySignal<Item[]>` | Append-only conversation timeline |
+| `status` | `ReadonlySignal<AgentStatus>` | `'idle' \| 'running' \| 'done' \| 'error'` |
+| `busy` | `ReadonlySignal<boolean>` | `true` while a prompt is running |
+| `turn` | `ReadonlySignal<number>` | Current turn number (0-based) |
+| `usage` | `ReadonlySignal<AgentUsage>` | Cumulative `{input_tokens, output_tokens, total_tokens}` |
+| `error` | `ReadonlySignal<unknown>` | Last error, or `undefined` |
+| `activeTools` | `ReadonlySignal<string[]>` | Names of tool calls currently awaiting results |
+
+### Actions
+
+| Method | Description |
+|---|---|
+| `prompt(input, overrides?)` | Run a prompt; yields `AgentEvent`s while updating signals |
+| `steer(message)` | Inject a message before the next LLM turn |
+| `queueFollowUp(input)` | Queue a prompt to run after the current completes |
+| `abort()` | Cancel the in-flight prompt |
+| `reset()` | Clear conversation state and replace the inner agent |
+
+### Item Types
+
+```ts
+type UserItem     = { kind: 'user';      id: string; content: string }
+type TextItem     = { kind: 'text';      id: string; content: Signal<string> }
+type ReasoningItem= { kind: 'reasoning'; id: string; content: Signal<string> }
+type ToolCallItem = { kind: 'tool_call'; id: string; name: string;
+                      args: Signal<string>; result: Signal<unknown>; pending: Signal<boolean> }
+type Item = UserItem | TextItem | ReasoningItem | ToolCallItem
+```
+
 ## Agent Tools
 
 `ko-ai/agent-tools` provides ready-made tools for common agent tasks. Node.js only.

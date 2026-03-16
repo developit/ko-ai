@@ -18,6 +18,10 @@
     "./agent-tools": {
       "types": "./dist/agent-tools.d.ts",
       "import": "./dist/agent-tools.js"
+    },
+    "./agent-signals": {
+      "types": "./dist/agent-signals.d.ts",
+      "import": "./dist/agent-signals.js"
     }
   },
   "files": [
@@ -34,7 +38,11 @@
     "test:validate": "node test/validate-fixtures.ts",
     "pretest": "pnpm run build"
   },
+  "peerDependencies": {
+    "@preact/signals-core": ">=1.14.0"
+  },
   "devDependencies": {
+    "@preact/signals-core": "^1.14.0",
     "@types/node": "^24.10.1",
     "mock-openai-api": "^1.0.3",
     "nock": "^14.0.10",
