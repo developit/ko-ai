@@ -37,6 +37,7 @@
     "test:record": "KOAI_TEST_MODE=record node --test **/*.test.ts",
     "test:validate": "node test/validate-fixtures.ts",
     "pretest": "pnpm run build",
+    "prepublishOnly": "pnpm run build",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish"
