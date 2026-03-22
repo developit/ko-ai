@@ -36,12 +36,20 @@
     "test:watch": "node --test --watch **/*.test.ts",
     "test:record": "KOAI_TEST_MODE=record node --test **/*.test.ts",
     "test:validate": "node test/validate-fixtures.ts",
-    "pretest": "pnpm run build"
+    "pretest": "pnpm run build",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "peerDependencies": {
     "@preact/signals-core": ">=1.14.0"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "@preact/signals-core": "^1.14.0",
     "@types/node": "^24.10.1",
     "mock-openai-api": "^1.0.3",
