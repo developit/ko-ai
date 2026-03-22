@@ -41,6 +41,10 @@
     "version-packages": "changeset version",
     "release": "changeset publish"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/developit/ko-ai.git"
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true
