@@ -1,5 +1,11 @@
 # ko-ai
 
+## 0.2.1
+
+### Patch Changes
+
+- b807543: Fix publish missing built types
+
 ## 0.2.0
 
 ### Minor Changes
