@@ -1,7 +1,7 @@
 import {after, describe, it} from 'node:test';
 import assert from 'node:assert/strict';
 import {effect} from '@preact/signals-core';
-import {Agent, type Item, type TextItem, type ToolCallItem, type AgentStatus} from './agent-signals.ts';
+import {Agent, type ImageItem, type Item, type TextItem, type ToolCallItem, type AgentStatus} from './agent-signals.ts';
 import {createFixtureManager, recordReplayTest} from '../test/record-replay.ts';
 
 const fixtureManager = createFixtureManager();
@@ -172,6 +172,29 @@ describe('Agent', () => {
 
       // pendingToolSnapshots should have seen the tool name at some point
       assert.ok(pendingToolSnapshots.some(names => names.includes('get_temp')), 'get_temp should have appeared in pendingTools');
+
+      model[Symbol.dispose]();
+    });
+
+    // Reuses the image fixture recorded for the base client, so generated images are known to
+    // reach the reactive timeline rather than being dropped one level up.
+    recordReplayTest(fixtureManager, 'image-streaming-responses', 'responses', async () => {
+      const model = new Agent({
+        apiKey: TEST_API_KEY,
+        baseURL: TEST_BASE_URL,
+        model: 'google/gemini-3.1-flash-lite-image',
+        mode: 'responses',
+        modalities: ['image', 'text'],
+      });
+
+      for await (const _ of model.prompt('a single blue dot, tiny')) {
+        // drain
+      }
+
+      const images = model.items.value.filter((i: Item) => i.kind === 'image') as ImageItem[];
+      assert.equal(images.length, 1, 'should have one image item');
+      assert.ok(images[0].url.startsWith('data:image/'), 'image item should carry the data URL');
+      assert.ok(images[0].id, 'image item should have an id');
 
       model[Symbol.dispose]();
     });
