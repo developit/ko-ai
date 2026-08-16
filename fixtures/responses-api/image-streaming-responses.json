@@ -1,0 +1,28 @@
+[
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/responses",
+    "body": {
+      "stream": true,
+      "model": "google/gemini-3.1-flash-lite-image",
+      "modalities": [
+        "image",
+        "text"
+      ],
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": "a single blue dot, tiny"
+        }
+      ]
+    },
+    "status": 200,
+    "response": "data: {\"type\":\"response.created\",\"response\":{\"id\":\"gen-1786850461-OtLFY1wAvX6FYZewEvWI\",\"object\":\"response\",\"created_at\":1786850462,\"model\":\"google/gemini-3.1-flash-lite-image\",\"status\":\"in_progress\",\"completed_at\":null,\"output\":[],\"error\":null,\"incomplete_details\":null,\"tools\":[],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":1,\"top_p\":1,\"presence_penalty\":0,\"frequency_penalty\":0,\"top_logprobs\":0,\"max_tool_calls\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"auto\",\"truncation\":\"disabled\",\"store\":false,\"instructions\":null,\"text\":{\"format\":{\"type\":\"text\"}},\"reasoning\":null,\"safety_identifier\":null,\"prompt_cache_key\":null,\"prompt_cache_options\":null,\"usage\":null},\"sequence_number\":0}\n\ndata: {\"type\":\"response.output_item.done\",\"output_index\":1,\"item\":{\"id\":\"ig_tmp_8fn6mjhued\",\"type\":\"image_generation_call\",\"status\":\"completed\",\"result\":\"data:image/png;base64,iVBORw0KGgo=\"},\"sequence_number\":6}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"id\":\"gen-1786850461-OtLFY1wAvX6FYZewEvWI\",\"object\":\"response\",\"created_at\":1786850462,\"model\":\"google/gemini-3.1-flash-lite-image\",\"status\":\"completed\",\"completed_at\":1786850463,\"output\":[{\"id\":\"rs_tmp_tik4wi2zd8a\",\"type\":\"reasoning\",\"status\":\"completed\",\"summary\":[],\"signature\":\"SIG\"},{\"id\":\"ig_tmp_8fn6mjhued\",\"type\":\"image_generation_call\",\"status\":\"completed\",\"result\":\"data:image/png;base64,iVBORw0KGgo=\"}],\"error\":null,\"incomplete_details\":null,\"tools\":[],\"tool_choice\":\"auto\",\"parallel_tool_calls\":true,\"max_output_tokens\":null,\"temperature\":1,\"top_p\":1,\"presence_penalty\":0,\"frequency_penalty\":0,\"top_logprobs\":0,\"max_tool_calls\":null,\"metadata\":{},\"background\":false,\"previous_response_id\":null,\"service_tier\":\"default\",\"truncation\":\"disabled\",\"store\":false,\"instructions\":null,\"text\":{\"format\":{\"type\":\"text\"}},\"reasoning\":{\"effort\":\"minimal\"},\"safety_identifier\":null,\"prompt_cache_key\":null,\"prompt_cache_options\":null,\"usage\":{\"input_tokens\":7,\"input_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0},\"output_tokens\":1416,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":1423,\"cost\":0.0337052925,\"is_byok\":false,\"cost_details\":{\"upstream_inference_cost\":0.03404575,\"upstream_inference_input_cost\":0.00000175,\"upstream_inference_output_cost\":0.034044}}},\"sequence_number\":9}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "content-type": "text/event-stream"
+    },
+    "responseIsBinary": false
+  }
+]

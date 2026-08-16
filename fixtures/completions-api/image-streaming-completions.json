@@ -1,0 +1,27 @@
+[
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/chat/completions",
+    "body": {
+      "stream": true,
+      "model": "google/gemini-3.1-flash-lite-image",
+      "modalities": [
+        "image",
+        "text"
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "A red dot"
+        }
+      ]
+    },
+    "status": 200,
+    "response": "data: {\"id\":\"gen-img-1\",\"provider\":\"Google\",\"model\":\"google/gemini-3.1-flash-lite-image\",\"object\":\"chat.completion.chunk\",\"created\":1771000000,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"Here it is: \"},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}\n\ndata: {\"id\":\"gen-img-1\",\"provider\":\"Google\",\"model\":\"google/gemini-3.1-flash-lite-image\",\"object\":\"chat.completion.chunk\",\"created\":1771000000,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"images\":[{\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,iVBORw0KGgo=\"}}]},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}]}\n\ndata: {\"id\":\"gen-img-1\",\"provider\":\"Google\",\"model\":\"google/gemini-3.1-flash-lite-image\",\"object\":\"chat.completion.chunk\",\"created\":1771000000,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null,\"native_finish_reason\":null,\"logprobs\":null}],\"usage\":{\"prompt_tokens\":8,\"completion_tokens\":300,\"total_tokens\":308}}\n\ndata: [DONE]\n\n",
+    "rawHeaders": {
+      "content-type": "text/event-stream"
+    },
+    "responseIsBinary": false
+  }
+]

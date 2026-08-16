@@ -11,6 +11,10 @@ const LIVE_API_KEY = process.env.OPENROUTER_API_KEY;
 const TEST_BASE_URL = 'https://openrouter.ai/api/v1';
 const TEST_API_KEY = LIVE_API_KEY || 'mock-api-key';
 const TEST_MODEL = 'openai/gpt-5-nano'; // Cheap model supporting both modes
+const IMAGE_MODEL = 'google/gemini-3.1-flash-lite-image';
+
+// The image fixtures are hand-written with tiny placeholder data URLs. Do NOT re-record them
+// (KOAI_UPDATE_FIXTURES): a real generated image is 1-2MB of base64 per response.
 
 // Cleanup after all tests
 after(() => {
@@ -105,6 +109,12 @@ describe('AI Client Tests', () => {
         assert.ok(chunks.length > 0, 'No chunks received in responses mode');
         const hasContent = chunks.some((c) => c.type === 'text' || c.type === 'reasoning');
         assert.ok(hasContent, 'No text/reasoning chunks in responses mode');
+
+        // Usage is reported once per response, before done.
+        const usage = chunks.filter(c => c.type === 'usage');
+        assert.equal(usage.length, 1, `Expected one usage chunk, got ${usage.length}`);
+        assert.equal(typeof (usage[0].usage.total_tokens ?? usage[0].usage.output_tokens), 'number');
+        assert.equal(chunks.at(-1)?.type, 'done', 'Should end with done chunk');
         console.log(`responses mode streamed ${chunks.length} chunks`);
       }
     );
@@ -127,6 +137,12 @@ describe('AI Client Tests', () => {
         assert.ok(chunks.length > 0, 'No chunks received in completions mode');
         const hasContent = chunks.some((c) => c.type === 'text' || c.type === 'reasoning');
         assert.ok(hasContent, 'No text/reasoning chunks in completions mode');
+
+        // Usage is reported once per response, before done.
+        const usage = chunks.filter(c => c.type === 'usage');
+        assert.equal(usage.length, 1, `Expected one usage chunk, got ${usage.length}`);
+        assert.equal(typeof (usage[0].usage.total_tokens ?? usage[0].usage.completion_tokens), 'number');
+        assert.equal(chunks.at(-1)?.type, 'done', 'Should end with done chunk');
         console.log(`completions mode streamed ${chunks.length} chunks`);
       }
     );
@@ -741,6 +757,191 @@ describe('AI Client Tests', () => {
         assert.ok(syncCalled, 'Sync function should have been called');
         assert.equal(toolResult.result?.success, true, 'Should return sync result');
         console.log('Sync tool test passed:', toolResult.result);
+      }
+    );
+  });
+
+  describe('Image output', () => {
+    recordReplayTest(
+      fixtureManager,
+      'image-streaming-completions',
+      'completions',
+      async () => {
+        const chat = ai({
+          apiKey: TEST_API_KEY,
+          baseURL: TEST_BASE_URL,
+          mode: 'completions',
+          model: IMAGE_MODEL,
+          modalities: ['image', 'text'],
+        });
+        const chunks = await Array.fromAsync(chat.send('A red dot'));
+
+        const images = chunks.filter(c => c.type === 'image');
+        assert.equal(images.length, 1, 'Should have exactly one image chunk');
+        assert.ok(images[0].url.startsWith('data:image/'), 'Image url should be a data URL');
+        assert.ok(images[0].id, 'Image chunk should have an id');
+
+        // Images are whole blocks, so they must not share an id with the text they arrive beside.
+        const text = chunks.filter(c => c.type === 'text');
+        assert.ok(text.length, 'Should have text chunks alongside the image');
+        assert.ok(!text.some(t => t.id === images[0].id), 'Image id should differ from text id');
+
+        const usage = chunks.filter(c => c.type === 'usage');
+        assert.equal(usage.length, 1, 'Should emit exactly one usage chunk');
+        assert.equal(typeof usage[0].usage.total_tokens, 'number', 'Usage should carry token counts');
+        assert.equal(chunks.at(-1)?.type, 'done', 'Should end with done chunk');
+
+        // History must carry the image back, in the shape the API returned it.
+        const last = chat.messages.at(-1);
+        assert.equal(last.role, 'assistant');
+        assert.equal(last.content, text.map(t => t.text).join(''), 'Assistant text should be preserved');
+        assert.equal(last.images?.length, 1, 'Assistant message should carry the image');
+        assert.equal(last.images[0].image_url.url, images[0].url, 'History image should match the emitted chunk');
+        console.log('Image streaming: chunks =', chunks.map(c => c.type).join(', '));
+      }
+    );
+
+    recordReplayTest(
+      fixtureManager,
+      'image-non-streaming-completions',
+      'completions',
+      async () => {
+        const chat = ai({
+          apiKey: TEST_API_KEY,
+          baseURL: TEST_BASE_URL,
+          mode: 'completions',
+          model: IMAGE_MODEL,
+          modalities: ['image', 'text'],
+        });
+        const chunks = await Array.fromAsync(chat.send('A red dot', {stream: false}));
+
+        const images = chunks.filter(c => c.type === 'image');
+        assert.equal(images.length, 1, 'Should have exactly one image chunk');
+        assert.ok(images[0].url.startsWith('data:image/'), 'Image url should be a data URL');
+        assert.ok(chunks.some(c => c.type === 'usage'), 'Should emit a usage chunk');
+        assert.equal(chunks.at(-1)?.type, 'done', 'Should end with done chunk');
+
+        const last = chat.messages.at(-1);
+        assert.equal(last.images?.length, 1, 'Assistant message should carry the image');
+        assert.equal(last.images[0].image_url.url, images[0].url);
+        console.log('Image non-streaming: chunks =', chunks.map(c => c.type).join(', '));
+      }
+    );
+
+    recordReplayTest(
+      fixtureManager,
+      'image-only-completions',
+      'completions',
+      async () => {
+        const chat = ai({
+          apiKey: TEST_API_KEY,
+          baseURL: TEST_BASE_URL,
+          mode: 'completions',
+          model: IMAGE_MODEL,
+          modalities: ['image', 'text'],
+        });
+        const chunks = await Array.fromAsync(chat.send('A red dot, image only'));
+
+        const images = chunks.filter(c => c.type === 'image');
+        assert.equal(images.length, 1, 'Should have exactly one image chunk');
+        assert.ok(!chunks.some(c => c.type === 'text'), 'Turn produced no text');
+
+        // The whole point: an image-only turn still appends exactly one assistant message,
+        // so the history never ends up with two user messages in a row.
+        assert.equal(chat.messages.length, 2, `Expected user + assistant, got ${chat.messages.length}`);
+        assert.equal(chat.messages[0].role, 'user');
+        assert.equal(chat.messages[1].role, 'assistant');
+        assert.equal(chat.messages[1].content, '', 'Assistant content should be an empty string, not absent');
+        assert.equal(chat.messages[1].images[0].image_url.url, images[0].url);
+        console.log('Image-only: history =', chat.messages.map(m => m.role).join(', '));
+      }
+    );
+
+    recordReplayTest(
+      fixtureManager,
+      'image-multi-turn-completions',
+      'completions',
+      async () => {
+        const chat = ai({
+          apiKey: TEST_API_KEY,
+          baseURL: TEST_BASE_URL,
+          mode: 'completions',
+          model: IMAGE_MODEL,
+          modalities: ['image', 'text'],
+        });
+
+        const first = await Array.fromAsync(chat.send('A red dot'));
+        const firstImage = first.find(c => c.type === 'image');
+        assert.ok(firstImage, 'First turn should yield an image');
+
+        // Nock matches on the exact request body, so this second send only succeeds if the
+        // assistant message (with its images) was replayed into the outgoing request.
+        const second = await Array.fromAsync(chat.send('Now make it bluer'));
+        const secondImage = second.find(c => c.type === 'image');
+        assert.ok(secondImage, 'Second turn should yield an edited image');
+        assert.notEqual(secondImage.url, firstImage.url, 'Second turn should return a different image');
+
+        assert.equal(chat.messages.length, 4, `Expected user/assistant/user/assistant, got ${chat.messages.length}`);
+        assert.deepEqual(chat.messages.map(m => m.role), ['user', 'assistant', 'user', 'assistant']);
+        assert.equal(chat.messages[1].images[0].image_url.url, firstImage.url);
+        assert.equal(chat.messages[3].images[0].image_url.url, secondImage.url);
+        console.log('Image multi-turn: history =', chat.messages.map(m => m.role).join(', '));
+      }
+    );
+
+    // Responses mode returns generated images as `image_generation_call` output items, which
+    // only appear on the completed response — never as deltas — so they surface in both modes.
+    recordReplayTest(
+      fixtureManager,
+      'image-streaming-responses',
+      'responses',
+      async () => {
+        const chat = ai({
+          apiKey: TEST_API_KEY,
+          baseURL: TEST_BASE_URL,
+          mode: 'responses',
+          model: IMAGE_MODEL,
+          modalities: ['image', 'text'],
+        });
+        const chunks = await Array.fromAsync(chat.send('a single blue dot, tiny'));
+
+        const images = chunks.filter(c => c.type === 'image');
+        assert.equal(images.length, 1, 'Should have exactly one image chunk while streaming');
+        assert.ok(images[0].url.startsWith('data:image/'), 'Image url should be a data URL');
+        assert.ok(chunks.some(c => c.type === 'usage'), 'Should emit a usage chunk');
+        assert.equal(chunks.at(-1)?.type, 'done', 'Should end with done chunk');
+
+        // Responses mode replays output items verbatim, so history needs no special handling.
+        const item = chat.conversation.find(i => i.type === 'image_generation_call');
+        assert.ok(item, 'Image item should be preserved in conversation history');
+        assert.equal(item.result, images[0].url, 'History item should hold the emitted image');
+        console.log('Image responses streaming: chunks =', chunks.map(c => c.type).join(', '));
+      }
+    );
+
+    recordReplayTest(
+      fixtureManager,
+      'image-non-streaming-responses',
+      'responses',
+      async () => {
+        const chat = ai({
+          apiKey: TEST_API_KEY,
+          baseURL: TEST_BASE_URL,
+          mode: 'responses',
+          model: IMAGE_MODEL,
+          modalities: ['image', 'text'],
+        });
+        const chunks = await Array.fromAsync(chat.send('a single blue dot, tiny', {stream: false}));
+
+        const images = chunks.filter(c => c.type === 'image');
+        assert.equal(images.length, 1, 'Should have exactly one image chunk');
+        assert.ok(images[0].url.startsWith('data:image/'), 'Image url should be a data URL');
+        assert.equal(chunks.at(-1)?.type, 'done', 'Should end with done chunk');
+
+        const item = chat.conversation.find(i => i.type === 'image_generation_call');
+        assert.ok(item, 'Image item should be preserved in conversation history');
+        assert.equal(item.result, images[0].url);
+        console.log('Image responses non-streaming: chunks =', chunks.map(c => c.type).join(', '));
       }
     );
   });

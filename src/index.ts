@@ -26,9 +26,22 @@ export type ToolResult = { type: "tool_result"; result: unknown } & Omit<
   "type"
 >;
 
+/** Token accounting, as reported by the provider. Extra fields vary by provider. */
+export type Usage = {
+  input_tokens?: number;
+  output_tokens?: number;
+  prompt_tokens?: number;
+  completion_tokens?: number;
+  total_tokens?: number;
+  [key: string]: any;
+};
+
 export type StreamChunk =
   | { type: "text"; text: string; id: string }
   | { type: "reasoning"; text: string; id: string }
+  /** A generated image. `url` is usually a `data:` URL, which carries its own mime type. */
+  | { type: "image"; url: string; id: string }
+  | { type: "usage"; usage: Usage }
   | ToolCall
   | ToolResult
   | { type: "done" };
@@ -53,6 +66,8 @@ export interface CompleteOptions {
   max_output_tokens?: number;
   reasoning?: { effort?: string };
   tool_choice?: string;
+  /** Output modalities to request, e.g. `["image", "text"]`. */
+  modalities?: string[];
 }
 
 export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
@@ -133,16 +148,22 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
       const pendingCalls: ToolCall[] = [];
       const toolCallMap: Record<any, ToolCall> = {};
       const outputItems: any[] = [];
+      const assistantImages: any[] = [];
       let assistantContent = "";
       let reasoningContent = "";
       let messageId = "";
       let resp: any;
 
       const saveAssistant = () => {
-        if (c && (assistantContent || reasoningContent)) {
+        if (c && (assistantContent || reasoningContent || assistantImages.length)) {
           const msg: any = { role: "assistant" };
           if (assistantContent) msg.content = assistantContent;
           if (reasoningContent) msg.reasoning_content = reasoningContent;
+          // Images must go back as-received, or the model can't iterate on what it made.
+          if (assistantImages.length) {
+            msg.content ??= "";
+            msg.images = assistantImages;
+          }
           messages.push(msg);
         }
       };
@@ -197,6 +218,8 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
               const data = JSON.parse(dataLine);
               if (!stream) buffer = "";
               messageId = data.id || data.response?.id || messageId;
+              const usage = data.usage || data.response?.usage;
+              if (usage) yield { type: "usage", usage };
               const choice = data.choices?.[0];
               if (choice) {
 								// Completions API
@@ -228,6 +251,12 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
                     }
                     chunk = call;
                   }
+                }
+                // Not part of the chain above: a delta can carry content and images together.
+                for (const img of delta?.images || []) {
+                  const url = img.image_url?.url;
+                  if (url) yield { type: "image", url, id: messageId + "_I" + assistantImages.length };
+                  assistantImages.push(img);
                 }
                 // finish_reason signals end of content - [DONE] will handle cleanup
               } else if (data.delta) {
@@ -262,8 +291,11 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
               } else if ((resp = data.response || data).status == "completed") {
                 if (resp.output) {
                   outputItems.push(...resp.output);
-                  if (!stream) {
-                    for (const item of resp.output) {
+                  for (const item of resp.output) {
+                    // Images never arrive as deltas, so they surface here in both modes.
+                    if (item.type == "image_generation_call") {
+                      yield { type: "image", url: item.result, id: item.id };
+                    } else if (!stream) {
                       if (item.type == "function_call") {
                         pendingCalls.push(chunk = {
                           type: "tool_call",
@@ -271,8 +303,8 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
                           function: item,
                         });
                       }
-                      for (const c of item.content || []) {
-                        if (c.text) yield { type: "text", text: c.text, id: messageId };
+                      for (const p of item.content || []) {
+                        if (p.text) yield { type: "text", text: p.text, id: messageId };
                       }
                     }
                   }
@@ -285,8 +317,6 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
                   return;
                 }
                 continue;
-              } else if (data.usage || data.type == "response.completed") {
-                yield data;
               }
             } catch {}
 
@@ -339,6 +369,7 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
           tool_calls: pendingCalls.map((tc) => ({ ...tc, type: "function" })),
         };
         if (reasoningContent) msg.reasoning_content = reasoningContent;
+        if (assistantImages.length) msg.images = assistantImages;
         messages.push(
           msg,
           ...pendingCalls.map((tc, i) => ({
