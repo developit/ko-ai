@@ -11,6 +11,7 @@ A minimalist, zero-dependency OpenAI-compatible streaming client with automatic 
 - **Dual API support** - Responses (default) and Completions modes
 - **Streaming** - Async generator with typed chunks
 - **Tool calling** - Inline handlers or callback dispatch
+- **Image output** - Generated images are surfaced *and* kept in history, so you can iterate on them
 
 ## Usage
 
@@ -86,6 +87,33 @@ ai({ mode: 'responses', ... })  // Modern Responses API (default)
 ai({ mode: 'completions', ... }) // Legacy Completions API
 ```
 
+### Image Output
+
+Ask an image-capable model for images via `modalities`. Generated images arrive as `image` chunks
+whose `url` is a data URL you can use directly, and they're written back into the conversation
+history — so the model can see what it made and edit it on the next turn:
+
+```js
+const chat = ai({
+  apiKey: 'sk-...',
+  baseURL: 'https://openrouter.ai/api/v1',
+  model: 'google/gemini-3.1-flash-lite-image',
+  modalities: ['image', 'text'],
+});
+
+for await (const chunk of chat.send('a single blue dot, tiny')) {
+  if (chunk.type === 'image') render(`<img src="${chunk.url}">`);
+}
+
+// The previous image is replayed to the model, so this edits it rather than starting over.
+for await (const chunk of chat.send('now make it green')) {
+  if (chunk.type === 'image') render(`<img src="${chunk.url}">`);
+}
+```
+
+Works in both API modes. Completions mode returns images on the assistant message (`images`), and
+responses mode returns them as `image_generation_call` output items; both surface as `image` chunks.
+
 ## API
 
 ```ts
@@ -99,6 +127,7 @@ interface Config {
   tools?: Tool[];
   onToolCall?: (name: string, args: object) => unknown;
   mode?: 'responses' | 'completions';  // default: 'responses'
+  modalities?: string[];        // e.g. ['image', 'text']
   temperature?: number;
   max_output_tokens?: number;
   reasoning?: { effort?: string; enabled?: boolean };
@@ -112,12 +141,17 @@ interface ChatSession {
 }
 
 type StreamChunk =
-  | { type: 'text'; text: string }
-  | { type: 'reasoning'; text: string }
+  | { type: 'text'; text: string; id: string }
+  | { type: 'reasoning'; text: string; id: string }
+  | { type: 'image'; url: string; id: string }     // url is usually a data: URL
+  | { type: 'usage'; usage: Usage }                // token counts, once per response
   | { type: 'tool_call'; id: string; function: { name: string; arguments: string }; streaming: boolean }
   | { type: 'tool_result'; id: string; function: {...}; result: unknown }
   | { type: 'done' };
 ```
+
+Chunks of the same block share an `id`, so consumers can fold streamed fragments together. Each
+image gets its own `id`, since an image always arrives whole.
 
 ## Agent SDK
 
@@ -273,6 +307,7 @@ const types = {
   user:      item => <div class="msg user"><Markdown content={item.content} /></div>,
   text:      item => <div class="msg text"><Markdown content={item.content} /></div>,
   reasoning: item => <details><summary>Thinking…</summary>{item.content}</details>,
+  image:     item => <img src={item.url} />,
   tool_call: item => <div class="tool">{item.name} {item.pending ? '⏳' : '✓'}</div>,
 };
 
@@ -311,9 +346,10 @@ export function Chat({ config }) {
 type UserItem      = { kind: 'user';      id: string; content: Signal<string> }
 type TextItem      = { kind: 'text';      id: string; content: Signal<string> }
 type ReasoningItem = { kind: 'reasoning'; id: string; content: Signal<string> }
+type ImageItem     = { kind: 'image';     id: string; url: string }
 type ToolCallItem  = { kind: 'tool_call'; id: string; name: Signal<string>;
                        args: Signal<string>; result: Signal<unknown>; pending: Signal<boolean> }
-type Item = UserItem | TextItem | ReasoningItem | ToolCallItem
+type Item = UserItem | TextItem | ReasoningItem | ImageItem | ToolCallItem
 ```
 
 ## Agent Tools
@@ -343,8 +379,8 @@ When `cwd` is set on the agent, relative paths passed to these tools are resolve
 
 | Metric      | Size       |
 | ----------- | ---------- |
-| Minified    | 3.1 KB     |
-| **Gzipped** | **1.5 KB** |
+| Minified    | 3.9 KB     |
+| **Gzipped** | **1.8 KB** |
 
 ## Testing
 

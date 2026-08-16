@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-03-16T20:00:00.000Z",
+  "lastUpdated": "2026-08-16T00:00:00.000Z",
   "provider": "openrouter",
   "fixtures": {
     "text-generation-responses": {
@@ -158,6 +158,42 @@
       "recordedAt": "2026-03-16T20:00:00.000Z",
       "requestCount": 2,
       "checksum": "6349dd6d56442f40"
+    },
+    "image-streaming-completions": {
+      "path": "completions-api/image-streaming-completions.json",
+      "recordedAt": "2026-08-16T00:00:00.000Z",
+      "requestCount": 1,
+      "checksum": "8f98119ce65f9431"
+    },
+    "image-non-streaming-completions": {
+      "path": "completions-api/image-non-streaming-completions.json",
+      "recordedAt": "2026-08-16T00:00:00.000Z",
+      "requestCount": 1,
+      "checksum": "ca05803f4ed751fc"
+    },
+    "image-only-completions": {
+      "path": "completions-api/image-only-completions.json",
+      "recordedAt": "2026-08-16T00:00:00.000Z",
+      "requestCount": 1,
+      "checksum": "f583d7b7c2d1dbd9"
+    },
+    "image-multi-turn-completions": {
+      "path": "completions-api/image-multi-turn-completions.json",
+      "recordedAt": "2026-08-16T00:00:00.000Z",
+      "requestCount": 2,
+      "checksum": "ca067357944dbfc2"
+    },
+    "image-streaming-responses": {
+      "path": "responses-api/image-streaming-responses.json",
+      "recordedAt": "2026-08-16T00:00:00.000Z",
+      "requestCount": 1,
+      "checksum": "f0d7d1000637bd02"
+    },
+    "image-non-streaming-responses": {
+      "path": "responses-api/image-non-streaming-responses.json",
+      "recordedAt": "2026-08-16T00:00:00.000Z",
+      "requestCount": 1,
+      "checksum": "0ee8328e277fa426"
     }
   }
 }

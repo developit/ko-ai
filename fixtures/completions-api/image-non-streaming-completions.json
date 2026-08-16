@@ -1,0 +1,60 @@
+[
+  {
+    "scope": "https://openrouter.ai:443",
+    "method": "POST",
+    "path": "/api/v1/chat/completions",
+    "body": {
+      "stream": false,
+      "model": "google/gemini-3.1-flash-lite-image",
+      "modalities": [
+        "image",
+        "text"
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "A red dot"
+        }
+      ]
+    },
+    "status": 200,
+    "response": {
+      "id": "gen-ns-1",
+      "provider": "Google",
+      "model": "google/gemini-3.1-flash-lite-image",
+      "object": "chat.completion",
+      "created": 1771000000,
+      "choices": [
+        {
+          "index": 0,
+          "finish_reason": "stop",
+          "native_finish_reason": "stop",
+          "logprobs": null,
+          "message": {
+            "role": "assistant",
+            "content": "A dot: ",
+            "refusal": null,
+            "reasoning": null,
+            "images": [
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "data:image/jpeg;base64,/9j/4AA="
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 8,
+        "completion_tokens": 290,
+        "total_tokens": 298
+      }
+    },
+    "rawHeaders": {
+      "content-type": "application/json"
+    },
+    "responseIsBinary": false
+  }
+]

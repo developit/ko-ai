@@ -41,7 +41,12 @@ export interface ToolCallItem extends ItemBase<'tool_call'> {
   pending: Signal<boolean>;
 }
 
-export type Item = UserItem | TextItem | ReasoningItem | ToolCallItem;
+/** A generated image. Arrives whole, so nothing here mutates over time. */
+export interface ImageItem extends ItemBase<'image'> {
+  url: string;
+}
+
+export type Item = UserItem | TextItem | ReasoningItem | ToolCallItem | ImageItem;
 
 // ── Agent ──────────────────────────────────────────────────────────────────
 
@@ -157,6 +162,12 @@ export const Agent: ModelConstructor<AgentModel, [config: AgentConfig]> = create
             live.set(e.id, item);
             push(item);
           }
+          break;
+        }
+
+        case 'image': {
+          const e = event as Extract<StreamChunk, {type: 'image'}>;
+          push({kind: 'image', id: e.id, url: e.url});
           break;
         }
 
