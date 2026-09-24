@@ -53,6 +53,11 @@
   "peerDependencies": {
     "@preact/signals-core": ">=1.14.0"
   },
+  "peerDependenciesMeta": {
+    "@preact/signals-core": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",
     "@preact/signals-core": "^1.14.0",

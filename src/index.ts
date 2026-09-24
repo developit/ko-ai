@@ -26,11 +26,22 @@ export type ToolResult = { type: "tool_result"; result: unknown } & Omit<
   "type"
 >;
 
+export type Usage = {
+  input_tokens?: number;
+  output_tokens?: number;
+  prompt_tokens?: number;
+  completion_tokens?: number;
+  total_tokens?: number;
+  /** Provider-reported cost (e.g. OpenRouter with `usage: {include: true}`). */
+  cost?: number;
+};
+
 export type StreamChunk =
   | { type: "text"; text: string; id: string }
   | { type: "reasoning"; text: string; id: string }
   | ToolCall
   | ToolResult
+  | { type: "usage"; usage: Usage }
   | { type: "done" };
 
 export type ApiMode = "completions" | "responses";
@@ -53,6 +64,16 @@ export interface CompleteOptions {
   max_output_tokens?: number;
   reasoning?: { effort?: string };
   tool_choice?: string;
+  /** Retries for 429, 5xx and network errors, backing off exponentially and honoring Retry-After (default 2). */
+  retries?: number;
+  /** Base backoff delay in ms (default 500). */
+  retryDelay?: number;
+  /**
+   * Max tool-call round trips per `send()` (default: unlimited). The request
+   * after the last allowed round sends `tool_choice: "none"`, so the model has
+   * to answer in text; tool calls it makes anyway are yielded but not run.
+   */
+  maxToolRounds?: number;
 }
 
 export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
@@ -84,6 +105,9 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
       tools,
       onToolCall,
       stream = true,
+      retries = 2,
+      retryDelay = 500,
+      maxToolRounds = Infinity,
       mode: _mode,
       input: _input,
       ...rest
@@ -129,6 +153,42 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
       conversation.push({ type: "message", role: "user", content: _input });
     }
 
+    // POST with retries: transient failures (429, 5xx, network) back off and
+    // try again; anything else throws an Error carrying the HTTP `status`.
+    const post = async (headers: Record<string, string>) => {
+      for (let attempt = 0; ; attempt++) {
+        let response: Response | undefined;
+        let error: unknown;
+        try {
+          response = await fetch(endpoint, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(body),
+            signal,
+          });
+          if (response.ok) return response;
+        } catch (e) {
+          if (signal?.aborted) throw e;
+          error = e;
+        }
+        const status = response?.status;
+        const retryable = !response || status == 429 || status! >= 500;
+        if (!retryable || attempt >= retries || signal?.aborted) {
+          if (!response) throw error;
+          throw Object.assign(Error(await response.text()), { status });
+        }
+        const after = response?.headers.get("retry-after");
+        let wait = retryDelay * 2 ** attempt;
+        if (after) {
+          const secs = Number(after);
+          wait = isNaN(secs) ? Date.parse(after) - Date.now() : secs * 1000;
+        }
+        await response?.body?.cancel().catch(() => {});
+        await new Promise((r) => setTimeout(r, Math.min(Math.max(wait, 0), 60_000)));
+      }
+    };
+
+    let rounds = 0;
     while (true) {
       const pendingCalls: ToolCall[] = [];
       const toolCallMap: Record<any, ToolCall> = {};
@@ -157,14 +217,7 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
       };
       if (apiKey) allHeaders.authorization = `Bearer ${apiKey}`;
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: allHeaders,
-        body: JSON.stringify(body),
-        signal,
-      });
-
-      if (!response.ok) throw Error(await response.text());
+      const response = await post(allHeaders);
 
       const reader = response.body!.getReader();
       const decoder = new TextDecoder();
@@ -196,6 +249,10 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
             try {
               const data = JSON.parse(dataLine);
               if (!stream) buffer = "";
+              // Usage can ride on any chunk (a final `choices: []` chunk in
+              // completions mode, `response.completed` in responses mode).
+              const usage = data.usage || data.response?.usage;
+              if (usage) yield { type: "usage", usage };
               messageId = data.id || data.response?.id || messageId;
               const choice = data.choices?.[0];
               if (choice) {
@@ -285,8 +342,6 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
                   return;
                 }
                 continue;
-              } else if (data.usage || data.type == "response.completed") {
-                yield data;
               }
             } catch {}
 
@@ -323,20 +378,38 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
       }
       pendingCalls.map((tc) => (tc.streaming = false));
       yield* pendingCalls;
+      if (rounds >= maxToolRounds) {
+        // Over the limit and the model still called tools: stop here.
+        saveAssistant();
+        yield { type: "done" };
+        return;
+      }
       const results = await Promise.all(
         pendingCalls.map(async (tc) => {
-          const args = JSON.parse(tc.function.arguments || "{}");
+          let args: any;
+          try {
+            args = JSON.parse(tc.function.arguments || "{}");
+          } catch (e: any) {
+            // Malformed arguments go back to the model as an error it can fix.
+            const result = { error: `Invalid JSON arguments: ${e.message}` };
+            return { ...tc, type: "tool_result", result } satisfies ToolResult;
+          }
           const result = await callTool(tc.function.name, args);
           return { ...tc, type: "tool_result", result } satisfies ToolResult;
         }),
       );
       yield* results;
-      body.tool_choice = undefined;
+      body.tool_choice = ++rounds >= maxToolRounds ? "none" : undefined;
       if (c) {
         const msg: any = {
           role: "assistant",
           content: assistantContent || null,
-          tool_calls: pendingCalls.map((tc) => ({ ...tc, type: "function" })),
+          // Only wire fields: `streaming` is ours, not the API's.
+          tool_calls: pendingCalls.map(({ id, function: fn }) => ({
+            id,
+            type: "function",
+            function: fn,
+          })),
         };
         if (reasoningContent) msg.reasoning_content = reasoningContent;
         messages.push(

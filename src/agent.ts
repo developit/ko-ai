@@ -146,8 +146,8 @@ export default function agent(config: AgentConfig): Agent {
 
         for await (const chunk of session.send(currentInput, sendOverrides, signal)) {
           // Track usage from API responses
-          if ((chunk as any).usage) {
-            const u = (chunk as any).usage;
+          if (chunk.type === 'usage') {
+            const u = chunk.usage;
             usage.input_tokens += u.input_tokens || u.prompt_tokens || 0;
             usage.output_tokens += u.output_tokens || u.completion_tokens || 0;
             usage.total_tokens = usage.input_tokens + usage.output_tokens;
