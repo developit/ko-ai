@@ -14,3 +14,4 @@ More resilient `send()`:
   - Custom `headers` now take precedence over the generated `authorization` header.
   - Finished tool calls carry no `streaming` field (absent, rather than `false`).
   - A streamed body that ends without `[DONE]` still flushes its final line.
+- The build now produces one file per entry point, with no hashed shared chunks. `ko-ai/agent` and `ko-ai/agent-signals` import `./index.js` and `./agent.js` directly.
