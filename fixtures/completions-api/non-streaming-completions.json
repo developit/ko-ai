@@ -441,7 +441,6 @@
             {
               "type": "function",
               "id": "call_YnXl2AHHGMLDxPh7lSbrhL7i",
-              "streaming": false,
               "function": {
                 "name": "add",
                 "arguments": "{\"a\":5,\"b\":3}"
@@ -797,7 +796,6 @@
             {
               "type": "function",
               "id": "call_39YYoVMxk9VEwrNTq9vkLqIC",
-              "streaming": false,
               "function": {
                 "name": "get_number",
                 "arguments": "{}"
@@ -806,7 +804,6 @@
             {
               "type": "function",
               "id": "call_PD7GtsfEaIkxS3BwhCzRKRU0",
-              "streaming": false,
               "function": {
                 "name": "get_number",
                 "arguments": "{}"
@@ -905,7 +902,6 @@
             {
               "type": "function",
               "id": "call_39YYoVMxk9VEwrNTq9vkLqIC",
-              "streaming": false,
               "function": {
                 "name": "get_number",
                 "arguments": "{}"
@@ -914,7 +910,6 @@
             {
               "type": "function",
               "id": "call_PD7GtsfEaIkxS3BwhCzRKRU0",
-              "streaming": false,
               "function": {
                 "name": "get_number",
                 "arguments": "{}"
@@ -940,7 +935,6 @@
             {
               "type": "function",
               "id": "call_d8PcU7uaCIGao4tXql7vJsIH",
-              "streaming": false,
               "function": {
                 "name": "multiply",
                 "arguments": "{\"a\":10,\"b\":10}"
@@ -1077,7 +1071,6 @@
             {
               "type": "function",
               "id": "call_3ozbtGH8CjuJoCiwY9V3it6T",
-              "streaming": false,
               "function": {
                 "name": "get_secret_data",
                 "arguments": "{\"key\":\"test123\"}"

@@ -26,11 +26,22 @@ export type ToolResult = { type: "tool_result"; result: unknown } & Omit<
   "type"
 >;
 
+export type Usage = {
+  input_tokens?: number;
+  output_tokens?: number;
+  prompt_tokens?: number;
+  completion_tokens?: number;
+  total_tokens?: number;
+  /** Provider-reported cost (e.g. OpenRouter with `usage: {include: true}`). */
+  cost?: number;
+};
+
 export type StreamChunk =
   | { type: "text"; text: string; id: string }
   | { type: "reasoning"; text: string; id: string }
   | ToolCall
   | ToolResult
+  | { type: "usage"; usage: Usage }
   | { type: "done" };
 
 export type ApiMode = "completions" | "responses";
@@ -53,6 +64,16 @@ export interface CompleteOptions {
   max_output_tokens?: number;
   reasoning?: { effort?: string };
   tool_choice?: string;
+  /** Retries for 429, 5xx and network errors, backing off exponentially and honoring Retry-After (default 2). */
+  retries?: number;
+  /** Base backoff delay in ms (default 500). */
+  retryDelay?: number;
+  /**
+   * Max tool-call round trips per `send()` (default: unlimited). The request
+   * after the last allowed round sends `tool_choice: "none"`, so the model has
+   * to answer in text; tool calls it makes anyway are yielded but not run.
+   */
+  maxToolRounds?: number;
 }
 
 export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
@@ -69,28 +90,30 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
     overrides: Partial<CompleteOptions> = {},
     signal?: AbortSignal,
   ): AsyncIterableIterator<StreamChunk> {
-    const options: CompleteOptions = {
-      ...restConfig,
-      ...overrides,
-      mode,
-      input,
-      instructions: c ? undefined : instructions,
-    };
-
     const {
       apiKey,
       baseURL,
-      headers = {},
+      headers,
       tools,
       onToolCall,
       stream = true,
+      retries = 2,
+      retryDelay = 500,
+      maxToolRounds = Infinity,
       mode: _mode,
       input: _input,
       ...rest
-    } = options;
+    }: CompleteOptions = {
+      ...restConfig,
+      ...overrides,
+      instructions: c ? undefined : instructions,
+    };
 
-    const callTool = async (name: string, args: any) => {
+    // Parsing here means malformed arguments share the tool-error path: the
+    // model gets `{error}` back and the tool never runs.
+    const callTool = async (name: string, json: string) => {
       try {
+        const args = JSON.parse(json || "{}");
         return await (tools?.find((t: Tool) => t.name == name)?.call?.(args) ??
           onToolCall?.(name, args) ??
           (() => {
@@ -102,7 +125,6 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
     };
 
     // Build request once, mutate body for continuations
-    const endpoint = baseURL + (c ? "/chat/completions" : "/responses");
     let body: any = {
       stream,
       tools,
@@ -111,24 +133,54 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
 
     if (c) {
       // Use closure messages array, add new user input
-      if (_input) messages.push({ role: "user", content: _input });
+      if (input) messages.push({ role: "user", content: input });
       // Wrap tools in {function: {...}} for completions API
-      if (body.tools) {
-        body.tools = body.tools.map(({ call, type, ...fn }: Tool) => ({
-          type,
-          function: fn,
-        }));
-      }
+      body.tools = body.tools?.map(({ call, type, ...fn }: Tool) => ({
+        type,
+        function: fn,
+      }));
       body.messages = messages;
-      // Rename max_output_tokens to max_tokens for completions API
-      if (body.max_output_tokens != null) {
-        body.max_tokens = body.max_output_tokens;
-        delete body.max_output_tokens;
-      }
-    } else if (_input) {
-      conversation.push({ type: "message", role: "user", content: _input });
+      // Rename max_output_tokens to max_tokens for completions API. (When it's
+      // unset, max_tokens is undefined and JSON.stringify drops it.)
+      ({ max_output_tokens: body.max_tokens, ...body } = body);
+    } else {
+      if (input) conversation.push({ type: "message", role: "user", content: input });
+      // Same array every round, so later pushes are picked up automatically.
+      body.input = conversation;
     }
 
+    // POST with retries: transient failures (no response, 429, 5xx) back off
+    // and try again; anything else throws an Error carrying the HTTP `status`.
+    // Written for minified+gzipped size, not source size.
+    const post = async (attempt = 0): Promise<Response> => {
+      // A network error resolves to the error itself: no status, so retryable.
+      const res: any = await fetch(
+        baseURL + (c ? "/chat/completions" : "/responses"),
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            ...(apiKey && { authorization: `Bearer ${apiKey}` }),
+            ...headers,
+          },
+          body: JSON.stringify(body),
+          signal,
+        },
+      ).catch((e) => e);
+      if (res.ok) return res;
+      const status = res.status;
+      if (signal?.aborted || attempt >= retries || (status < 500 && status != 429)) {
+        throw res.text ? Object.assign(Error(await res.text()), { status }) : res;
+      }
+      // Retry-After in seconds; anything else (an HTTP date) is NaN → backoff.
+      const after = res.headers?.get("retry-after");
+      await new Promise((r) =>
+        setTimeout(r, Math.min(after * 1e3 || retryDelay * 2 ** attempt, 6e4)),
+      );
+      return post(attempt + 1);
+    };
+
+    let rounds = 0;
     while (true) {
       const pendingCalls: ToolCall[] = [];
       const toolCallMap: Record<any, ToolCall> = {};
@@ -138,116 +190,79 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
       let messageId = "";
       let resp: any;
 
-      const saveAssistant = () => {
-        if (c && (assistantContent || reasoningContent)) {
-          const msg: any = { role: "assistant" };
-          if (assistantContent) msg.content = assistantContent;
-          if (reasoningContent) msg.reasoning_content = reasoningContent;
-          messages.push(msg);
-        }
-      };
-
-      if (!c && conversation.length) {
-        body.input = conversation;
-      }
-
-      const allHeaders: Record<string, string> = {
-        "content-type": "application/json",
-        ...headers,
-      };
-      if (apiKey) allHeaders.authorization = `Bearer ${apiKey}`;
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: allHeaders,
-        body: JSON.stringify(body),
-        signal,
-      });
-
-      if (!response.ok) throw Error(await response.text());
-
-      const reader = response.body!.getReader();
-      const decoder = new TextDecoder();
+      const reader = (await post())
+        .body!.pipeThrough(new TextDecoderStream())
+        .getReader();
       let buffer = "";
 
-      try {
-        while (true) {
-          if (signal?.aborted) throw Error();
+      // An abort errors the body stream, so read() rejects on its own.
+      read: while (true) {
+        const lines = stream ? buffer.split("\n") : [buffer];
+        if (stream) buffer = lines.pop() || "";
 
-          const lines = stream ? buffer.split("\n") : [buffer];
-          if (stream) buffer = lines.pop() || "";
+        for (const line of lines) {
+          let dataLine = line;
+          if (stream) {
+            if (!dataLine.startsWith("data: ")) continue;
+            dataLine = dataLine.slice(6);
+            // End of stream: the code after the read loop finishes up.
+            if (dataLine == "[DONE]") break read;
+          }
 
-          for (const line of lines) {
-            let dataLine = line;
-            if (stream) {
-              if (!dataLine.startsWith("data: ")) continue;
-              dataLine = dataLine.slice(6);
-              if (dataLine == "[DONE]") {
-                if (!pendingCalls.length) {
-                  saveAssistant();
-                  yield { type: "done" };
-                  return;
-                }
-                continue;
-              }
-            }
-
-            let chunk: StreamChunk | null = null;
-            try {
-              const data = JSON.parse(dataLine);
-              if (!stream) buffer = "";
-              messageId = data.id || data.response?.id || messageId;
-              const choice = data.choices?.[0];
-              if (choice) {
+          let chunk: { type: "text" | "reasoning"; text: string; id?: string } | undefined;
+          try {
+            const data = JSON.parse(dataLine);
+            if (!stream) buffer = "";
+            // Usage can ride on any chunk (a final `choices: []` chunk in
+            // completions mode, `response.completed` in responses mode).
+            const usage = data.usage || data.response?.usage;
+            if (usage) yield { type: "usage", usage };
+            messageId = data.id || data.response?.id || messageId;
+            const choice = data.choices?.[0];
+            if (choice) {
 								// Completions API
-                const delta = choice.delta || choice.message;
-                if (delta?.reasoning) {
-                  chunk = { type: "reasoning", text: delta.reasoning, id: messageId + '_R' };
-                } else if (delta?.content) {
-                  chunk = { type: "text", text: delta.content, id: messageId };
-                } else if (delta?.tool_calls) {
-                  for (const tc of delta.tool_calls) {
-                    const idx = tc.index ?? 0;
-                    let call = toolCallMap[idx];
-                    if (!call) {
-                      call = toolCallMap[idx] = {
+              const delta = choice.delta || choice.message;
+              if (delta?.reasoning) {
+                chunk = { type: "reasoning", text: delta.reasoning };
+              } else if (delta?.content) {
+                chunk = { type: "text", text: delta.content };
+              } else if (delta?.tool_calls) {
+                for (const tc of delta.tool_calls) {
+                  const fn = tc.function || {};
+                  const call = (toolCallMap[tc.index ?? 0] ||=
+                    pendingCalls[
+                      pendingCalls.push({
                         type: "tool_call",
                         id: "",
                         streaming: true,
                         function: { name: "", arguments: "" },
-                      };
-                      pendingCalls.push(call);
-                    }
-                    if (tc.id) call.id = tc.id;
-                    if (tc.function?.name) {
-                      call.function.name += tc.function.name;
-                    }
-                    if (tc.function?.arguments) {
-                      call.function.arguments += tc.function.arguments;
-                      yield call;
-                    }
-                    chunk = call;
+                      }) - 1
+                    ]);
+                  call.id = tc.id || call.id;
+                  call.function.name += fn.name || "";
+                  if (fn.arguments) {
+                    call.function.arguments += fn.arguments;
+                    yield call;
                   }
                 }
-                // finish_reason signals end of content - [DONE] will handle cleanup
-              } else if (data.delta) {
-                // Responses API text delta
-                const isReasoning = data.type.includes("reasoning");
-                chunk = {
-                  type: isReasoning ? "reasoning" : "text",
-                  text: data.delta,
-                  id: isReasoning ? messageId + '_R' : messageId,
-                };
-              } else if (data.item?.type == "function_call") {
-                // Responses API tool call
-                const id = data.item.call_id || data.item.id || "";
-                const pending = toolCallMap[id];
-                if (pending) {
-                  pending.function.arguments += data.item.arguments;
-                  yield pending;
-                  chunk = pending;
-                } else {
-                  chunk = {
+              }
+              // finish_reason signals end of content - [DONE] will handle cleanup
+            } else if (data.delta) {
+              // Responses API text delta
+              chunk = {
+                type: data.type.includes("reasoning") ? "reasoning" : "text",
+                text: data.delta,
+              };
+            } else if (data.item?.type == "function_call") {
+              // Responses API tool call
+              const id = data.item.call_id || data.item.id || "";
+              const pending = toolCallMap[id];
+              if (pending) {
+                pending.function.arguments += data.item.arguments;
+                yield pending;
+              } else {
+                pendingCalls.push(
+                  (toolCallMap[id] = {
                     type: "tool_call",
                     id,
                     streaming: true,
@@ -255,106 +270,101 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
                       name: data.item.name || "",
                       arguments: data.item.arguments || "",
                     },
-                  };
-                  pendingCalls.push(chunk);
-                  toolCallMap[id] = chunk;
-                }
-              } else if ((resp = data.response || data).status == "completed") {
-                if (resp.output) {
-                  outputItems.push(...resp.output);
-                  if (!stream) {
-                    for (const item of resp.output) {
-                      if (item.type == "function_call") {
-                        pendingCalls.push(chunk = {
-                          type: "tool_call",
-                          id: item.call_id,
-                          function: item,
-                        });
-                      }
-                      for (const c of item.content || []) {
-                        if (c.text) yield { type: "text", text: c.text, id: messageId };
-                      }
+                  }),
+                );
+              }
+            } else if ((resp = data.response || data).status == "completed") {
+              if (resp.output) {
+                outputItems.push(...resp.output);
+                if (!stream) {
+                  for (const item of resp.output) {
+                    if (item.type == "function_call") {
+                      pendingCalls.push({
+                        type: "tool_call",
+                        id: item.call_id,
+                        function: item,
+                      });
+                    }
+                    for (const c of item.content || []) {
+                      if (c.text) yield { type: "text", text: c.text, id: messageId };
                     }
                   }
                 }
-                if (!pendingCalls.length) {
-                  if (!c && outputItems.length) {
-                    conversation.push(...outputItems);
-                  }
-                  yield { type: "done" };
-                  return;
-                }
-                continue;
-              } else if (data.usage || data.type == "response.completed") {
-                yield data;
               }
-            } catch {}
-
-            if (chunk && chunk.type != "tool_call") {
-              if (chunk.type == "text") assistantContent += chunk.text;
-              else if (chunk.type == "reasoning") reasoningContent += chunk.text;
-              yield chunk;
+              break read;
             }
-          }
+          } catch {}
 
-          const { done, value } = await reader.read();
-          if (done) {
-            if (stream && buffer.trim()) {
-              buffer += "\ndata: [DONE]";
-              continue;
+          // Only text and reasoning land here; tool calls are yielded above.
+          if (chunk) {
+            chunk.id = messageId;
+            if (chunk.type == "text") assistantContent += chunk.text;
+            else {
+              reasoningContent += chunk.text;
+              chunk.id += "_R";
             }
-            break;
+            yield chunk as StreamChunk;
           }
-
-          buffer += decoder.decode(value, { stream: true });
         }
-      } finally {
-        reader.releaseLock();
+
+        const { done, value } = await reader.read();
+        if (done && !(stream && buffer)) break;
+        // At the end, a newline flushes a final unterminated line.
+        buffer += done ? "\n" : value;
       }
 
-      // If no tool calls, we're done - append to history
-      if (!pendingCalls.length) {
-        saveAssistant();
-        if (!c && outputItems.length) {
-          conversation.push(...outputItems);
-        }
+      // Done streaming: dropping the flag (rather than setting false) keeps
+      // these wire-clean, so they go back to the API as-is below.
+      pendingCalls.map((tc) => delete tc.streaming);
+      yield* pendingCalls;
+      // No tool calls → done. Over the round limit → also done, without
+      // running them (and without leaving unanswered calls in history).
+      if (!pendingCalls.length || rounds >= maxToolRounds) {
+        if (c) {
+          if (assistantContent || reasoningContent)
+            messages.push({
+              role: "assistant",
+              content: assistantContent || undefined,
+              reasoning_content: reasoningContent || undefined,
+            });
+        } else if (!pendingCalls.length) conversation.push(...outputItems);
         yield { type: "done" };
         return;
       }
-      pendingCalls.map((tc) => (tc.streaming = false));
-      yield* pendingCalls;
       const results = await Promise.all(
-        pendingCalls.map(async (tc) => {
-          const args = JSON.parse(tc.function.arguments || "{}");
-          const result = await callTool(tc.function.name, args);
-          return { ...tc, type: "tool_result", result } satisfies ToolResult;
-        }),
+        pendingCalls.map(
+          async (tc): Promise<ToolResult> => ({
+            ...tc,
+            type: "tool_result",
+            result: await callTool(tc.function.name, tc.function.arguments),
+          }),
+        ),
       );
       yield* results;
-      body.tool_choice = undefined;
+      body.tool_choice = ++rounds >= maxToolRounds ? "none" : undefined;
+      // Results carry their call's id, so history is built straight from them.
       if (c) {
-        const msg: any = {
-          role: "assistant",
-          content: assistantContent || null,
-          tool_calls: pendingCalls.map((tc) => ({ ...tc, type: "function" })),
-        };
-        if (reasoningContent) msg.reasoning_content = reasoningContent;
         messages.push(
-          msg,
-          ...pendingCalls.map((tc, i) => ({
+          {
+            role: "assistant",
+            content: assistantContent || null,
+            tool_calls: pendingCalls.map((tc) => ({ ...tc, type: "function" })),
+            // Undefined keys are dropped by JSON.stringify.
+            reasoning_content: reasoningContent || undefined,
+          },
+          ...results.map((r) => ({
             role: "tool",
-            tool_call_id: tc.id,
-            content: JSON.stringify(results[i].result),
+            tool_call_id: r.id,
+            content: JSON.stringify(r.result),
           })),
         );
       } else {
-        // For responses mode: append output items and function results
-        if (outputItems.length) conversation.push(...outputItems);
         conversation.push(
-          ...pendingCalls.map((tc, i) => ({
+          ...outputItems,
+          ...results.map((r) => ({
             type: "function_call_output",
-            call_id: tc.id,
-            output: JSON.stringify(results[i].result),
+            call_id: r.id,
+            output: JSON.stringify(r.result),
           })),
         );
       }

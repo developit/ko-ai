@@ -441,7 +441,6 @@
             {
               "type": "function",
               "id": "call_YnXl2AHHGMLDxPh7lSbrhL7i",
-              "streaming": false,
               "function": {
                 "name": "add",
                 "arguments": "{\"a\":5,\"b\":3}"
