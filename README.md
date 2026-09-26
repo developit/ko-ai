@@ -6,7 +6,7 @@ A minimalist, zero-dependency OpenAI-compatible streaming client with automatic 
 
 ## Features
 
-- **~1.9KB gzipped** - Zero dependencies
+- **~1.7KB gzipped** - Zero dependencies
 - **Multi-turn conversations** - Stateful chat sessions with persistent history
 - **Dual API support** - Responses (default) and Completions modes
 - **Streaming** - Async generator with typed chunks
@@ -349,8 +349,8 @@ When `cwd` is set on the agent, relative paths passed to these tools are resolve
 
 | Metric      | Size       |
 | ----------- | ---------- |
-| Minified    | 4.0 KB     |
-| **Gzipped** | **1.9 KB** |
+| Minified    | 3.4 KB     |
+| **Gzipped** | **1.7 KB** |
 
 ## Testing
 

@@ -10,3 +10,7 @@ More resilient `send()`:
 - Token usage is emitted as a typed `{type: 'usage', usage}` chunk in both API modes (it was previously never surfaced in responses mode); `agent()` usage tracking uses it.
 - Completions-mode history no longer sends the internal `streaming` field back to the API.
 - `@preact/signals-core` is now an optional peer dependency (only `ko-ai/agent-signals` needs it).
+- Smaller core (about 1.7 KB gzipped). Small behavior notes from that:
+  - Custom `headers` now take precedence over the generated `authorization` header.
+  - Finished tool calls carry no `streaming` field (absent, rather than `false`).
+  - A streamed body that ends without `[DONE]` still flushes its final line.
