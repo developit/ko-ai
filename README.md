@@ -6,7 +6,7 @@ A minimalist, zero-dependency OpenAI-compatible streaming client with automatic 
 
 ## Features
 
-- **~2KB gzipped** - Zero dependencies
+- **~1.9KB gzipped** - Zero dependencies
 - **Multi-turn conversations** - Stateful chat sessions with persistent history
 - **Dual API support** - Responses (default) and Completions modes
 - **Streaming** - Async generator with typed chunks
@@ -103,7 +103,7 @@ interface Config {
   max_output_tokens?: number;
   reasoning?: { effort?: string; enabled?: boolean };
   headers?: Record<string, string>;
-  retries?: number;        // Retries for 429 / 5xx / network errors (default 2), honoring Retry-After
+  retries?: number;        // Retries for 429 / 5xx / network errors (default 2), honoring Retry-After (seconds)
   retryDelay?: number;     // Base backoff in ms (default 500), doubling per attempt
   maxToolRounds?: number;  // Tool-call round trips per send() (default: unlimited); then tool_choice "none"
 }
@@ -123,7 +123,7 @@ type StreamChunk =
   | { type: 'done' };
 ```
 
-Errors thrown by `send()` carry the HTTP `status`. Tool calls with malformed JSON arguments are not run; the model gets `{error: "Invalid JSON arguments: …"}` back and can retry.
+Errors thrown by `send()` carry the HTTP `status`. Tool calls with malformed JSON arguments are not run; the model gets the parse error back as `{error}` and can retry.
 
 ## Agent SDK
 
@@ -349,8 +349,8 @@ When `cwd` is set on the agent, relative paths passed to these tools are resolve
 
 | Metric      | Size       |
 | ----------- | ---------- |
-| Minified    | 4.3 KB     |
-| **Gzipped** | **2.0 KB** |
+| Minified    | 4.0 KB     |
+| **Gzipped** | **1.9 KB** |
 
 ## Testing
 

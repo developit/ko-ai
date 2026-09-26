@@ -45,9 +45,9 @@ describe('resilience', () => {
     const chunks = await Array.fromAsync(chat.send('hi'));
     assert.equal(called, false);
     const result = chunks.find((c) => c.type === 'tool_result') as any;
-    assert.match(result.result.error, /^Invalid JSON arguments/);
+    assert.ok(result.result.error, 'parse error comes back as a tool error');
     const toolMsg = bodies[1].messages.find((m: any) => m.role === 'tool');
-    assert.match(toolMsg.content, /Invalid JSON arguments/);
+    assert.match(toolMsg.content, /"error"/);
     assert.equal(chunks.at(-1)!.type, 'done');
   });
 

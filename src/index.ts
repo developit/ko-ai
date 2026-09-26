@@ -113,8 +113,11 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
       ...rest
     } = options;
 
-    const callTool = async (name: string, args: any) => {
+    // Parsing here means malformed arguments share the tool-error path: the
+    // model gets `{error}` back and the tool never runs.
+    const callTool = async (name: string, json: string) => {
       try {
+        const args = JSON.parse(json || "{}");
         return await (tools?.find((t: Tool) => t.name == name)?.call?.(args) ??
           onToolCall?.(name, args) ??
           (() => {
@@ -153,39 +156,37 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
       conversation.push({ type: "message", role: "user", content: _input });
     }
 
-    // POST with retries: transient failures (429, 5xx, network) back off and
-    // try again; anything else throws an Error carrying the HTTP `status`.
-    const post = async (headers: Record<string, string>) => {
-      for (let attempt = 0; ; attempt++) {
-        let response: Response | undefined;
-        let error: unknown;
-        try {
-          response = await fetch(endpoint, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(body),
-            signal,
-          });
-          if (response.ok) return response;
-        } catch (e) {
-          if (signal?.aborted) throw e;
-          error = e;
-        }
-        const status = response?.status;
-        const retryable = !response || status == 429 || status! >= 500;
-        if (!retryable || attempt >= retries || signal?.aborted) {
-          if (!response) throw error;
-          throw Object.assign(Error(await response.text()), { status });
-        }
-        const after = response?.headers.get("retry-after");
-        let wait = retryDelay * 2 ** attempt;
-        if (after) {
-          const secs = Number(after);
-          wait = isNaN(secs) ? Date.parse(after) - Date.now() : secs * 1000;
-        }
-        await response?.body?.cancel().catch(() => {});
-        await new Promise((r) => setTimeout(r, Math.min(Math.max(wait, 0), 60_000)));
+    // POST with retries: transient failures (no response, 429, 5xx) back off
+    // and try again; anything else throws an Error carrying the HTTP `status`.
+    // Written for minified+gzipped size, not source size.
+    const post = async (
+      headers: Record<string, string>,
+      attempt = 0,
+    ): Promise<Response> => {
+      let res: Response | undefined, err: unknown;
+      try {
+        res = await fetch(endpoint, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(body),
+          signal,
+        });
+        if (res.ok) return res;
+      } catch (e) {
+        err = e;
       }
+      const status = res?.status as number;
+      // No response (network error) compares false on both sides → retryable.
+      if (signal?.aborted || attempt >= retries || (status < 500 && status != 429)) {
+        if (!res) throw err;
+        throw Object.assign(Error(await res.text()), { status });
+      }
+      // Retry-After in seconds; anything else (an HTTP date) is NaN → backoff.
+      const after: any = res?.headers.get("retry-after");
+      await new Promise((r) =>
+        setTimeout(r, Math.min(after * 1e3 || retryDelay * 2 ** attempt, 6e4)),
+      );
+      return post(headers, attempt + 1);
     };
 
     let rounds = 0;
@@ -386,15 +387,7 @@ export default function ai(baseConfig: Omit<CompleteOptions, "input">) {
       }
       const results = await Promise.all(
         pendingCalls.map(async (tc) => {
-          let args: any;
-          try {
-            args = JSON.parse(tc.function.arguments || "{}");
-          } catch (e: any) {
-            // Malformed arguments go back to the model as an error it can fix.
-            const result = { error: `Invalid JSON arguments: ${e.message}` };
-            return { ...tc, type: "tool_result", result } satisfies ToolResult;
-          }
-          const result = await callTool(tc.function.name, args);
+          const result = await callTool(tc.function.name, tc.function.arguments);
           return { ...tc, type: "tool_result", result } satisfies ToolResult;
         }),
       );
